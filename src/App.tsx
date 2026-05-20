@@ -1,6 +1,7 @@
 import type { CSSProperties } from 'react';
 import { Route, Routes } from 'react-router-dom';
 import { Header } from './components/layout/Header';
+import { ScrollToTop } from './components/layout/ScrollToTop';
 import { Sidebar } from './components/layout/Sidebar';
 import { ScenarioProvider } from './context/ScenarioContext';
 import { TourProvider } from './context/TourContext';
@@ -37,6 +38,7 @@ export default function App() {
       <DecisionLogProvider>
       <ScenarioProvider>
         <TourProvider>
+          <ScrollToTop />
           <Sidebar />
           <Header />
           <div style={shellStyle}>
