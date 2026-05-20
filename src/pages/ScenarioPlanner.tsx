@@ -267,6 +267,16 @@ const SCENARIOS: ScenarioOption[] = [
     description: 'Isolates the operational impact of closing the Italy follow-up gap without any budget reallocation.',
   },
   {
+    value: 'reduce-weak-execution',
+    label: 'Reduce spend in markets with weak execution follow-through',
+    description: 'Identifies markets where investment is uncoupled from CRM follow-up discipline and tests the impact of trimming spend in those activities.',
+  },
+  {
+    value: 'reallocate-to-undertrained',
+    label: 'Reallocate training budget toward high-potential under-trained accounts',
+    description: 'Models redirecting training spend from saturated cohorts toward high-potential HCPs and accounts with low current training coverage.',
+  },
+  {
     value: 'cross-market-compare',
     label: 'Compare investment options across markets',
     description: 'Benchmarks investment yield across all 8 European markets to surface alternative reallocation candidates.',

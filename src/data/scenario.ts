@@ -148,6 +148,8 @@ export interface MarketContext {
     investmentIntensityPct: number;
     fieldActivityIndex: number; // 100 = expected
     postTrainingFollowUpRatePct: number;
+    marketSharePct: number;          // illustrative, Xeomin in aesthetic neuromodulator
+    contributionMarginPct: number;   // illustrative
     interpretation: string;
   };
 }
@@ -163,6 +165,8 @@ export const marketPerformanceContext: MarketContext[] = [
       investmentIntensityPct: 14.8,
       fieldActivityIndex: 96,
       postTrainingFollowUpRatePct: 41,
+      marketSharePct: 22.4,
+      contributionMarginPct: 58.6,
       interpretation:
         'Performance below plan in Italy coincides with a 41% post-training 60-day follow-up rate among trained HCPs. Field activity is near expected, but it is not concentrated on the highest-potential trained HCPs.',
     },
@@ -177,6 +181,8 @@ export const marketPerformanceContext: MarketContext[] = [
       investmentIntensityPct: 17.2,
       fieldActivityIndex: 104,
       postTrainingFollowUpRatePct: 68,
+      marketSharePct: 27.9,
+      contributionMarginPct: 62.1,
       interpretation:
         'Germany has the highest investment intensity and field activity well above expected, yet growth vs plan is negative. This is a yield problem, not an effort problem. Lower-response activities are the candidates for reallocation.',
     },
@@ -465,38 +471,41 @@ export interface HcpSegment {
   trainedPct: number;
   followedUpWithin60dPct: number;
   suggestedAction: string;
+  // Account-level growth proxy: segment-weighted growth vs LY for the trained subset.
+  // Signed percent. Illustrative.
+  growthVsLyPct: number;
 }
 
 export const hcpSegments: HcpSegment[] = [
   { id: 'it-derm-high', marketId: 'it', name: 'Dermatologists, high potential', potentialTier: 'High',
-    count: 142, trainedPct: 64, followedUpWithin60dPct: 38,
+    count: 142, trainedPct: 64, followedUpWithin60dPct: 38, growthVsLyPct: -2.8,
     suggestedAction: 'Italy follow-up sprint, priority cohort.' },
   { id: 'it-derm-med', marketId: 'it', name: 'Dermatologists, medium potential', potentialTier: 'Medium',
-    count: 218, trainedPct: 41, followedUpWithin60dPct: 49,
+    count: 218, trainedPct: 41, followedUpWithin60dPct: 49, growthVsLyPct: -1.2,
     suggestedAction: 'Selective post-training follow-up among recent trainees.' },
   { id: 'it-plastic-high', marketId: 'it', name: 'Plastic surgeons, high potential', potentialTier: 'High',
-    count: 76, trainedPct: 58, followedUpWithin60dPct: 45,
+    count: 76, trainedPct: 58, followedUpWithin60dPct: 45, growthVsLyPct: -1.8,
     suggestedAction: 'Add to Italy follow-up sprint, secondary cohort.' },
   { id: 'it-aesthetic-low', marketId: 'it', name: 'Aesthetic physicians, low potential', potentialTier: 'Low',
-    count: 184, trainedPct: 22, followedUpWithin60dPct: 31,
+    count: 184, trainedPct: 22, followedUpWithin60dPct: 31, growthVsLyPct: -0.5,
     suggestedAction: 'Deprioritise for now. Revisit selection criteria.' },
 
   { id: 'de-derm-high', marketId: 'de', name: 'Dermatologists, high potential', potentialTier: 'High',
-    count: 196, trainedPct: 71, followedUpWithin60dPct: 72,
+    count: 196, trainedPct: 71, followedUpWithin60dPct: 72, growthVsLyPct: 0.9,
     suggestedAction: 'Protect coverage during any spend reallocation.' },
   { id: 'de-derm-med', marketId: 'de', name: 'Dermatologists, medium potential', potentialTier: 'Medium',
-    count: 312, trainedPct: 52, followedUpWithin60dPct: 64,
+    count: 312, trainedPct: 52, followedUpWithin60dPct: 64, growthVsLyPct: 0.4,
     suggestedAction: 'Maintain current cadence.' },
   { id: 'de-plastic-high', marketId: 'de', name: 'Plastic surgeons, high potential', potentialTier: 'High',
-    count: 108, trainedPct: 66, followedUpWithin60dPct: 69,
+    count: 108, trainedPct: 66, followedUpWithin60dPct: 69, growthVsLyPct: 1.2,
     suggestedAction: 'Protect coverage during any spend reallocation.' },
 
   { id: 'es-derm-high', marketId: 'es', name: 'Dermatologists, high potential', potentialTier: 'High',
-    count: 88, trainedPct: 67, followedUpWithin60dPct: 74,
+    count: 88, trainedPct: 67, followedUpWithin60dPct: 74, growthVsLyPct: 4.6,
     suggestedAction: 'Sustain Q1 momentum, monitor.' },
 
   { id: 'fr-derm-high', marketId: 'fr', name: 'Dermatologists, high potential', potentialTier: 'High',
-    count: 124, trainedPct: 61, followedUpWithin60dPct: 66,
+    count: 124, trainedPct: 61, followedUpWithin60dPct: 66, growthVsLyPct: 2.1,
     suggestedAction: 'Maintain current cadence.' },
 ];
 

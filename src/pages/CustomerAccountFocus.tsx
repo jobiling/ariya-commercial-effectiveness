@@ -1,9 +1,11 @@
 import { useMemo, useState, type CSSProperties } from 'react';
+import { AlertTriangle, ChevronRight } from 'lucide-react';
 import { PageHeader } from '../components/layout/PageHeader';
 import { Donut, FilterDropdown } from '../components/composites';
 import type { FilterOption } from '../components/composites';
 import { RecommendationCard, WhatThisSuggests } from '../components/decision';
 import {
+  executionSignals,
   hcpSegments,
   italyHighPotentialDermRecommendation,
   markets,
@@ -48,7 +50,7 @@ const tableCardStyle: CSSProperties = {
 
 const tableHeaderRowStyle: CSSProperties = {
   display: 'grid',
-  gridTemplateColumns: '1.6fr 0.85fr 0.7fr 0.6fr 0.9fr 1.0fr 1.5fr',
+  gridTemplateColumns: '1.5fr 0.85fr 0.65fr 0.55fr 0.85fr 0.95fr 0.8fr 1.35fr',
   alignItems: 'center',
   padding: '14px 18px',
   background: '#FAFBFD',
@@ -63,7 +65,7 @@ const tableHeaderRowStyle: CSSProperties = {
 
 const tableRowStyle = (selected: boolean): CSSProperties => ({
   display: 'grid',
-  gridTemplateColumns: '1.6fr 0.85fr 0.7fr 0.6fr 0.9fr 1.0fr 1.5fr',
+  gridTemplateColumns: '1.5fr 0.85fr 0.65fr 0.55fr 0.85fr 0.95fr 0.8fr 1.35fr',
   alignItems: 'center',
   padding: '14px 18px',
   background: selected ? LAVENDER : '#ffffff',
@@ -279,6 +281,13 @@ export default function CustomerAccountFocus() {
   const [followupFilter, setFollowupFilter] = useState<Set<string>>(new Set());
   const [selectedSegmentId, setSelectedSegmentId] = useState<string>('it-derm-high');
 
+  // The "Under-covered high-potential HCPs" banner pulls from the execution signal
+  // so it stays consistent with the Execution Signals page rather than duplicating data.
+  const undercoveredSignal = useMemo(
+    () => executionSignals.find((s) => s.id === 'trained-not-visited'),
+    [],
+  );
+
   const filteredSegments = useMemo(() => {
     return hcpSegments
       .filter((s) =>
@@ -402,6 +411,94 @@ export default function CustomerAccountFocus() {
         )}
       </section>
 
+      {undercoveredSignal && (
+        <section
+          style={{
+            background: '#ffffff',
+            border: `1px solid ${NAVY_12}`,
+            borderLeft: `4px solid #E11D48`,
+            borderRadius: 12,
+            padding: '16px 18px',
+            display: 'grid',
+            gridTemplateColumns: '32px 1fr auto',
+            alignItems: 'center',
+            columnGap: 14,
+            boxShadow: '0 1px 2px rgba(5,10,68,0.04)',
+          }}
+        >
+          <span
+            style={{
+              width: 32,
+              height: 32,
+              borderRadius: 999,
+              background: '#FEE2E2',
+              color: '#7F1D1D',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}
+          >
+            <AlertTriangle size={16} strokeWidth={2.4} />
+          </span>
+          <div>
+            <div
+              style={{
+                fontSize: 11,
+                fontWeight: 800,
+                letterSpacing: '0.06em',
+                textTransform: 'uppercase',
+                color: '#7F1D1D',
+              }}
+            >
+              Under-covered high-potential HCPs
+            </div>
+            <div style={{ fontSize: 14, color: NAVY, marginTop: 3, lineHeight: 1.45 }}>
+              <strong style={{ fontWeight: 700 }}>
+                {undercoveredSignal.count} trained HCPs
+              </strong>{' '}
+              have not received a field follow-up within 60 days.{' '}
+              {undercoveredSignal.marketBreakdown.map((b, i, arr) => {
+                const m = markets.find((mk) => mk.id === b.marketId);
+                if (!m) return null;
+                return (
+                  <span key={b.marketId}>
+                    <strong style={{ fontWeight: 700 }}>{m.flag} {m.name} {b.count}</strong>
+                    {i < arr.length - 1 ? ' · ' : ''}
+                  </span>
+                );
+              })}
+            </div>
+          </div>
+          <button
+            type="button"
+            onClick={() => {
+              setMarketFilter(new Set(['it']));
+              setTierFilter(new Set(['High']));
+              setFollowupFilter(new Set(['below-60']));
+            }}
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: 4,
+              height: 32,
+              padding: '0 14px',
+              borderRadius: 999,
+              background: '#0055BB',
+              border: 'none',
+              color: '#ffffff',
+              fontSize: 12,
+              fontWeight: 700,
+              cursor: 'pointer',
+              fontFamily: 'inherit',
+              whiteSpace: 'nowrap',
+            }}
+          >
+            Filter to these
+            <ChevronRight size={13} strokeWidth={2.6} />
+          </button>
+        </section>
+      )}
+
       <section>
         <div
           style={{
@@ -435,6 +532,7 @@ export default function CustomerAccountFocus() {
           <span style={{ textAlign: 'right' }}>HCPs</span>
           <span>Trained</span>
           <span>Followed up 60d</span>
+          <span>Growth vs LY</span>
           <span>Suggested action</span>
         </div>
         {filteredSegments.length === 0 && (
@@ -487,6 +585,31 @@ export default function CustomerAccountFocus() {
                   stroke={6}
                   tone={donutToneFromPct(s.followedUpWithin60dPct)}
                 />
+              </span>
+              <span>
+                <span
+                  style={{
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    padding: '3px 9px',
+                    borderRadius: 999,
+                    background:
+                      s.growthVsLyPct >= 2 ? '#D1FAE5'
+                      : s.growthVsLyPct >= 0 ? '#F1F5F9'
+                      : s.growthVsLyPct >= -1.5 ? '#FEF3C7'
+                      : '#FEE2E2',
+                    color:
+                      s.growthVsLyPct >= 2 ? '#065F46'
+                      : s.growthVsLyPct >= 0 ? '#334155'
+                      : s.growthVsLyPct >= -1.5 ? '#92400E'
+                      : '#7F1D1D',
+                    fontSize: 11,
+                    fontWeight: 700,
+                    fontVariantNumeric: 'tabular-nums',
+                  }}
+                >
+                  {s.growthVsLyPct >= 0 ? '+' : ''}{s.growthVsLyPct.toFixed(1)}%
+                </span>
               </span>
               <span style={suggestionStyle}>{s.suggestedAction}</span>
             </div>

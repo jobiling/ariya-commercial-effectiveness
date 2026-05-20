@@ -189,6 +189,8 @@ const tooltipBoxStyle: CSSProperties = {
 const EUROPE_AVG_INTENSITY = 11.9;
 const EUROPE_AVG_FIELD_ACTIVITY = 100;
 const EUROPE_AVG_FOLLOWUP = 65;
+const EUROPE_AVG_MARKET_SHARE = 24.0;
+const EUROPE_AVG_CONTRIBUTION_MARGIN = 60.0;
 
 function fmtSigned(n: number): string {
   return `${n > 0 ? '+' : ''}${n.toFixed(1)}%`;
@@ -221,6 +223,23 @@ function contextToneFieldActivity(value: number) {
 }
 function contextToneFollowup(value: number) {
   return value < 55 ? 'at-risk' : value < 65 ? 'watch' : 'on-track';
+}
+function contextToneMarketShare(value: number) {
+  return value < EUROPE_AVG_MARKET_SHARE - 3 ? 'at-risk' : value < EUROPE_AVG_MARKET_SHARE ? 'watch' : 'on-track';
+}
+function contextToneMargin(value: number) {
+  return value < EUROPE_AVG_CONTRIBUTION_MARGIN - 3 ? 'at-risk' : value < EUROPE_AVG_CONTRIBUTION_MARGIN ? 'watch' : 'on-track';
+}
+
+function marketShareInterpretation(value: number): string {
+  const diff = value - EUROPE_AVG_MARKET_SHARE;
+  const direction = diff > 0 ? 'above' : 'below';
+  return `${Math.abs(diff).toFixed(1)} points ${direction} the European Xeomin share benchmark of ${EUROPE_AVG_MARKET_SHARE.toFixed(1)}%.`;
+}
+function marginInterpretation(value: number): string {
+  const diff = value - EUROPE_AVG_CONTRIBUTION_MARGIN;
+  const direction = diff > 0 ? 'above' : 'below';
+  return `${Math.abs(diff).toFixed(1)} points ${direction} the European contribution margin benchmark of ${EUROPE_AVG_CONTRIBUTION_MARGIN.toFixed(1)}%.`;
 }
 
 export default function MarketPerformance() {
@@ -543,7 +562,7 @@ export default function MarketPerformance() {
               </div>
               <div style={contextNumberStyle}>{contextEntry.performanceInContext.fieldActivityIndex}</div>
             </div>
-            <div style={{ ...contextRowStyle, borderBottom: 'none' }}>
+            <div style={contextRowStyle}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
                 <SignalChip tone={contextToneFollowup(contextEntry.performanceInContext.postTrainingFollowUpRatePct)} variant="dot-only" label="Post-training 60-day follow-up" />
               </div>
@@ -551,6 +570,24 @@ export default function MarketPerformance() {
                 {followupInterpretation(contextEntry.performanceInContext.postTrainingFollowUpRatePct)}
               </div>
               <div style={contextNumberStyle}>{contextEntry.performanceInContext.postTrainingFollowUpRatePct}%</div>
+            </div>
+            <div style={contextRowStyle}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                <SignalChip tone={contextToneMarketShare(contextEntry.performanceInContext.marketSharePct)} variant="dot-only" label="Market share · Xeomin" />
+              </div>
+              <div style={contextValueStyle}>
+                {marketShareInterpretation(contextEntry.performanceInContext.marketSharePct)}
+              </div>
+              <div style={contextNumberStyle}>{contextEntry.performanceInContext.marketSharePct.toFixed(1)}%</div>
+            </div>
+            <div style={{ ...contextRowStyle, borderBottom: 'none' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                <SignalChip tone={contextToneMargin(contextEntry.performanceInContext.contributionMarginPct)} variant="dot-only" label="Contribution margin" />
+              </div>
+              <div style={contextValueStyle}>
+                {marginInterpretation(contextEntry.performanceInContext.contributionMarginPct)}
+              </div>
+              <div style={contextNumberStyle}>{contextEntry.performanceInContext.contributionMarginPct.toFixed(1)}%</div>
             </div>
             <p style={interpretationParagraphStyle}>{contextEntry.performanceInContext.interpretation}</p>
           </div>

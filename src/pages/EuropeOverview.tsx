@@ -29,6 +29,72 @@ const pageStyle: CSSProperties = {
   paddingBottom: 48,
 };
 
+const riskBannerStyle: CSSProperties = {
+  background: NAVY,
+  color: '#ffffff',
+  borderRadius: 14,
+  padding: '20px 24px',
+  display: 'grid',
+  gridTemplateColumns: '1fr auto',
+  alignItems: 'center',
+  columnGap: 24,
+  rowGap: 8,
+  boxShadow: '0 6px 18px rgba(5,10,68,0.16), 0 1px 2px rgba(5,10,68,0.06)',
+};
+
+const riskEyebrowStyle: CSSProperties = {
+  fontSize: 11,
+  fontWeight: 800,
+  letterSpacing: '0.08em',
+  textTransform: 'uppercase',
+  color: 'rgba(255,255,255,0.65)',
+};
+
+const riskHeadlineStyle: CSSProperties = {
+  display: 'flex',
+  alignItems: 'center',
+  gap: 12,
+  marginTop: 4,
+};
+
+const riskStatusTextStyle: CSSProperties = {
+  fontSize: 22,
+  fontWeight: 800,
+  letterSpacing: '0.01em',
+  color: '#ffffff',
+};
+
+const riskBodyStyle: CSSProperties = {
+  fontSize: 13,
+  color: 'rgba(255,255,255,0.85)',
+  lineHeight: 1.5,
+  maxWidth: 720,
+};
+
+const riskMetaStyle: CSSProperties = {
+  textAlign: 'right',
+  fontSize: 11,
+  fontWeight: 500,
+  color: 'rgba(255,255,255,0.55)',
+  lineHeight: 1.4,
+};
+
+const riskScoreCircleStyle = (color: string): CSSProperties => ({
+  width: 56,
+  height: 56,
+  borderRadius: 999,
+  background: 'rgba(255,255,255,0.08)',
+  border: `2px solid ${color}`,
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  color,
+  fontSize: 18,
+  fontWeight: 800,
+  fontVariantNumeric: 'tabular-nums',
+  flexShrink: 0,
+});
+
 const tilesGridStyle: CSSProperties = {
   display: 'grid',
   gridTemplateColumns: 'repeat(4, 1fr)',
@@ -214,12 +280,62 @@ export default function EuropeOverview() {
   // Shorten the headline to one line for the news callout. Use the first sentence only.
   const calloutHeadline = overview.recommendation.situation.split('. ')[0] + '.';
 
+  // Top opportunity areas: markets above plan, sorted by growth vs plan descending.
+  // Cap at 3 to mirror the "Markets requiring attention" hero list cardinality.
+  const opportunityMarkets = [...markets]
+    .filter((m) => m.growthVsPlanPct > 0)
+    .sort((a, b) => b.growthVsPlanPct - a.growthVsPlanPct)
+    .slice(0, 3);
+
+  // Composite risk score derived from the existing summary.
+  // 3 markets need attention out of 8 → 37.5%, plus open decisions = 7, plus investment
+  // exposure €42.8M concentrated in Italy + Germany. The score is illustrative.
+  const marketsAtRisk = overview.summary.marketsRequiringAttention.value;
+  const totalMarkets = markets.length;
+  const riskFraction = marketsAtRisk / totalMarkets; // 3/8 = 0.375
+  // Map to a 0-100 composite. Weighting: 60% markets-at-risk share + 40% open decisions
+  // density (capped at 10 open).
+  const openDecisionsValue = overview.summary.openDecisions.value;
+  const riskScore = Math.round(
+    riskFraction * 60 + Math.min(openDecisionsValue / 10, 1) * 40,
+  ); // ≈ 50 with current data
+  const riskStatus: { label: string; color: string } =
+    riskScore >= 60
+      ? { label: 'Urgent', color: '#FCA5A5' }
+      : riskScore >= 40
+      ? { label: 'At Risk', color: '#FCD34D' }
+      : riskScore >= 20
+      ? { label: 'Watch', color: '#FDE68A' }
+      : { label: 'On Track', color: '#86EFAC' };
+
   return (
     <div style={pageStyle}>
       <PageHeader
         title="Europe Overview"
         subtitle="Where does Europe leadership need to focus this week?"
       />
+
+      <section style={riskBannerStyle}>
+        <div>
+          <div style={riskEyebrowStyle}>Commercial effectiveness · Europe</div>
+          <div style={riskHeadlineStyle}>
+            <span style={riskScoreCircleStyle(riskStatus.color)}>{riskScore}</span>
+            <div>
+              <div style={riskStatusTextStyle}>{riskStatus.label}</div>
+              <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.55)', fontWeight: 600, letterSpacing: '0.04em', textTransform: 'uppercase' }}>
+                Composite risk score · 0 to 100
+              </div>
+            </div>
+          </div>
+          <p style={{ ...riskBodyStyle, marginTop: 10, marginBottom: 0 }}>
+            {marketsAtRisk} of {totalMarkets} markets require leadership attention. Italy follow-up gap and Germany net commercial pressure together drive the largest share of risk, with {overview.summary.investmentExposureEur.value} of commercial investment exposed.
+          </p>
+        </div>
+        <div style={riskMetaStyle}>
+          <div>Updated</div>
+          <div style={{ color: '#ffffff', fontWeight: 700 }}>May 19, 2026</div>
+        </div>
+      </section>
 
       <NewsCallout
         tone="red"
@@ -322,6 +438,73 @@ export default function EuropeOverview() {
           onPrimary={(item) => navigate(item.route)}
           onSecondary={() => {/* Add-to-brief is a v2 affordance. No-op in v1. */}}
         />
+      </section>
+
+      <section>
+        <div style={sectionLabelStyle}>Top opportunity areas</div>
+        <div
+          style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(3, minmax(0, 1fr))',
+            gap: 12,
+          }}
+        >
+          {opportunityMarkets.map((m) => (
+            <button
+              key={m.id}
+              type="button"
+              onClick={() => navigate(`/market-performance?market=${m.id}`)}
+              style={{
+                background: '#ffffff',
+                border: `1px solid ${NAVY_12}`,
+                borderLeft: `3px solid #16A34A`,
+                borderRadius: 12,
+                padding: '14px 16px',
+                textAlign: 'left',
+                cursor: 'pointer',
+                fontFamily: 'inherit',
+                boxShadow: '0 1px 2px rgba(5,10,68,0.04)',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: 4,
+                transition: 'transform 150ms ease, box-shadow 150ms ease',
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.transform = 'translateY(-1px)';
+                e.currentTarget.style.boxShadow = '0 6px 16px rgba(5,10,68,0.08)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.transform = 'translateY(0)';
+                e.currentTarget.style.boxShadow = '0 1px 2px rgba(5,10,68,0.04)';
+              }}
+            >
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 10 }}>
+                <span style={{ fontSize: 13, fontWeight: 700, color: NAVY }}>
+                  {m.flag} {m.name}
+                </span>
+                <span
+                  style={{
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: 4,
+                    padding: '2px 8px',
+                    borderRadius: 999,
+                    background: '#D1FAE5',
+                    color: '#065F46',
+                    fontSize: 11,
+                    fontWeight: 700,
+                    fontVariantNumeric: 'tabular-nums',
+                  }}
+                >
+                  +{m.growthVsPlanPct.toFixed(1)}% vs plan
+                </span>
+              </div>
+              <p style={{ margin: 0, fontSize: 12, color: NAVY_70, lineHeight: 1.5 }}>
+                {m.oneLineContext}
+              </p>
+            </button>
+          ))}
+        </div>
       </section>
     </div>
   );
