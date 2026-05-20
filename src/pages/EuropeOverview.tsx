@@ -31,99 +31,93 @@ const pageStyle: CSSProperties = {
 
 type DonutTone = 'on-track' | 'watch' | 'at-risk';
 
-// Per-status palette for the risk banner. The tone is carried by the donut ring,
-// the status pill, and the left accent stripe only; the rest of the card stays
-// neutral white so it does not dominate the page.
-const STATUS_PALETTE: Record<string, { stripe: string; pillBg: string; pillFg: string; donutTone: DonutTone }> = {
-  'Urgent':   { stripe: '#E11D48', pillBg: '#FEE2E2', pillFg: '#7F1D1D', donutTone: 'at-risk' },
-  'At Risk':  { stripe: '#F59E0B', pillBg: '#FEF3C7', pillFg: '#92400E', donutTone: 'watch' },
-  'Watch':    { stripe: '#F59E0B', pillBg: '#FEF9F0', pillFg: '#92400E', donutTone: 'watch' },
-  'On Track': { stripe: '#16A34A', pillBg: '#D1FAE5', pillFg: '#065F46', donutTone: 'on-track' },
+// Per-status palette for the cockpit header score block. The tone is carried by
+// the donut ring and the status pill only.
+const STATUS_PALETTE: Record<string, { pillBg: string; pillFg: string; donutTone: DonutTone }> = {
+  'Urgent':   { pillBg: '#FEE2E2', pillFg: '#7F1D1D', donutTone: 'at-risk' },
+  'At Risk':  { pillBg: '#FEF3C7', pillFg: '#92400E', donutTone: 'watch' },
+  'Watch':    { pillBg: '#FEF9F0', pillFg: '#92400E', donutTone: 'watch' },
+  'On Track': { pillBg: '#D1FAE5', pillFg: '#065F46', donutTone: 'on-track' },
 };
 
-const riskBannerStyle = (stripeColor: string): CSSProperties => ({
+const cockpitCardStyle: CSSProperties = {
   background: '#ffffff',
-  color: NAVY,
   border: `1px solid ${NAVY_12}`,
-  borderLeft: `4px solid ${stripeColor}`,
-  borderRadius: 12,
-  padding: '16px 20px',
+  borderRadius: 14,
+  padding: '20px 24px',
   display: 'grid',
-  gridTemplateColumns: 'auto 1fr auto',
+  gridTemplateColumns: 'auto 1fr',
+  columnGap: 24,
   alignItems: 'center',
-  columnGap: 18,
-  rowGap: 6,
   boxShadow: '0 1px 2px rgba(5,10,68,0.04)',
-});
+};
 
-const riskEyebrowStyle: CSSProperties = {
-  fontSize: 11,
-  fontWeight: 800,
-  letterSpacing: '0.08em',
-  textTransform: 'uppercase',
-  color: NAVY_55,
+const cockpitScoreColStyle: CSSProperties = {
   display: 'flex',
   alignItems: 'center',
-  gap: 8,
-  flexWrap: 'wrap',
+  gap: 14,
+  paddingRight: 24,
+  borderRight: `1px solid ${NAVY_12}`,
 };
 
-const riskStatusPillStyle = (bg: string, fg: string): CSSProperties => ({
+const cockpitScoreMetaStyle: CSSProperties = {
+  display: 'flex',
+  flexDirection: 'column',
+  gap: 4,
+  maxWidth: 200,
+};
+
+const cockpitEyebrowStyle: CSSProperties = {
+  fontSize: 11,
+  fontWeight: 800,
+  letterSpacing: '0.06em',
+  textTransform: 'uppercase',
+  color: NAVY_55,
+};
+
+const cockpitStatusPillStyle = (bg: string, fg: string): CSSProperties => ({
   display: 'inline-flex',
   alignItems: 'center',
-  padding: '2px 9px',
+  padding: '3px 10px',
   borderRadius: 999,
   background: bg,
   color: fg,
   fontSize: 11,
   fontWeight: 800,
   letterSpacing: '0.04em',
+  alignSelf: 'flex-start',
 });
 
-const riskBodyStyle: CSSProperties = {
-  fontSize: 13,
-  color: NAVY_70,
-  lineHeight: 1.5,
-  marginTop: 4,
-  marginBottom: 0,
-};
-
-const riskMetaStyle: CSSProperties = {
-  textAlign: 'right',
+const cockpitCaptionStyle: CSSProperties = {
   fontSize: 11,
-  fontWeight: 500,
   color: NAVY_55,
   lineHeight: 1.4,
-  whiteSpace: 'nowrap',
+  marginTop: 2,
 };
 
-const tilesGridStyle: CSSProperties = {
+const cockpitStatsRowStyle: CSSProperties = {
   display: 'grid',
-  gridTemplateColumns: 'repeat(4, 1fr)',
-  gap: 16,
+  gridTemplateColumns: 'repeat(4, minmax(0, 1fr))',
+  gap: 18,
+  paddingLeft: 4,
 };
 
-const tileCardStyle: CSSProperties = {
-  background: '#ffffff',
-  border: `1px solid ${NAVY_12}`,
-  borderRadius: 12,
-  padding: '18px 18px 14px',
+const cockpitStatStyle: CSSProperties = {
   display: 'flex',
   flexDirection: 'column',
-  gap: 6,
-  boxShadow: '0 1px 2px rgba(5,10,68,0.04)',
+  gap: 4,
 };
 
-const tileEyebrowStyle: CSSProperties = {
-  fontSize: 11,
+const cockpitStatEyebrowStyle: CSSProperties = {
+  fontSize: 10,
   fontWeight: 800,
-  letterSpacing: '0.08em',
+  letterSpacing: '0.06em',
   textTransform: 'uppercase',
   color: NAVY_55,
 };
 
-const tileValueStyle: CSSProperties = {
-  fontSize: 28,
+const cockpitStatValueStyle: CSSProperties = {
+  fontSize: 24,
   fontWeight: 700,
   color: NAVY,
   lineHeight: 1.1,
@@ -315,35 +309,32 @@ export default function EuropeOverview() {
         subtitle="Where does Europe leadership need to focus this week?"
       />
 
-      <section style={riskBannerStyle(riskPalette.stripe)}>
-        <Donut
-          value={riskScore}
-          size={72}
-          stroke={8}
-          tone={riskPalette.donutTone}
-          showPct={false}
-          label="/ 100"
-        />
-        <div>
-          <div style={riskEyebrowStyle}>
-            <span>Commercial effectiveness · Europe</span>
-            <span style={riskStatusPillStyle(riskPalette.pillBg, riskPalette.pillFg)}>
+      <section style={cockpitCardStyle}>
+        <div style={cockpitScoreColStyle}>
+          <Donut
+            value={riskScore}
+            size={72}
+            stroke={8}
+            tone={riskPalette.donutTone}
+            showPct={false}
+            label="/ 100"
+          />
+          <div style={cockpitScoreMetaStyle}>
+            <span style={cockpitEyebrowStyle}>Commercial effectiveness · Europe</span>
+            <span style={cockpitStatusPillStyle(riskPalette.pillBg, riskPalette.pillFg)}>
               {riskLabel}
             </span>
-            <span style={{ color: NAVY_55, fontWeight: 600, letterSpacing: 0, textTransform: 'none' }}>
-              composite risk score · 0 to 100
-            </span>
+            <span style={cockpitCaptionStyle}>Composite risk score · updated May 19, 2026</span>
           </div>
-          <p style={riskBodyStyle}>
-            <strong style={{ color: NAVY, fontWeight: 700 }}>
-              {marketsAtRisk} of {totalMarkets} markets require leadership attention.
-            </strong>{' '}
-            Italy follow-up gap and Germany net commercial pressure together drive the largest share of risk, with {overview.summary.investmentExposureEur.value} of commercial investment exposed.
-          </p>
         </div>
-        <div style={riskMetaStyle}>
-          <div>Updated</div>
-          <div style={{ color: NAVY, fontWeight: 700 }}>May 19, 2026</div>
+        <div style={cockpitStatsRowStyle}>
+          {tiles.map((t) => (
+            <div key={t.label} style={cockpitStatStyle}>
+              <span style={cockpitStatEyebrowStyle}>{t.label}</span>
+              <span style={cockpitStatValueStyle}>{t.value}</span>
+              <SourceTag label={t.source} />
+            </div>
+          ))}
         </div>
       </section>
 
@@ -355,18 +346,6 @@ export default function EuropeOverview() {
         ctaLabel="Open Recommendation"
         onCta={scrollToRecommendation}
       />
-
-      <section>
-        <div style={tilesGridStyle}>
-          {tiles.map((t) => (
-            <div key={t.label} style={tileCardStyle}>
-              <div style={tileEyebrowStyle}>{t.label}</div>
-              <div style={tileValueStyle}>{t.value}</div>
-              <SourceTag label={t.source} />
-            </div>
-          ))}
-        </div>
-      </section>
 
       <section style={chartCardStyle}>
         <h2 style={chartTitleStyle}>Performance vs Investment Intensity</h2>
