@@ -12,7 +12,7 @@ import {
   ReferenceLine,
 } from 'recharts';
 import { PageHeader } from '../components/layout/PageHeader';
-import { NewsCallout, HeroPriorityList, SourceTag } from '../components/composites';
+import { Donut, NewsCallout, HeroPriorityList, SourceTag } from '../components/composites';
 import type { HeroPriorityItem } from '../components/composites';
 import { RecommendationCard } from '../components/decision';
 import { markets, overview } from '../data/scenario';
@@ -29,14 +29,16 @@ const pageStyle: CSSProperties = {
   paddingBottom: 48,
 };
 
-// Per-status palette for the risk banner. The tone is carried by the score badge
-// and the left accent stripe only; the rest of the card stays neutral white so it
-// does not dominate the page.
-const STATUS_PALETTE: Record<string, { stripe: string; badgeBg: string; badgeFg: string; pillBg: string; pillFg: string }> = {
-  'Urgent':   { stripe: '#E11D48', badgeBg: '#FEE2E2', badgeFg: '#7F1D1D', pillBg: '#FEE2E2', pillFg: '#7F1D1D' },
-  'At Risk':  { stripe: '#F59E0B', badgeBg: '#FEF3C7', badgeFg: '#92400E', pillBg: '#FEF3C7', pillFg: '#92400E' },
-  'Watch':    { stripe: '#F59E0B', badgeBg: '#FEF9F0', badgeFg: '#92400E', pillBg: '#FEF9F0', pillFg: '#92400E' },
-  'On Track': { stripe: '#16A34A', badgeBg: '#D1FAE5', badgeFg: '#065F46', pillBg: '#D1FAE5', pillFg: '#065F46' },
+type DonutTone = 'on-track' | 'watch' | 'at-risk';
+
+// Per-status palette for the risk banner. The tone is carried by the donut ring,
+// the status pill, and the left accent stripe only; the rest of the card stays
+// neutral white so it does not dominate the page.
+const STATUS_PALETTE: Record<string, { stripe: string; pillBg: string; pillFg: string; donutTone: DonutTone }> = {
+  'Urgent':   { stripe: '#E11D48', pillBg: '#FEE2E2', pillFg: '#7F1D1D', donutTone: 'at-risk' },
+  'At Risk':  { stripe: '#F59E0B', pillBg: '#FEF3C7', pillFg: '#92400E', donutTone: 'watch' },
+  'Watch':    { stripe: '#F59E0B', pillBg: '#FEF9F0', pillFg: '#92400E', donutTone: 'watch' },
+  'On Track': { stripe: '#16A34A', pillBg: '#D1FAE5', pillFg: '#065F46', donutTone: 'on-track' },
 };
 
 const riskBannerStyle = (stripeColor: string): CSSProperties => ({
@@ -52,21 +54,6 @@ const riskBannerStyle = (stripeColor: string): CSSProperties => ({
   columnGap: 18,
   rowGap: 6,
   boxShadow: '0 1px 2px rgba(5,10,68,0.04)',
-});
-
-const riskScoreBadgeStyle = (bg: string, fg: string): CSSProperties => ({
-  width: 56,
-  height: 56,
-  borderRadius: 999,
-  background: bg,
-  color: fg,
-  display: 'flex',
-  alignItems: 'center',
-  justifyContent: 'center',
-  fontSize: 20,
-  fontWeight: 800,
-  fontVariantNumeric: 'tabular-nums',
-  flexShrink: 0,
 });
 
 const riskEyebrowStyle: CSSProperties = {
@@ -329,9 +316,14 @@ export default function EuropeOverview() {
       />
 
       <section style={riskBannerStyle(riskPalette.stripe)}>
-        <span style={riskScoreBadgeStyle(riskPalette.badgeBg, riskPalette.badgeFg)}>
-          {riskScore}
-        </span>
+        <Donut
+          value={riskScore}
+          size={72}
+          stroke={8}
+          tone={riskPalette.donutTone}
+          showPct={false}
+          label="/ 100"
+        />
         <div>
           <div style={riskEyebrowStyle}>
             <span>Commercial effectiveness · Europe</span>
