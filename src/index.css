@@ -1,0 +1,133 @@
+@import 'tailwindcss';
+
+@theme {
+  /* Ariya brand palette */
+  --color-ariya-navy: #0b1a2f;
+  --color-ariya-navy-2: #122544;
+  --color-ariya-blue: #2f6df6;
+  --color-ariya-blue-soft: #e8efff;
+  --color-ariya-ink: #0f172a;
+  --color-ariya-muted: #64748b;
+  --color-ariya-line: #e5e7eb;
+  --color-ariya-bg: #f6f8fb;
+  --color-ariya-surface: #ffffff;
+
+  /* RAG */
+  --color-rag-red: #dc2626;
+  --color-rag-amber: #f59e0b;
+  --color-rag-green: #16a34a;
+
+  /* Typography */
+  --font-sans:
+    'Inter', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto,
+    'Helvetica Neue', Arial, sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+
+  /* Radius scale */
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 14px;
+  --radius-xl: 20px;
+
+  /* Shadows */
+  --shadow-card: 0 1px 2px rgba(15, 23, 42, 0.04), 0 4px 12px rgba(15, 23, 42, 0.05);
+  --shadow-pop: 0 8px 24px rgba(15, 23, 42, 0.12);
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  font-family: var(--font-sans);
+  background: var(--color-ariya-bg);
+  color: var(--color-ariya-ink);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+/* Cross-cutting utility classes — keep this set small */
+.ariya-card {
+  background: var(--color-ariya-surface);
+  border: 1px solid var(--color-ariya-line);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-card);
+}
+
+.ariya-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 2px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 1.6;
+}
+
+.ariya-scrollbar::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+.ariya-scrollbar::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 999px;
+}
+.ariya-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+.text-gradient {
+  background: linear-gradient(135deg, #1A6BFF 0%, #050A44 100%);
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+@keyframes ariya-fade-in {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.ariya-fade-in {
+  animation: ariya-fade-in 180ms ease-out both;
+}
+
+/* Print stylesheet for the Decision Log page.
+   When the user prints, hide chrome (sidebar, header, filter row, toggle controls)
+   and let the decision cards flow as a one-page brief on white background. */
+@media print {
+  /* Hide everything that isn't the main content. */
+  aside,
+  header,
+  button[data-tour='demo-mode'],
+  .ariya-no-print {
+    display: none !important;
+  }
+  body {
+    background: #ffffff !important;
+  }
+  /* Reset the shell paddings that account for the sidebar + topbar. */
+  body > #root > div {
+    padding-left: 0 !important;
+    padding-top: 0 !important;
+  }
+  /* Make sure decision card details are open in print regardless of UI state. */
+  details[open] > summary,
+  details > summary {
+    display: none;
+  }
+  /* Avoid breaking decision cards across pages where possible. */
+  article {
+    break-inside: avoid;
+    page-break-inside: avoid;
+    box-shadow: none !important;
+    border: 1px solid #d6d6d6 !important;
+  }
+  /* Strip background colors from highlighted entries when printing. */
+  article[data-highlighted='true'] {
+    background: #ffffff !important;
+  }
+}

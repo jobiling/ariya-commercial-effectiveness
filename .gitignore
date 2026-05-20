@@ -1,0 +1,16 @@
+node_modules
+dist
+dist-ssr
+.vite
+.DS_Store
+*.log
+.env
+.env.local
+.env.*.local
+
+# Build artefacts
+*.tsbuildinfo
+
+# Icon resource forks (created by macOS / Google Drive)
+Icon?
+**/Icon?
