@@ -29,71 +29,86 @@ const pageStyle: CSSProperties = {
   paddingBottom: 48,
 };
 
-const riskBannerStyle: CSSProperties = {
-  background: NAVY,
-  color: '#ffffff',
-  borderRadius: 14,
-  padding: '20px 24px',
-  display: 'grid',
-  gridTemplateColumns: '1fr auto',
-  alignItems: 'center',
-  columnGap: 24,
-  rowGap: 8,
-  boxShadow: '0 6px 18px rgba(5,10,68,0.16), 0 1px 2px rgba(5,10,68,0.06)',
+// Per-status palette for the risk banner. The tone is carried by the score badge
+// and the left accent stripe only; the rest of the card stays neutral white so it
+// does not dominate the page.
+const STATUS_PALETTE: Record<string, { stripe: string; badgeBg: string; badgeFg: string; pillBg: string; pillFg: string }> = {
+  'Urgent':   { stripe: '#E11D48', badgeBg: '#FEE2E2', badgeFg: '#7F1D1D', pillBg: '#FEE2E2', pillFg: '#7F1D1D' },
+  'At Risk':  { stripe: '#F59E0B', badgeBg: '#FEF3C7', badgeFg: '#92400E', pillBg: '#FEF3C7', pillFg: '#92400E' },
+  'Watch':    { stripe: '#F59E0B', badgeBg: '#FEF9F0', badgeFg: '#92400E', pillBg: '#FEF9F0', pillFg: '#92400E' },
+  'On Track': { stripe: '#16A34A', badgeBg: '#D1FAE5', badgeFg: '#065F46', pillBg: '#D1FAE5', pillFg: '#065F46' },
 };
+
+const riskBannerStyle = (stripeColor: string): CSSProperties => ({
+  background: '#ffffff',
+  color: NAVY,
+  border: `1px solid ${NAVY_12}`,
+  borderLeft: `4px solid ${stripeColor}`,
+  borderRadius: 12,
+  padding: '16px 20px',
+  display: 'grid',
+  gridTemplateColumns: 'auto 1fr auto',
+  alignItems: 'center',
+  columnGap: 18,
+  rowGap: 6,
+  boxShadow: '0 1px 2px rgba(5,10,68,0.04)',
+});
+
+const riskScoreBadgeStyle = (bg: string, fg: string): CSSProperties => ({
+  width: 56,
+  height: 56,
+  borderRadius: 999,
+  background: bg,
+  color: fg,
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  fontSize: 20,
+  fontWeight: 800,
+  fontVariantNumeric: 'tabular-nums',
+  flexShrink: 0,
+});
 
 const riskEyebrowStyle: CSSProperties = {
   fontSize: 11,
   fontWeight: 800,
   letterSpacing: '0.08em',
   textTransform: 'uppercase',
-  color: 'rgba(255,255,255,0.65)',
-};
-
-const riskHeadlineStyle: CSSProperties = {
+  color: NAVY_55,
   display: 'flex',
   alignItems: 'center',
-  gap: 12,
-  marginTop: 4,
+  gap: 8,
+  flexWrap: 'wrap',
 };
 
-const riskStatusTextStyle: CSSProperties = {
-  fontSize: 22,
+const riskStatusPillStyle = (bg: string, fg: string): CSSProperties => ({
+  display: 'inline-flex',
+  alignItems: 'center',
+  padding: '2px 9px',
+  borderRadius: 999,
+  background: bg,
+  color: fg,
+  fontSize: 11,
   fontWeight: 800,
-  letterSpacing: '0.01em',
-  color: '#ffffff',
-};
+  letterSpacing: '0.04em',
+});
 
 const riskBodyStyle: CSSProperties = {
   fontSize: 13,
-  color: 'rgba(255,255,255,0.85)',
+  color: NAVY_70,
   lineHeight: 1.5,
-  maxWidth: 720,
+  marginTop: 4,
+  marginBottom: 0,
 };
 
 const riskMetaStyle: CSSProperties = {
   textAlign: 'right',
   fontSize: 11,
   fontWeight: 500,
-  color: 'rgba(255,255,255,0.55)',
+  color: NAVY_55,
   lineHeight: 1.4,
+  whiteSpace: 'nowrap',
 };
-
-const riskScoreCircleStyle = (color: string): CSSProperties => ({
-  width: 56,
-  height: 56,
-  borderRadius: 999,
-  background: 'rgba(255,255,255,0.08)',
-  border: `2px solid ${color}`,
-  display: 'flex',
-  alignItems: 'center',
-  justifyContent: 'center',
-  color,
-  fontSize: 18,
-  fontWeight: 800,
-  fontVariantNumeric: 'tabular-nums',
-  flexShrink: 0,
-});
 
 const tilesGridStyle: CSSProperties = {
   display: 'grid',
@@ -299,14 +314,12 @@ export default function EuropeOverview() {
   const riskScore = Math.round(
     riskFraction * 60 + Math.min(openDecisionsValue / 10, 1) * 40,
   ); // ≈ 50 with current data
-  const riskStatus: { label: string; color: string } =
-    riskScore >= 60
-      ? { label: 'Urgent', color: '#FCA5A5' }
-      : riskScore >= 40
-      ? { label: 'At Risk', color: '#FCD34D' }
-      : riskScore >= 20
-      ? { label: 'Watch', color: '#FDE68A' }
-      : { label: 'On Track', color: '#86EFAC' };
+  const riskLabel =
+    riskScore >= 60 ? 'Urgent'
+    : riskScore >= 40 ? 'At Risk'
+    : riskScore >= 20 ? 'Watch'
+    : 'On Track';
+  const riskPalette = STATUS_PALETTE[riskLabel];
 
   return (
     <div style={pageStyle}>
@@ -315,25 +328,30 @@ export default function EuropeOverview() {
         subtitle="Where does Europe leadership need to focus this week?"
       />
 
-      <section style={riskBannerStyle}>
+      <section style={riskBannerStyle(riskPalette.stripe)}>
+        <span style={riskScoreBadgeStyle(riskPalette.badgeBg, riskPalette.badgeFg)}>
+          {riskScore}
+        </span>
         <div>
-          <div style={riskEyebrowStyle}>Commercial effectiveness · Europe</div>
-          <div style={riskHeadlineStyle}>
-            <span style={riskScoreCircleStyle(riskStatus.color)}>{riskScore}</span>
-            <div>
-              <div style={riskStatusTextStyle}>{riskStatus.label}</div>
-              <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.55)', fontWeight: 600, letterSpacing: '0.04em', textTransform: 'uppercase' }}>
-                Composite risk score · 0 to 100
-              </div>
-            </div>
+          <div style={riskEyebrowStyle}>
+            <span>Commercial effectiveness · Europe</span>
+            <span style={riskStatusPillStyle(riskPalette.pillBg, riskPalette.pillFg)}>
+              {riskLabel}
+            </span>
+            <span style={{ color: NAVY_55, fontWeight: 600, letterSpacing: 0, textTransform: 'none' }}>
+              composite risk score · 0 to 100
+            </span>
           </div>
-          <p style={{ ...riskBodyStyle, marginTop: 10, marginBottom: 0 }}>
-            {marketsAtRisk} of {totalMarkets} markets require leadership attention. Italy follow-up gap and Germany net commercial pressure together drive the largest share of risk, with {overview.summary.investmentExposureEur.value} of commercial investment exposed.
+          <p style={riskBodyStyle}>
+            <strong style={{ color: NAVY, fontWeight: 700 }}>
+              {marketsAtRisk} of {totalMarkets} markets require leadership attention.
+            </strong>{' '}
+            Italy follow-up gap and Germany net commercial pressure together drive the largest share of risk, with {overview.summary.investmentExposureEur.value} of commercial investment exposed.
           </p>
         </div>
         <div style={riskMetaStyle}>
           <div>Updated</div>
-          <div style={{ color: '#ffffff', fontWeight: 700 }}>May 19, 2026</div>
+          <div style={{ color: NAVY, fontWeight: 700 }}>May 19, 2026</div>
         </div>
       </section>
 
