@@ -94,16 +94,23 @@ export interface RecommendationCardProps {
 // Styles
 // ---------------------------------------------------------------------------
 
+// Outer container that groups the four sub-cards (header, next actions,
+// conditions, sources) plus the footer into a single visual unit. Light
+// grey surface with subtle frame, inner white tiles read as nested.
 const wrapperStyle: CSSProperties = {
   display: 'flex',
   flexDirection: 'column',
-  gap: 14,
+  gap: 12,
+  padding: 14,
+  background: '#F4F5FA',
+  border: `1px solid ${NAVY_06}`,
+  borderRadius: 18,
 };
 
 const cardStyle: CSSProperties = {
   background: '#ffffff',
   border: `1px solid ${NAVY_12}`,
-  borderRadius: 14,
+  borderRadius: 12,
   padding: 24,
   boxShadow: '0 1px 2px rgba(5,10,68,0.04)',
 };
@@ -140,16 +147,16 @@ const metaStyle: CSSProperties = {
 const toggleBtnStyle: CSSProperties = {
   display: 'inline-flex',
   alignItems: 'center',
-  gap: 4,
-  height: 26,
-  padding: '0 10px',
+  gap: 6,
+  padding: '7px 14px',
   background: NAVY_06,
   border: 'none',
   borderRadius: 999,
   color: NAVY_70,
-  fontSize: 11,
+  fontSize: 12,
   fontWeight: 700,
   letterSpacing: '0.02em',
+  lineHeight: 1,
   cursor: 'pointer',
   fontFamily: 'inherit',
 };
@@ -374,7 +381,7 @@ const priorityPillStyle: CSSProperties = {
 const bottomGridStyle: CSSProperties = {
   display: 'grid',
   gridTemplateColumns: '1fr 1fr',
-  gap: 14,
+  gap: 12,
 };
 
 const listTwoColStyle: CSSProperties = {
@@ -411,8 +418,7 @@ const footerStyle: CSSProperties = {
   alignItems: 'center',
   justifyContent: 'space-between',
   gap: 12,
-  marginTop: 4,
-  paddingTop: 6,
+  padding: '4px 8px 2px',
 };
 
 const footerActionsStyle: CSSProperties = {
