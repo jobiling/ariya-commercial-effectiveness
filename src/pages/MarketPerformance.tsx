@@ -364,9 +364,6 @@ interface StatCardProps {
   title: string;
   subtitle: string;
   value: ReactNode;
-  delta: number | undefined;
-  deltaUnit: string; // e.g. "pts" or ""
-  deltaTone: StatTone;
   // Benchmark bar
   barTone: StatTone;
   barMin: number;
@@ -422,19 +419,6 @@ const statValueUnitStyle: CSSProperties = {
   marginLeft: 2,
 };
 
-const deltaPillStyle = (tone: StatTone): CSSProperties => ({
-  display: 'inline-flex',
-  alignItems: 'center',
-  padding: '3px 10px',
-  borderRadius: 999,
-  background: TONE_BG[tone],
-  color: TONE_TEXT[tone],
-  fontSize: 11,
-  fontWeight: 700,
-  fontVariantNumeric: 'tabular-nums',
-  whiteSpace: 'nowrap',
-});
-
 function StatCard(props: StatCardProps) {
   const calloutTone = props.callout?.tone;
   return (
@@ -445,13 +429,6 @@ function StatCard(props: StatCardProps) {
             <h3 style={cardTitleStyle}>{props.title}</h3>
             <p style={cardSubtitleStyle}>{props.subtitle}</p>
           </div>
-          {props.delta != null && (
-            <span style={deltaPillStyle(props.deltaTone)}>
-              {props.delta > 0 ? '+' : ''}
-              {Number.isInteger(props.delta) ? props.delta : props.delta.toFixed(1)}
-              {props.deltaUnit ? ` ${props.deltaUnit}` : ''}
-            </span>
-          )}
         </div>
 
         <div>
@@ -665,22 +642,48 @@ function InvestmentMix({ mix }: { mix: { label: string; value: number; color: st
   );
 }
 
-// Per-bar coloured bar chart. Recharts <Bar> doesn't expose per-bar fill via
-// the data-driven API without a Cell, so we draw the bars manually.
-function VisitsBarColoured({ data }: { data: { month: string; visits: number; tone: StatTone }[] }) {
+// Single-tone vertical bar chart. The trend is in the bar heights; we don't
+// colour each bar separately because that reads as an alarm — the editorial
+// callout below the card carries the interpretation.
+function VisitsBarChart({
+  data,
+  tone,
+}: {
+  data: { month: string; visits: number }[];
+  tone: StatTone;
+}) {
+  // Use a baseline 10% below the lowest value so the relative variation between
+  // bars is actually visible (not just clustered at the top).
   const max = Math.max(...data.map((d) => d.visits)) || 1;
+  const min = Math.min(...data.map((d) => d.visits)) || 0;
+  const range = Math.max(max - min, 1);
+  const baseline = Math.max(0, min - range * 0.4);
+  const span = max - baseline;
   return (
-    <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', gap: 6, height: 100, paddingBottom: 16, position: 'relative' }}>
+    <div
+      style={{
+        display: 'flex',
+        alignItems: 'flex-end',
+        justifyContent: 'space-between',
+        gap: 6,
+        height: 100,
+        paddingBottom: 16,
+        position: 'relative',
+      }}
+    >
       {data.map((d) => {
-        const h = (d.visits / max) * 80;
+        const h = ((d.visits - baseline) / span) * 80;
         return (
-          <div key={d.month} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', flex: 1 }}>
+          <div
+            key={d.month}
+            style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', flex: 1 }}
+          >
             <div
               style={{
                 width: '100%',
                 maxWidth: 32,
                 height: `${h}px`,
-                background: TONE_BAR[d.tone],
+                background: TONE_BAR[tone],
                 borderRadius: 4,
               }}
               title={`${d.month}: ${d.visits} visits`}
@@ -1011,9 +1014,6 @@ export default function MarketPerformance() {
                   <span style={statValueUnitStyle}>%</span>
                 </span>
               }
-              delta={ctx.deltas?.investmentIntensity}
-              deltaUnit="pts"
-              deltaTone={ctx.callouts?.investmentIntensity?.tone ?? 'on-track'}
               barTone={ctx.callouts?.investmentIntensity?.tone ?? 'on-track'}
               barMin={8}
               barMax={18}
@@ -1035,9 +1035,6 @@ export default function MarketPerformance() {
               title="Field activity index"
               subtitle="Visits to high-potential HCPs · base 100"
               value={<span style={statValueStyle}>{ctx.fieldActivityIndex}</span>}
-              delta={ctx.deltas?.fieldActivity}
-              deltaUnit=""
-              deltaTone={ctx.callouts?.fieldActivity?.tone ?? 'watch'}
               barTone={ctx.callouts?.fieldActivity?.tone ?? 'watch'}
               barMin={80}
               barMax={120}
@@ -1045,7 +1042,14 @@ export default function MarketPerformance() {
               benchmark={100}
               innerLabel="HCP visits per month · last 6 months"
               innerContent={
-                ctx.hcpVisitsPerMonth ? <VisitsBarColoured data={ctx.hcpVisitsPerMonth} /> : <FallbackInner />
+                ctx.hcpVisitsPerMonth ? (
+                  <VisitsBarChart
+                    data={ctx.hcpVisitsPerMonth}
+                    tone={ctx.callouts?.fieldActivity?.tone ?? 'watch'}
+                  />
+                ) : (
+                  <FallbackInner />
+                )
               }
               callout={ctx.callouts?.fieldActivity}
               onCalloutClick={() =>
@@ -1064,9 +1068,6 @@ export default function MarketPerformance() {
                   <span style={statValueUnitStyle}>%</span>
                 </span>
               }
-              delta={ctx.deltas?.followup}
-              deltaUnit="pts"
-              deltaTone={ctx.callouts?.followup?.tone ?? 'at-risk'}
               barTone={ctx.callouts?.followup?.tone ?? 'at-risk'}
               barMin={0}
               barMax={100}
@@ -1093,9 +1094,6 @@ export default function MarketPerformance() {
                   <span style={statValueUnitStyle}>%</span>
                 </span>
               }
-              delta={ctx.deltas?.marketShare}
-              deltaUnit="pts"
-              deltaTone={ctx.callouts?.marketShare?.tone ?? 'watch'}
               barTone={ctx.callouts?.marketShare?.tone ?? 'watch'}
               barMin={18}
               barMax={28}
@@ -1130,9 +1128,6 @@ export default function MarketPerformance() {
                   <span style={statValueUnitStyle}>%</span>
                 </span>
               }
-              delta={ctx.deltas?.margin}
-              deltaUnit="pts"
-              deltaTone={ctx.callouts?.margin?.tone ?? 'watch'}
               barTone={ctx.callouts?.margin?.tone ?? 'watch'}
               barMin={45}
               barMax={70}
