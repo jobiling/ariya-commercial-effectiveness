@@ -14,3 +14,4 @@ dist-ssr
 # Icon resource forks (created by macOS / Google Drive)
 Icon?
 **/Icon?
+.vercel
