@@ -211,17 +211,39 @@ const CONDITION_KEYS = [
 
 const DEFAULT_REALLOCATION = scenarioPlanner.defaultReallocationPct;
 
-// Build the confidence band data: at each month, return base + spreads.
-// Slider value scales spread between conservative and best linearly:
-//   10% = baseline spread (1.0x)
-//   0%  = collapses toward base (0x)
-//   25% = widens to 1.5x
-// Unchecking a condition adds widenBandBy points to the spread.
+// Italy's current 60-day follow-up coverage for high-potential trained HCPs.
+const FOLLOWUP_BASELINE = 41;
+// Default scenario lands at 60% with 10% reallocation. We cap the achievable
+// uplift at 75% with diminishing returns above the default.
+const FOLLOWUP_AT_DEFAULT = 60;
+const FOLLOWUP_CAP = 75;
+
+/**
+ * Derive the achievable 60-day follow-up coverage from the reallocation %.
+ * - 0% reallocation → 41% (no money, no operational lift)
+ * - 10% reallocation → 60% (the documented central assumption)
+ * - 25% reallocation → 75% (capped, diminishing returns)
+ */
+function achievableFollowup(reallocationPct: number): number {
+  const linearRise = (FOLLOWUP_AT_DEFAULT - FOLLOWUP_BASELINE) / DEFAULT_REALLOCATION; // 1.9
+  const raw = FOLLOWUP_BASELINE + reallocationPct * linearRise;
+  return Math.min(FOLLOWUP_CAP, raw);
+}
+
+// Build the confidence band data. Two effects in play:
+//   1. Reallocation % drives an impactMultiplier that scales the base curve up
+//      from baseline 100. At 0% reallocation the curve is flat at 100.
+//      At 10% (default) it matches the documented base outcomes.
+//      At 25% it stretches further upward.
+//   2. Conditions widen the band when unchecked.
 function buildBandData(
   reallocationPct: number,
   conditionsChecked: Record<string, boolean>,
 ) {
-  const sliderScale = reallocationPct / DEFAULT_REALLOCATION; // 0..2.5
+  const followup = achievableFollowup(reallocationPct);
+  const impactMultiplier =
+    (followup - FOLLOWUP_BASELINE) / (FOLLOWUP_AT_DEFAULT - FOLLOWUP_BASELINE); // 0..~1.79
+
   const condEffects = scenarioPlanner.conditionEffects as Record<string, { widenBandBy: number }>;
   let conditionWiden = 0;
   for (const key of CONDITION_KEYS) {
@@ -233,14 +255,19 @@ function buildBandData(
   return scenarioPlanner.outcomes.base.map((b, idx) => {
     const conservative = scenarioPlanner.outcomes.conservative[idx].value;
     const best = scenarioPlanner.outcomes.best[idx].value;
-    const upperSpread = (best - b.value) * sliderScale + conditionWiden;
-    const lowerSpread = (b.value - conservative) * sliderScale + conditionWiden;
+
+    // Shift the base line up/down with the impact multiplier.
+    const dynamicBase = 100 + (b.value - 100) * impactMultiplier;
+    // Spread the band similarly, then widen further if conditions are unchecked.
+    const upperSpread = (best - b.value) * impactMultiplier + conditionWiden;
+    const lowerSpread = (b.value - conservative) * impactMultiplier + conditionWiden;
+
     return {
       month: idx,
       monthLabel: `M${idx}`,
-      base: parseFloat(b.value.toFixed(2)),
-      lower: parseFloat((b.value - lowerSpread).toFixed(2)),
-      upper: parseFloat((b.value + upperSpread).toFixed(2)),
+      base: parseFloat(dynamicBase.toFixed(2)),
+      lower: parseFloat((dynamicBase - lowerSpread).toFixed(2)),
+      upper: parseFloat((dynamicBase + upperSpread).toFixed(2)),
     };
   });
 }
@@ -608,7 +635,8 @@ export default function ScenarioPlanner() {
           >
             <p style={chartCentralAssumptionStyle}>
               <strong style={{ color: NAVY, fontWeight: 700 }}>Central assumption (fixed):</strong>{' '}
-              {scenarioPlanner.centralAssumption}
+              The reallocated Germany marketing spend can be operationally mobilised by Italy to lift
+              60-day follow-up coverage for high-potential trained HCPs above today&rsquo;s 41% baseline.
             </p>
             <p
               style={{
@@ -624,7 +652,11 @@ export default function ScenarioPlanner() {
             >
               <strong style={{ color: '#1E1B4B', fontWeight: 700 }}>Currently modelling:</strong>{' '}
               <strong style={{ color: '#1E1B4B', fontWeight: 700 }}>{reallocationPct}%</strong>{' '}
-              reallocation
+              reallocation drives estimated follow-up coverage to{' '}
+              <strong style={{ color: '#1E1B4B', fontWeight: 700 }}>
+                {achievableFollowup(reallocationPct).toFixed(0)}%
+              </strong>{' '}
+              (from 41% baseline)
               {' · '}
               <strong style={{ color: '#1E1B4B', fontWeight: 700 }}>
                 {Object.values(conditions).filter(Boolean).length} of {CONDITION_KEYS.length}
@@ -636,7 +668,7 @@ export default function ScenarioPlanner() {
 
           <div style={{ width: '100%', height: 340, marginTop: 12 }}>
             <ResponsiveContainer>
-              <ComposedChart data={bandData} margin={{ top: 12, right: 24, bottom: 32, left: 8 }}>
+              <ComposedChart data={bandData} margin={{ top: 12, right: 24, bottom: 32, left: 32 }}>
                 <defs>
                   <linearGradient id="band-grad" x1="0" y1="0" x2="0" y2="1">
                     <stop offset="0%" stopColor={TEAL} stopOpacity={0.28} />
@@ -663,11 +695,12 @@ export default function ScenarioPlanner() {
                   tick={{ fill: NAVY_55, fontSize: 11 }}
                   tickLine={false}
                   axisLine={{ stroke: NAVY_12 }}
+                  width={56}
                   label={{
-                    value: 'Net commercial impact · indexed, baseline = 100',
+                    value: "Italy Xeomin run-rate · 100 = today",
                     angle: -90,
                     position: 'insideLeft',
-                    offset: 16,
+                    offset: 0,
                     fill: NAVY_55,
                     fontSize: 11,
                     fontWeight: 600,
@@ -713,6 +746,22 @@ export default function ScenarioPlanner() {
               </ComposedChart>
             </ResponsiveContainer>
           </div>
+
+          <p
+            style={{
+              marginTop: 10,
+              marginBottom: 0,
+              fontSize: 11,
+              color: NAVY_55,
+              lineHeight: 1.5,
+              fontStyle: 'italic',
+            }}
+          >
+            How to read the Y-axis: values are indexed to today&rsquo;s Italy Xeomin run-rate.
+            100 = no change. 103 = a 3% lift versus today. 99 = a 1% decline.
+            The shaded band is the directional best–conservative range under the
+            modelled inputs.
+          </p>
         </section>
       </div>
 
