@@ -62,7 +62,7 @@ const heroQuoteStyle: CSSProperties = {
   color: NAVY,
   lineHeight: 1.35,
   margin: '12px 0 0',
-  maxWidth: 760,
+  maxWidth: 780,
 };
 
 const heroBodyStyle: CSSProperties = {
@@ -70,7 +70,7 @@ const heroBodyStyle: CSSProperties = {
   color: NAVY_70,
   lineHeight: 1.6,
   margin: '12px 0 0',
-  maxWidth: 720,
+  maxWidth: 760,
 };
 
 // ─── Framework grid ──────────────────────────────────────────────────────────
@@ -277,23 +277,6 @@ const ctaPrimaryBtnStyle: CSSProperties = {
   whiteSpace: 'nowrap',
 };
 
-const ctaSecondaryBtnStyle: CSSProperties = {
-  display: 'inline-flex',
-  alignItems: 'center',
-  gap: 6,
-  height: 40,
-  padding: '0 18px',
-  borderRadius: 10,
-  background: '#ffffff',
-  border: `1px solid ${NAVY_12}`,
-  color: NAVY,
-  fontSize: 13,
-  fontWeight: 700,
-  cursor: 'pointer',
-  fontFamily: 'inherit',
-  whiteSpace: 'nowrap',
-};
-
 // ─── Data ────────────────────────────────────────────────────────────────────
 
 interface FrameworkElement {
@@ -306,45 +289,48 @@ interface FrameworkElement {
 const FRAMEWORK_ELEMENTS: FrameworkElement[] = [
   {
     eyebrow: 'Scope',
-    title: 'Selected CRM-active markets · Xeomin first',
+    title: 'Two markets, one priority brand',
     body: (
       <>
-        Start with the markets where CRM data is already in good shape, and one or two priority
-        brands. Xeomin is the natural opening brand given the open injection-training scenario.
+        Italy and Germany on Xeomin. We start with a question your leadership team is already
+        looking at — the post-training reallocation between the two markets — so the pilot earns
+        its keep against a live decision, not a synthetic one.
       </>
     ),
     icon: <Target size={20} strokeWidth={2.2} />,
   },
   {
-    eyebrow: 'Source set',
-    title: 'Six pragmatic data layers',
+    eyebrow: 'Data set',
+    title: 'Six layers, working with what you already have',
     body: (
       <>
-        Market performance, CRM activity, HCP training and investment data, segmentation and
-        targeting, and finance or spend data <em>where feasible</em>. No promotional-responsiveness
-        claim is required to deliver value.
+        Market performance, CRM activity, HCP training and investment, segmentation and targeting,
+        and finance data <em>where feasible</em>. Selected extracts to start, so the pilot is not
+        held up by full system integration.
       </>
     ),
     icon: <Database size={20} strokeWidth={2.2} />,
   },
   {
     eyebrow: 'Users',
-    title: 'Europe leadership and the chain below',
+    title: 'Your leadership team and the chain below',
     body: (
       <>
         Europe leadership, BU heads, national sales managers, and selected first-line managers.
-        Same decision layer, role-specific framing.
+        The same decision layer, framed for each role, so leadership and the field see the same
+        signal at the same time.
       </>
     ),
     icon: <Users size={20} strokeWidth={2.2} />,
   },
   {
     eyebrow: 'Duration',
-    title: 'Six-week pilot',
+    title: 'Six weeks, with a clear decision at the end',
     body: (
       <>
-        Long enough to validate the proxy-KPI model and produce real decision briefs.
-        Short enough to keep buying momentum.
+        Long enough to validate proxy KPIs against a real scenario and produce decision briefs
+        your team can act on. Short enough to give you a clean go / no-go on whether to take it
+        further.
       </>
     ),
     icon: <Calendar size={20} strokeWidth={2.2} />,
@@ -352,30 +338,30 @@ const FRAMEWORK_ELEMENTS: FrameworkElement[] = [
 ];
 
 const OUTPUTS = [
-  'Working pilot instance',
-  'Validated proxy KPI model',
-  'Example decision briefs',
-  'Scenario planning prototype',
-  'User feedback report',
-  'Scale recommendation',
+  'A working Ariya instance, tuned to your data',
+  'Proxy KPIs validated for your markets',
+  'Decision briefs on the Italy / Germany reallocation',
+  'A scenario planner tuned to your assumptions',
+  'A feedback summary from your team',
+  'A recommendation, owned by you, on what to do next',
 ];
 
 const TRUST_POINTS = [
   {
-    label: 'Selected extracts, not full integration',
-    body: 'Start with available data extracts rather than waiting on a full CRM and finance integration.',
+    label: 'We work with extracts, not full integration',
+    body: 'Selected data extracts mean you can start now rather than wait on a complete CRM and finance integration. The pilot proves the model on what is already accessible.',
   },
   {
-    label: 'Proxy KPIs only, with caveats surfaced',
-    body: 'No claim of promotional responsiveness. Proxy KPIs (call frequency, follow-up timing, target coverage) carry the diagnostic load.',
+    label: 'Proxy KPIs, with caveats surfaced',
+    body: 'We do not claim promotional responsiveness. The diagnostic load is carried by proxy KPIs (call frequency, follow-up timing, target coverage). Every recommendation states its confidence and its assumptions.',
   },
   {
-    label: 'Directional scenario planning',
-    body: 'Scenario outputs include confidence bands, central assumptions, and a defensible recommendation. Not a forecast.',
+    label: 'Scenarios are directional, not forecasts',
+    body: 'Scenario outputs include a confidence band, a central assumption, and the conditions required to hold. Every recommendation is reversible.',
   },
   {
-    label: 'Pilot decides scale',
-    body: 'The pilot establishes whether the data can support meaningful decision recommendations. Full Europe rollout is a separate decision.',
+    label: 'You decide what comes next',
+    body: 'The pilot tells you whether the available data supports decisions you trust. A wider Europe rollout is a separate decision, taken by your team on the evidence the pilot produces.',
   },
 ];
 
@@ -387,26 +373,27 @@ export default function PilotProposal() {
   return (
     <div style={pageStyle}>
       <PageHeader
-        title="Pilot Proposal"
-        subtitle="A six-week pilot that turns the prototype into a validated decision layer for Europe Commercial Effectiveness."
+        title="Pilot proposal"
+        subtitle="A focused six-week engagement to validate Ariya as a commercial effectiveness decision layer for Europe leadership."
       />
 
       <section style={heroCardStyle}>
         <span style={heroStripeStyle} aria-hidden />
-        <div style={heroEyebrowStyle}>Why this pilot, why now</div>
+        <div style={heroEyebrowStyle}>The proposal in one line</div>
         <h2 style={heroQuoteStyle}>
-          The prototype creates belief. The pilot creates the buying path.
+          Turn the commercial data you already have into shared, evidence-based decisions across
+          your European markets &mdash; in six weeks, against a live question.
         </h2>
         <p style={heroBodyStyle}>
-          Europe leadership now has a credible commercial effectiveness decision layer in front of
-          them. The pilot tests whether the available Merz data can support meaningful decision
-          recommendations against a real scenario, with real users, in six weeks. It is scoped to
-          succeed, not to prove everything at once.
+          Commercial decisions across Europe today rely on different signals in different markets.
+          This pilot puts those signals into one decision layer for your leadership team and tests
+          it against a real situation you are already working on, so the outcome at week six is a
+          concrete answer, not a demo.
         </p>
       </section>
 
       <section>
-        <div style={sectionLabelStyle}>Pilot framework</div>
+        <div style={sectionLabelStyle}>What we propose</div>
         <div style={frameworkGridStyle}>
           {FRAMEWORK_ELEMENTS.map((el) => (
             <article key={el.eyebrow} style={frameworkCardStyle}>
@@ -424,11 +411,11 @@ export default function PilotProposal() {
               <CheckCircle2 size={20} strokeWidth={2.2} />
             </div>
             <div style={frameworkBodyStyle}>
-              <span style={frameworkEyebrowStyle}>Outputs</span>
-              <h3 style={frameworkTitleStyle}>What lands in Dan&rsquo;s inbox at week six</h3>
+              <span style={frameworkEyebrowStyle}>What you have at week six</span>
+              <h3 style={frameworkTitleStyle}>Concrete artefacts your leadership can use</h3>
               <p style={frameworkBodyTextStyle}>
-                Concrete artefacts the leadership team can use immediately, plus a recommendation
-                on whether to scale.
+                A working pilot environment tuned to your data, decision briefs on the live
+                scenario, and a clear recommendation on whether and how to take it further.
               </p>
               <div style={outputsListStyle}>
                 {OUTPUTS.map((o) => (
@@ -485,29 +472,22 @@ export default function PilotProposal() {
 
       <section style={ctaCardStyle}>
         <div style={ctaTextStyle}>
-          <span style={ctaEyebrowStyle}>Next step</span>
+          <span style={ctaEyebrowStyle}>What we need to start</span>
           <h3 style={ctaHeadlineStyle}>
-            Confirm pilot scope with Dan and lock the source set.
+            Two short conversations: pilot scope and data access.
           </h3>
           <p style={ctaBodyStyle}>
-            Two follow-on conversations: pilot scope and data access. Both can happen this quarter
-            and the pilot can start within four weeks of go-ahead.
+            Both can happen this quarter. The pilot can start within four weeks of go-ahead and
+            delivers its decision briefs six weeks later.
           </p>
         </div>
         <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
           <button
             type="button"
             onClick={() => navigate('/source-confidence')}
-            style={ctaSecondaryBtnStyle}
-          >
-            Review source confidence
-          </button>
-          <button
-            type="button"
-            onClick={() => navigate('/')}
             style={ctaPrimaryBtnStyle}
           >
-            Back to Europe Overview
+            Review the data we propose to use
             <ArrowRight size={14} strokeWidth={2.5} />
           </button>
         </div>

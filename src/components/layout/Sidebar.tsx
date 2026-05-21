@@ -11,6 +11,7 @@ import {
   BookOpen,
   ShieldCheck,
   RefreshCw,
+  Presentation,
 } from 'lucide-react';
 
 const CE_NAV_ITEMS = [
@@ -99,6 +100,26 @@ const footerStyle: CSSProperties = {
   gap: 4,
 };
 
+const footerLinkBaseStyle: CSSProperties = {
+  display: 'flex',
+  alignItems: 'center',
+  gap: 12,
+  padding: '10px 14px',
+  borderRadius: 10,
+  color: 'rgba(255,255,255,0.78)',
+  textDecoration: 'none',
+  fontSize: 13,
+  fontWeight: 500,
+  transition: 'background 120ms ease, color 120ms ease',
+};
+
+const footerLinkActiveStyle: CSSProperties = {
+  background: '#FFFFFF',
+  color: '#050A44',
+  fontWeight: 600,
+  boxShadow: '0 1px 2px rgba(0,0,0,0.08)',
+};
+
 const resetBtnStyle: CSSProperties = {
   display: 'flex',
   alignItems: 'center',
@@ -162,6 +183,16 @@ export function Sidebar() {
       </nav>
 
       <div style={footerStyle}>
+        <NavLink
+          to="/pilot-proposal"
+          style={({ isActive }) => ({
+            ...footerLinkBaseStyle,
+            ...(isActive ? footerLinkActiveStyle : null),
+          })}
+        >
+          <Presentation size={15} />
+          Pilot proposal
+        </NavLink>
         <button type="button" onClick={resetDemo} style={resetBtnStyle}>
           <RefreshCw size={15} />
           Reset demo

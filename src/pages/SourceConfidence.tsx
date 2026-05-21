@@ -1,7 +1,6 @@
 import type { CSSProperties } from 'react';
 import { PageHeader } from '../components/layout/PageHeader';
 import { Donut } from '../components/composites';
-import { WhatThisSuggests } from '../components/decision';
 import { sourceConfidence } from '../data/scenario';
 import type { Confidence, ManualValidationStatus } from '../data/scenario';
 
@@ -276,11 +275,6 @@ export default function SourceConfidence() {
         </div>
       </div>
 
-      <WhatThisSuggests
-        text="Pilot scope should align to the highest-confidence data layers. CRM activity and training participation are the strongest available signals."
-        to="/pilot-proposal"
-        linkLabel="Open Pilot Proposal"
-      />
     </div>
   );
 }
