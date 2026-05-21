@@ -1,8 +1,7 @@
 import { useEffect, useMemo, useState, type CSSProperties } from 'react';
 import { useSearchParams } from 'react-router-dom';
+import { Minus, TrendingDown, TrendingUp } from 'lucide-react';
 import {
-  Area,
-  AreaChart,
   Bar,
   BarChart,
   CartesianGrid,
@@ -491,19 +490,18 @@ export default function MarketPerformance() {
               );
             }
             const tone = toneFromGrowth(b.perf.growthVsPlanPct);
-            const sparklineData = b.perf.trendIndexed.map((v, idx) => ({ idx, v }));
-            // Tight Y domain so the variation reads. Pad by ~25% of the actual range,
-            // with a minimum padding of 1 index point so dead-flat series still draw a line.
-            const minV = Math.min(...b.perf.trendIndexed);
-            const maxV = Math.max(...b.perf.trendIndexed);
-            const range = Math.max(maxV - minV, 1);
-            const pad = Math.max(range * 0.25, 0.6);
-            const yDomain: [number, number] = [minV - pad, maxV + pad];
-            // Stroke color reflects direction: red if last < first, navy/green otherwise.
+            // Direction from first → last quarter, used by the small trend pill.
             const last = b.perf.trendIndexed[b.perf.trendIndexed.length - 1];
             const first = b.perf.trendIndexed[0];
-            const sparkColor =
-              last < first - 0.5 ? '#E11D48' : last > first + 0.5 ? '#16A34A' : BLUE;
+            const trendDelta = last - first;
+            const trendDirection: 'up' | 'down' | 'flat' =
+              trendDelta > 0.5 ? 'up' : trendDelta < -0.5 ? 'down' : 'flat';
+            const TrendIcon =
+              trendDirection === 'up' ? TrendingUp : trendDirection === 'down' ? TrendingDown : Minus;
+            const trendColor =
+              trendDirection === 'up' ? '#16A34A'
+              : trendDirection === 'down' ? '#E11D48'
+              : NAVY_55;
             return (
               <div key={b.id} style={brandCardStyle(b.primary)}>
                 <div style={brandNameStyle}>
@@ -522,30 +520,44 @@ export default function MarketPerformance() {
                     </span>
                   )}
                 </div>
-                <div style={{ width: '100%', height: 56 }}>
-                  <ResponsiveContainer>
-                    <AreaChart data={sparklineData} margin={{ top: 4, right: 2, bottom: 0, left: 2 }}>
-                      <defs>
-                        <linearGradient id={`grad-${b.id}`} x1="0" y1="0" x2="0" y2="1">
-                          <stop offset="0%" stopColor={sparkColor} stopOpacity={0.32} />
-                          <stop offset="100%" stopColor={sparkColor} stopOpacity={0} />
-                        </linearGradient>
-                      </defs>
-                      <YAxis hide domain={yDomain} />
-                      <Area
-                        type="monotone"
-                        dataKey="v"
-                        stroke={sparkColor}
-                        strokeWidth={2}
-                        fill={`url(#grad-${b.id})`}
-                        isAnimationActive={false}
-                      />
-                    </AreaChart>
-                  </ResponsiveContainer>
+                <div
+                  style={{
+                    fontSize: 11,
+                    fontWeight: 600,
+                    letterSpacing: '0.04em',
+                    textTransform: 'uppercase',
+                    color: NAVY_55,
+                  }}
+                >
+                  QTD sales
                 </div>
-                <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', gap: 8 }}>
-                  <div style={brandSalesStyle}>€{b.perf.salesQtdEur.toFixed(1)}M</div>
+                <div style={{ ...brandSalesStyle, fontSize: 24, lineHeight: 1.1 }}>
+                  €{b.perf.salesQtdEur.toFixed(1)}M
+                </div>
+                <div
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 8,
+                    flexWrap: 'wrap',
+                    marginTop: 2,
+                  }}
+                >
                   <SignalChip tone={tone} label={`${fmtSigned(b.perf.growthVsPlanPct)} vs plan`} />
+                  <span
+                    style={{
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: 4,
+                      fontSize: 11,
+                      fontWeight: 600,
+                      color: trendColor,
+                    }}
+                  >
+                    <TrendIcon size={12} strokeWidth={2.5} />
+                    {trendDirection === 'up' ? 'Trending up' : trendDirection === 'down' ? 'Trending down' : 'Stable'}
+                    <span style={{ color: NAVY_55, fontWeight: 500 }}>· 6q</span>
+                  </span>
                 </div>
               </div>
             );
