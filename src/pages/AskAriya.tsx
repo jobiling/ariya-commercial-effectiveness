@@ -431,17 +431,20 @@ function ChatResponse({ exchange, onLogDecision }: ChatResponseProps) {
   const navigate = useNavigate();
   return (
     <RecommendationCard
-      situation=""
+      eyebrow="Ariya recommends · Scenario answer"
+      meta={exchange.response.headerMeta}
+      pill={exchange.response.pill}
       recommendation={exchange.response.recommendedAction}
-      reasoning={exchange.response.reasoning}
-      scenarioView={exchange.response.scenarioView}
+      whyBullets={exchange.response.whyBullets}
+      reasoning={exchange.response.whyBullets ? undefined : exchange.response.reasoning}
+      scenarioView={exchange.response.whyBullets ? undefined : exchange.response.scenarioView}
       confidence={exchange.response.confidence}
       confidenceRationale={exchange.response.confidenceRationale}
       conditions={exchange.response.requiredConditions}
       nextActions={exchange.response.recommendedNextActions}
+      nextActionsMeta={exchange.response.nextActionsMeta}
       sources={exchange.response.sources}
-      conditionsLabel="Required conditions"
-      accent="teal"
+      footerMeta={exchange.response.footerMeta}
       actions={[
         {
           label: 'Log this decision →',
@@ -449,9 +452,14 @@ function ChatResponse({ exchange, onLogDecision }: ChatResponseProps) {
           primary: true,
         },
         ...(exchange.response.linksTo ?? []).map((l) => ({
-          label: `${l.label} →`,
+          label: l.label,
           onClick: () => navigate(l.route),
         })),
+        {
+          label: 'Trace evidence',
+          onClick: () => navigate('/source-confidence'),
+          tone: 'quiet' as const,
+        },
       ]}
     />
   );

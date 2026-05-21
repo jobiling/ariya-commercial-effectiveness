@@ -767,15 +767,18 @@ export default function ScenarioPlanner() {
 
       {/* Full-width recommendation below the inputs + chart row */}
       <RecommendationCard
-        situation={scenarioPlanner.recommendation.situation}
+        eyebrow={scenarioPlanner.recommendation.eyebrow}
+        meta={scenarioPlanner.recommendation.headerMeta}
+        pill={scenarioPlanner.recommendation.pill}
         recommendation={scenarioPlanner.recommendation.recommendation}
-        reasoning={scenarioPlanner.recommendation.reasoning}
+        whyBullets={scenarioPlanner.recommendation.whyBullets}
         confidence={scenarioPlanner.recommendation.confidence}
         confidenceRationale={scenarioPlanner.recommendation.confidenceRationale}
         conditions={scenarioPlanner.recommendation.conditions}
         nextActions={scenarioPlanner.recommendation.nextActions}
+        nextActionsMeta={scenarioPlanner.recommendation.nextActionsMeta}
         sources={scenarioPlanner.recommendation.sources}
-        accent="teal"
+        footerMeta={scenarioPlanner.recommendation.footerMeta}
         collapsible
         actions={[
           {
@@ -784,8 +787,13 @@ export default function ScenarioPlanner() {
             primary: true,
           },
           {
-            label: 'Open in Ask Ariya →',
+            label: 'Open in Ask Ariya',
             onClick: openInAskAriya,
+          },
+          {
+            label: 'Trace evidence',
+            onClick: () => navigate('/source-confidence'),
+            tone: 'quiet',
           },
         ]}
       />

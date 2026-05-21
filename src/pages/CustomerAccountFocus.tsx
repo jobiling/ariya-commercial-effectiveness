@@ -716,15 +716,18 @@ export default function CustomerAccountFocus() {
             <div>
               {isItDermHigh ? (
                 <RecommendationCard
-                  situation={italyHighPotentialDermRecommendation.situation}
+                  eyebrow={italyHighPotentialDermRecommendation.eyebrow}
+                  meta={italyHighPotentialDermRecommendation.headerMeta}
+                  pill={italyHighPotentialDermRecommendation.pill}
                   recommendation={italyHighPotentialDermRecommendation.recommendation}
-                  reasoning={italyHighPotentialDermRecommendation.reasoning}
+                  whyBullets={italyHighPotentialDermRecommendation.whyBullets}
                   confidence={italyHighPotentialDermRecommendation.confidence}
                   confidenceRationale={italyHighPotentialDermRecommendation.confidenceRationale}
                   conditions={italyHighPotentialDermRecommendation.conditions}
                   nextActions={italyHighPotentialDermRecommendation.nextActions}
+                  nextActionsMeta={italyHighPotentialDermRecommendation.nextActionsMeta}
                   sources={italyHighPotentialDermRecommendation.sources}
-                  accent="teal"
+                  footerMeta={italyHighPotentialDermRecommendation.footerMeta}
                 />
               ) : (
                 <div style={placeholderCardStyle}>

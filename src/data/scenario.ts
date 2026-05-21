@@ -104,28 +104,47 @@ export const overview = {
   scatterInterpretation:
     'Higher investment intensity does not translate cleanly into growth above plan. Germany and Italy carry the highest investment but the weakest growth vs plan. Spain and Switzerland deliver growth at lower intensity. The question is not whether to invest, it is where the investment is associated with follow-through.',
   recommendation: {
-    eyebrow: 'Ariya recommends',
+    eyebrow: 'Ariya recommends · Europe priority',
+    pill: 'Close the Italy gap first',
+    headerMeta: 'Generated for Europe Leadership · 21 May',
     situation:
       'Italy and Germany together represent 47% of Europe Xeomin sales and 52% of Xeomin commercial investment, yet both are below plan. The pattern points to execution discipline, not investment size.',
     recommendation:
       'Prioritise an Italy follow-up sprint for high-potential trained HCPs before considering a broad German spend reduction.',
     reasoning:
       'Italy shows the largest gap between training investment and post-training field follow-up. Germany shows pressure on net impact but cutting spend without protecting priority accounts risks downside. The most defensible first move is to close the Italian follow-up gap, then evaluate a targeted German reallocation.',
+    whyBullets: [
+      {
+        lead: 'Italy is the largest single drag.',
+        body: 'Investment is concentrated in high-potential trained HCPs, but 60-day post-training follow-up sits at 41% vs a 65% European benchmark.',
+      },
+      {
+        lead: 'Germany is a yield problem, not a coverage problem.',
+        body: 'Highest investment intensity and field activity above expected, yet growth vs plan is negative. The candidates for reallocation are lower-response activities.',
+      },
+      {
+        lead: 'The defensible first move is operational.',
+        body: 'Close the Italy follow-up gap inside the existing envelope, then evaluate a targeted German reallocation in the next cycle.',
+      },
+    ],
     confidence: 'Medium' as Confidence,
     confidenceRationale:
-      'Account-level linkage between training and revenue is partial. Proxy KPIs are defensible at segment level.',
+      'Account-level linkage between training and revenue is partial. Proxy KPIs are defensible at segment level. Treat as directional, not deterministic.',
     conditions: [
-      'High-potential trained HCP list confirmed in Italy.',
-      'Italy National Sales Manager owns the 60-day follow-up cadence.',
-      'Germany reduction, if any, is limited to lower-response activities and protects priority accounts.',
-      'Review at 60 days using CRM follow-up and performance signals.',
+      'High-potential trained HCP list confirmed in Italy',
+      'Italy NSM owns the 60-day follow-up cadence',
+      'Germany reduction limited to lower-response activities',
+      'Priority accounts ring-fenced in Germany',
+      'Review at 60 days using CRM and performance signals',
     ],
     nextActions: [
-      { action: 'Open Scenario Planner for Italy / Germany reallocation', owner: 'Europe Leadership', timeframe: 'This week' },
-      { action: 'Confirm Italy high-potential trained HCP list', owner: 'Italy NSM', timeframe: 'Within 5 days' },
+      { action: 'Open Scenario Planner for Italy / Germany reallocation', owner: 'Europe Leadership', timeframe: 'This week', priority: true },
+      { action: 'Confirm Italy high-potential trained HCP list', owner: 'Italy NSM', timeframe: 'Within 5 days', priority: true },
       { action: 'Define Italy follow-up sprint plan', owner: 'Italy NSM, first-line managers', timeframe: 'Within 10 days' },
     ],
+    nextActionsMeta: '3 steps · 10-day horizon',
     sources: ['Market performance', 'CRM activity', 'Training participation and spend', 'Finance'],
+    footerMeta: 'Reversible · revisit at 60 days',
   },
   marketsRequiringAttention: [
     { marketId: 'it', headline: 'Italy follow-up gap is the largest single drag on Xeomin Europe.',
@@ -314,28 +333,46 @@ export const investmentRadar: InvestmentCategory[] = [
 
 // Recommendation for the default-selected cell: HCP training × Italy
 export const italyHcpTrainingRecommendation = {
-  eyebrow: 'Ariya recommends',
+  eyebrow: 'Ariya recommends · Investment view',
+  pill: 'Fix execution, not selection',
+  headerMeta: 'Italy · HCP training · 21 May',
   situation:
     '€1.24M invested in Italy HCP injection training over 18 months. 41% of trained HCPs received a follow-up call within 60 days, vs a 65% benchmark across European markets. 47 high-potential trained HCPs sit below the follow-up threshold.',
   recommendation:
     'Run a 60-day Italy follow-up sprint targeting the 47 high-potential trained HCPs, owned by the Italy NSM with first-line manager accountability.',
   reasoning:
     'The investment selection itself is defensible: training participation is concentrated in high and medium potential segments. The break point is post-training execution. Closing the follow-up gap is a higher-confidence first move than reducing training spend.',
+  whyBullets: [
+    {
+      lead: 'Selection is defensible.',
+      body: 'Training participation is concentrated in high and medium potential segments. The mix mirrors the European pattern.',
+    },
+    {
+      lead: 'The break point is post-training execution.',
+      body: '41% of trained HCPs received a follow-up call within 60 days vs a 65% benchmark. 47 high-potential trained HCPs are below the threshold.',
+    },
+    {
+      lead: 'Closing the follow-up gap is the higher-confidence first move',
+      body: 'than reducing training spend. It is operationally bounded and uses the existing investment envelope.',
+    },
+  ],
   confidence: 'Medium' as Confidence,
   confidenceRationale:
     'CRM follow-up data is reliable. Linking follow-up to revenue is directional, not causal.',
   conditions: [
-    'High-potential trained HCP list confirmed by Italy commercial operations.',
-    'Italy NSM owns the 60-day follow-up cadence.',
-    'First-line managers track post-training engagement weekly.',
-    'Review at 60 days, then decide on cohort 2.',
+    'High-potential trained HCP list confirmed by Italy commercial ops',
+    'Italy NSM owns the 60-day follow-up cadence',
+    'First-line managers track post-training engagement weekly',
+    'Review at 60 days, then decide on cohort 2',
   ],
   nextActions: [
-    { action: 'Confirm high-potential trained HCP list', owner: 'Italy commercial ops', timeframe: 'Within 5 days' },
-    { action: 'Launch 60-day follow-up sprint', owner: 'Italy NSM', timeframe: 'Within 10 days' },
+    { action: 'Confirm high-potential trained HCP list', owner: 'Italy commercial ops', timeframe: 'Within 5 days', priority: true },
+    { action: 'Launch 60-day follow-up sprint', owner: 'Italy NSM', timeframe: 'Within 10 days', priority: true },
     { action: 'Weekly progress check with first-line managers', owner: 'Italy NSM', timeframe: 'Weekly' },
   ],
+  nextActionsMeta: '3 steps · 10-day kickoff',
   sources: ['Training participation and spend', 'CRM activity', 'HCP segmentation'],
+  footerMeta: 'Reversible · revisit at 60 days',
 } as const;
 
 // ---------------------------------------------------------------------------
@@ -510,26 +547,44 @@ export const hcpSegments: HcpSegment[] = [
 ];
 
 export const italyHighPotentialDermRecommendation = {
-  eyebrow: 'Ariya recommends',
+  eyebrow: 'Ariya recommends · Segment view',
+  pill: 'Priority cohort identified',
+  headerMeta: 'Italy · High-potential dermatologists · 21 May',
   situation:
     'Italian high-potential dermatologists are well-trained (64%) but post-training 60-day follow-up sits at 38%. This is the single segment most consistent with the Italy commercial gap.',
   recommendation:
     'Make Italian high-potential dermatologists the priority cohort for the 60-day follow-up sprint. Define field cadence and first-line manager check-ins.',
   reasoning:
     'Selection has been defensible. Execution discipline is the break point. Concentrating attention here is the highest-leverage operational move available within the existing investment.',
+  whyBullets: [
+    {
+      lead: 'Training coverage is solid.',
+      body: '64% of Italian high-potential dermatologists are trained, in line with the European benchmark for the segment.',
+    },
+    {
+      lead: 'Follow-up is the break point.',
+      body: 'Post-training 60-day follow-up sits at 38%, vs 72% in Germany for the equivalent segment. This is the single segment most consistent with the Italy commercial gap.',
+    },
+    {
+      lead: 'Highest leverage within the existing investment.',
+      body: 'Concentrating field attention here changes commercial signal without adding spend.',
+    },
+  ],
   confidence: 'Medium' as Confidence,
   confidenceRationale:
     'Segment-level CRM data is reliable. Causal linkage to Xeomin sales remains directional.',
   conditions: [
-    'Field cadence defined and committed by the Italy NSM.',
-    'First-line managers track follow-up weekly.',
-    'Status reviewed at 60 days against revenue and CRM signals.',
+    'Field cadence defined and committed by the Italy NSM',
+    'First-line managers track follow-up weekly',
+    'Status reviewed at 60 days against revenue and CRM signals',
   ],
   nextActions: [
-    { action: 'Schedule follow-up sprint kickoff', owner: 'Italy NSM', timeframe: 'Within 7 days' },
-    { action: 'Assign first-line manager owners per territory', owner: 'Italy NSM', timeframe: 'Within 7 days' },
+    { action: 'Schedule follow-up sprint kickoff', owner: 'Italy NSM', timeframe: 'Within 7 days', priority: true },
+    { action: 'Assign first-line manager owners per territory', owner: 'Italy NSM', timeframe: 'Within 7 days', priority: true },
   ],
+  nextActionsMeta: '2 steps · 7-day horizon',
   sources: ['CRM activity', 'HCP segmentation', 'Training participation'],
+  footerMeta: 'Reversible · revisit at 60 days',
 } as const;
 
 // ---------------------------------------------------------------------------
@@ -605,30 +660,47 @@ export const scenarioPlanner = {
     { node: 'Commercial impact', status: 'Pending' },
   ],
   recommendation: {
-    eyebrow: 'Ariya recommends',
+    eyebrow: 'Ariya recommends · Scenario answer',
+    pill: "Reallocate, don't shift",
+    headerMeta: 'Generated for Europe Leadership · 21 May',
     situation:
       'A 10% reallocation of Germany marketing spend to Italy post-training activation produces a directional net positive of ~2.5 index points over 6 months in the base case, conditional on Italy follow-up improvement.',
     recommendation:
-      'Do not shift budget broadly. Reallocate only toward high-potential trained HCPs in Italy with a defined follow-up plan and field manager accountability.',
+      'Reallocate only toward high-potential trained HCPs in Italy, with a defined follow-up plan and field manager accountability.',
     reasoning:
       'Italy shows evidence of higher potential response among trained HCPs when follow-up occurs, but follow-up discipline is inconsistent. Germany shows pressure on net impact, but reducing spend without protecting priority accounts may create downside risk.',
+    whyBullets: [
+      {
+        lead: 'Italy upside is conditional.',
+        body: 'Trained HCPs show higher potential response, but only where follow-up actually occurs. Follow-up discipline today is inconsistent.',
+      },
+      {
+        lead: 'Germany downside is real.',
+        body: 'Net impact is already under pressure. Cutting spend without ring-fencing priority accounts creates downside risk.',
+      },
+      {
+        lead: 'Net direction is positive',
+        body: 'under the assumption Italy lifts follow-up coverage on high-potential trained HCPs within 60 days.',
+      },
+    ],
     confidence: 'Medium' as Confidence,
     confidenceRationale:
-      'Account-level linkage and market-level confounders require validation.',
+      'Data completeness is moderate. Account-level linkage and market-level confounders require validation. Treat as directional, not deterministic.',
     conditions: [
-      'High-potential trained HCP list confirmed.',
-      'Follow-up cadence defined.',
-      'National sales manager owns execution.',
-      'First-line managers track post-training engagement.',
-      'Germany reduction limited to lower-response activities.',
-      'Review after 60 days.',
+      'High-potential trained HCP list confirmed',
+      'National sales manager owns execution',
+      'Germany reduction limited to lower-response activities',
+      'Follow-up cadence defined',
+      'First-line managers track post-training engagement',
+      'Review after 60 days',
     ],
     nextActions: [
-      { action: 'Run Italy high-potential HCP follow-up sprint', owner: 'Italy NSM', timeframe: '60 days' },
-      { action: 'Protect Germany priority account coverage', owner: 'Germany NSM', timeframe: 'Immediate' },
-      { action: 'Reassess after 60 days using CRM follow-up and performance signals', owner: 'Europe Leadership', timeframe: '60 days' },
-      { action: 'Decide whether to expand reallocation in the next cycle', owner: 'Europe Leadership', timeframe: 'Q3 planning' },
+      { action: 'Run Italy high-potential HCP follow-up sprint', owner: 'Italy NSM', timeframe: '60 days', priority: true },
+      { action: 'Protect Germany priority account coverage', owner: 'Germany NSM', timeframe: 'Immediate', priority: true },
+      { action: 'Reassess after 60 days', owner: 'Europe Leadership', timeframe: '60 days' },
+      { action: 'Decide whether to expand reallocation', owner: 'Europe Leadership', timeframe: 'Q3 planning' },
     ],
+    nextActionsMeta: '4 steps · spans to Q3 planning',
     sources: [
       'Market performance',
       'CRM activity',
@@ -637,6 +709,7 @@ export const scenarioPlanner = {
       'Brand plan assumptions',
       'Finance · spend',
     ],
+    footerMeta: 'Reversible · revisit at 60 days',
   },
   alternateScenarios: [
     { id: 'italy-followup-only', label: 'Increase follow-up for trained HCPs (Italy)', enabled: false },
@@ -657,11 +730,19 @@ export interface AriyaExchange {
     reasoning: string;
     scenarioView: string;
     requiredConditions: string[];
-    recommendedNextActions: { action: string; owner: string; timeframe: string }[];
+    recommendedNextActions: { action: string; owner: string; timeframe: string; priority?: boolean }[];
     sources: string[];
     confidence: Confidence;
     confidenceRationale: string;
     linksTo?: { label: string; route: string }[];
+    // Optional richer fields for the showcase scenarios. When present, the
+    // RecommendationCard renders the navy badge under the eyebrow, structured
+    // WHY bullets, header meta strings, and footer meta.
+    pill?: string;
+    whyBullets?: { lead: string; body: string }[];
+    headerMeta?: string;        // e.g. "Generated for Europe Leadership · 21 May"
+    nextActionsMeta?: string;   // e.g. "4 steps · spans to Q3 planning"
+    footerMeta?: string;        // e.g. "Reversible · revisit at 60 days"
   };
 }
 
@@ -686,18 +767,36 @@ export const askAriya: AriyaExchange[] = [
         'Review after 60 days',
       ],
       recommendedNextActions: [
-        { action: 'Run Italy high-potential HCP follow-up sprint', owner: 'Italy NSM', timeframe: '60 days' },
-        { action: 'Protect Germany priority account coverage', owner: 'Germany NSM', timeframe: 'Immediate' },
+        { action: 'Run Italy high-potential HCP follow-up sprint', owner: 'Italy NSM', timeframe: '60 days', priority: true },
+        { action: 'Protect Germany priority account coverage', owner: 'Germany NSM', timeframe: 'Immediate', priority: true },
         { action: 'Reassess after 60 days', owner: 'Europe Leadership', timeframe: '60 days' },
-        { action: 'Decide whether to expand reallocation in next cycle', owner: 'Europe Leadership', timeframe: 'Q3 planning' },
+        { action: 'Decide whether to expand reallocation', owner: 'Europe Leadership', timeframe: 'Q3 planning' },
       ],
       sources: ['Market performance', 'CRM activity', 'Training participation and spend', 'HCP segmentation', 'Brand plan assumptions', 'Finance · spend'],
       confidence: 'Medium',
-      confidenceRationale: 'Data completeness is moderate. Causal attribution is directional, not deterministic.',
+      confidenceRationale: 'Data completeness is moderate. Account-level linkage and market-level confounders require validation. Treat as directional, not deterministic.',
       linksTo: [
         { label: 'Open in Scenario Planner', route: '/scenario-planner' },
         { label: 'Log this decision', route: '/decision-log?from=ask-ariya' },
       ],
+      pill: "Reallocate, don't shift",
+      whyBullets: [
+        {
+          lead: 'Italy upside is conditional.',
+          body: 'Trained HCPs show higher potential response, but only where follow-up actually occurs. Follow-up discipline today is inconsistent.',
+        },
+        {
+          lead: 'Germany downside is real.',
+          body: 'Net impact is already under pressure. Cutting spend without ring-fencing priority accounts creates downside risk.',
+        },
+        {
+          lead: 'Net direction is positive',
+          body: 'under the assumption Italy lifts follow-up coverage on high-potential trained HCPs within 60 days.',
+        },
+      ],
+      headerMeta: 'Generated for Europe Leadership · 21 May',
+      nextActionsMeta: '4 steps · spans to Q3 planning',
+      footerMeta: 'Reversible · revisit at 60 days',
     },
   },
   {

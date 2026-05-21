@@ -537,15 +537,18 @@ export default function InvestmentRadar() {
 
           {isItalyHcp ? (
             <RecommendationCard
-              situation={italyHcpTrainingRecommendation.situation}
+              eyebrow={italyHcpTrainingRecommendation.eyebrow}
+              meta={italyHcpTrainingRecommendation.headerMeta}
+              pill={italyHcpTrainingRecommendation.pill}
               recommendation={italyHcpTrainingRecommendation.recommendation}
-              reasoning={italyHcpTrainingRecommendation.reasoning}
+              whyBullets={italyHcpTrainingRecommendation.whyBullets}
               confidence={italyHcpTrainingRecommendation.confidence}
               confidenceRationale={italyHcpTrainingRecommendation.confidenceRationale}
               conditions={italyHcpTrainingRecommendation.conditions}
               nextActions={italyHcpTrainingRecommendation.nextActions}
+              nextActionsMeta={italyHcpTrainingRecommendation.nextActionsMeta}
               sources={italyHcpTrainingRecommendation.sources}
-              accent="teal"
+              footerMeta={italyHcpTrainingRecommendation.footerMeta}
               collapsible
             />
           ) : (

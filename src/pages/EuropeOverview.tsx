@@ -394,15 +394,18 @@ export default function EuropeOverview() {
 
       <div ref={recommendationRef}>
         <RecommendationCard
-          situation={overview.recommendation.situation}
+          eyebrow={overview.recommendation.eyebrow}
+          meta={overview.recommendation.headerMeta}
+          pill={overview.recommendation.pill}
           recommendation={overview.recommendation.recommendation}
-          reasoning={overview.recommendation.reasoning}
+          whyBullets={overview.recommendation.whyBullets}
           confidence={overview.recommendation.confidence}
           confidenceRationale={overview.recommendation.confidenceRationale}
           conditions={overview.recommendation.conditions}
           nextActions={overview.recommendation.nextActions}
+          nextActionsMeta={overview.recommendation.nextActionsMeta}
           sources={overview.recommendation.sources}
-          accent="teal"
+          footerMeta={overview.recommendation.footerMeta}
           collapsible
           actions={[
             {
@@ -411,8 +414,13 @@ export default function EuropeOverview() {
               primary: true,
             },
             {
-              label: 'Log this decision →',
+              label: 'Log this decision',
               onClick: () => navigate('/decision-log?from=europe-overview'),
+            },
+            {
+              label: 'Trace evidence',
+              onClick: () => navigate('/source-confidence'),
+              tone: 'quiet',
             },
           ]}
         />
