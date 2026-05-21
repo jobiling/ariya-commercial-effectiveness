@@ -180,7 +180,13 @@ const cardStyle: CSSProperties = {
   boxShadow: `0 1px 2px ${NAVY_04}`,
 };
 
-const cardEyebrowRowStyle: CSSProperties = {
+// Header hierarchy on the page:
+//   Level 1: page title (gradient, handled by PageHeader)
+//   Level 2: section / card title — navy bold sentence case
+//   Level 3: sub-label inside a card — grey small-caps eyebrow
+//   Special: "Ariya recommends · Scenario answer" stays as a blue eyebrow
+//   because it marks the AI's voice, not a section title.
+const sectionTitleRowStyle: CSSProperties = {
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'space-between',
@@ -188,12 +194,19 @@ const cardEyebrowRowStyle: CSSProperties = {
   marginBottom: 16,
 };
 
-const cardEyebrowStyle: CSSProperties = {
-  fontSize: 11,
-  fontWeight: 800,
-  letterSpacing: '0.08em',
-  textTransform: 'uppercase',
+const sectionTitleStyle: CSSProperties = {
+  fontSize: 15,
+  fontWeight: 700,
+  color: NAVY,
+  lineHeight: 1.35,
+  margin: 0,
+};
+
+const sectionSubtitleStyle: CSSProperties = {
+  fontSize: 12,
   color: NAVY_55,
+  lineHeight: 1.4,
+  margin: '2px 0 0',
 };
 
 // ───────────────────────────────────────────────────────────────────────────
@@ -461,14 +474,13 @@ const chainRowStyle: CSSProperties = {
 };
 
 const chainNodeBase: CSSProperties = {
-  background: '#ffffff',
-  border: `1px solid ${NAVY_12}`,
+  background: '#F7F8FC',
+  border: `1px solid ${NAVY_06}`,
   borderRadius: 12,
   padding: 16,
   display: 'flex',
   flexDirection: 'column',
   gap: 4,
-  boxShadow: `0 1px 2px ${NAVY_04}`,
   position: 'relative',
 };
 
@@ -532,20 +544,6 @@ const chainArrowStyle: CSSProperties = {
 // ───────────────────────────────────────────────────────────────────────────
 // Chart
 // ───────────────────────────────────────────────────────────────────────────
-
-const chartTitleStyle: CSSProperties = {
-  fontSize: 15,
-  fontWeight: 700,
-  color: NAVY,
-  margin: 0,
-};
-
-const chartSubtitleStyle: CSSProperties = {
-  fontSize: 12,
-  color: NAVY_55,
-  marginTop: 2,
-  fontStyle: 'italic',
-};
 
 const tooltipBoxStyle: CSSProperties = {
   background: NAVY,
@@ -758,8 +756,8 @@ export default function ScenarioPlanner() {
 
       {/* ─── Scenario card ────────────────────────────────────────── */}
       <section style={cardStyle}>
-        <div style={cardEyebrowRowStyle}>
-          <span style={cardEyebrowStyle}>Scenario</span>
+        <div style={sectionTitleRowStyle}>
+          <h2 style={sectionTitleStyle}>Scenario</h2>
         </div>
 
         <div style={selectorRowStyle}>
@@ -873,8 +871,8 @@ export default function ScenarioPlanner() {
 
       {/* ─── Conditions & Assumptions (collapsible) ──────────────── */}
       <section style={cardStyle}>
-        <div style={cardEyebrowRowStyle}>
-          <span style={cardEyebrowStyle}>Conditions &amp; assumptions</span>
+        <div style={sectionTitleRowStyle}>
+          <h2 style={sectionTitleStyle}>Conditions &amp; assumptions</h2>
           <button
             type="button"
             onClick={() => setCondCollapsed((v) => !v)}
@@ -957,9 +955,12 @@ export default function ScenarioPlanner() {
       </section>
 
       {/* ─── Dependency: 3-step chain ───────────────────────────── */}
-      <section>
-        <div style={{ ...cardEyebrowStyle, marginBottom: 12 }}>
-          Dependency · Where the impact comes from
+      <section style={cardStyle}>
+        <div style={sectionTitleRowStyle}>
+          <div>
+            <h2 style={sectionTitleStyle}>Dependency</h2>
+            <p style={sectionSubtitleStyle}>Where the impact comes from.</p>
+          </div>
         </div>
         <div style={chainRowStyle}>
           {scenarioPlanner.operationalChain.map((node, idx) => {
@@ -993,18 +994,10 @@ export default function ScenarioPlanner() {
 
       {/* ─── Chart (full width) ─────────────────────────────────── */}
       <section style={cardStyle}>
-        <div
-          style={{
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'flex-start',
-            gap: 12,
-            flexWrap: 'wrap',
-          }}
-        >
+        <div style={sectionTitleRowStyle}>
           <div>
-            <h2 style={chartTitleStyle}>Directional net commercial impact · 6-month window</h2>
-            <p style={chartSubtitleStyle}>Directional. Not a forecast.</p>
+            <h2 style={sectionTitleStyle}>Directional net commercial impact · 6-month window</h2>
+            <p style={sectionSubtitleStyle}>Directional. Not a forecast.</p>
           </div>
           <div style={{ display: 'flex', gap: 14, fontSize: 11, color: NAVY_70, fontWeight: 600 }}>
             <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
