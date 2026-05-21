@@ -431,7 +431,7 @@ function ChatResponse({ exchange, onLogDecision }: ChatResponseProps) {
   const navigate = useNavigate();
   return (
     <RecommendationCard
-      eyebrow="Ariya recommends · Scenario answer"
+      eyebrow="Ariya recommends"
       meta={exchange.response.headerMeta}
       pill={exchange.response.pill}
       recommendation={exchange.response.recommendedAction}

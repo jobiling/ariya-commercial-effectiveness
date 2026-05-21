@@ -104,7 +104,7 @@ export const overview = {
   scatterInterpretation:
     'Higher investment intensity does not translate cleanly into growth above plan. Germany and Italy carry the highest investment but the weakest growth vs plan. Spain and Switzerland deliver growth at lower intensity. The question is not whether to invest, it is where the investment is associated with follow-through.',
   recommendation: {
-    eyebrow: 'Ariya recommends · Europe priority',
+    eyebrow: 'Ariya recommends',
     pill: 'Close the Italy gap first',
     headerMeta: 'Generated for Europe Leadership · 21 May',
     situation:

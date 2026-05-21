@@ -1,12 +1,10 @@
 import type { CSSProperties, ReactNode } from 'react';
-import { useNavigate } from 'react-router-dom';
 import {
   Target,
   Database,
   Users,
   Calendar,
   CheckCircle2,
-  ArrowRight,
   Sparkles,
 } from 'lucide-react';
 import { PageHeader } from '../components/layout/PageHeader';
@@ -214,69 +212,6 @@ const trustRowLastStyle: CSSProperties = {
   borderBottom: 'none',
 };
 
-// ─── Closing CTA ─────────────────────────────────────────────────────────────
-
-const ctaCardStyle: CSSProperties = {
-  background: '#ffffff',
-  border: `1px solid ${NAVY_12}`,
-  borderRadius: 14,
-  padding: '24px 28px',
-  display: 'flex',
-  alignItems: 'center',
-  justifyContent: 'space-between',
-  gap: 24,
-  flexWrap: 'wrap',
-  boxShadow: '0 1px 2px rgba(5,10,68,0.04)',
-};
-
-const ctaTextStyle: CSSProperties = {
-  display: 'flex',
-  flexDirection: 'column',
-  gap: 4,
-  flex: 1,
-  minWidth: 280,
-};
-
-const ctaEyebrowStyle: CSSProperties = {
-  fontSize: 11,
-  fontWeight: 800,
-  letterSpacing: '0.06em',
-  textTransform: 'uppercase',
-  color: BLUE,
-};
-
-const ctaHeadlineStyle: CSSProperties = {
-  fontSize: 18,
-  fontWeight: 700,
-  color: NAVY,
-  margin: 0,
-  lineHeight: 1.4,
-};
-
-const ctaBodyStyle: CSSProperties = {
-  fontSize: 13,
-  color: NAVY_70,
-  lineHeight: 1.5,
-  margin: 0,
-};
-
-const ctaPrimaryBtnStyle: CSSProperties = {
-  display: 'inline-flex',
-  alignItems: 'center',
-  gap: 6,
-  height: 40,
-  padding: '0 20px',
-  borderRadius: 10,
-  background: BLUE,
-  border: `1px solid ${BLUE}`,
-  color: '#ffffff',
-  fontSize: 13,
-  fontWeight: 700,
-  cursor: 'pointer',
-  fontFamily: 'inherit',
-  whiteSpace: 'nowrap',
-};
-
 // ─── Data ────────────────────────────────────────────────────────────────────
 
 interface FrameworkElement {
@@ -368,7 +303,6 @@ const TRUST_POINTS = [
 // ─── Page ────────────────────────────────────────────────────────────────────
 
 export default function PilotProposal() {
-  const navigate = useNavigate();
 
   return (
     <div style={pageStyle}>
@@ -470,28 +404,6 @@ export default function PilotProposal() {
         </div>
       </section>
 
-      <section style={ctaCardStyle}>
-        <div style={ctaTextStyle}>
-          <span style={ctaEyebrowStyle}>What we need to start</span>
-          <h3 style={ctaHeadlineStyle}>
-            Two short conversations: pilot scope and data access.
-          </h3>
-          <p style={ctaBodyStyle}>
-            Both can happen this quarter. The pilot can start within four weeks of go-ahead and
-            delivers its decision briefs six weeks later.
-          </p>
-        </div>
-        <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
-          <button
-            type="button"
-            onClick={() => navigate('/source-confidence')}
-            style={ctaPrimaryBtnStyle}
-          >
-            Review the data we propose to use
-            <ArrowRight size={14} strokeWidth={2.5} />
-          </button>
-        </div>
-      </section>
     </div>
   );
 }
