@@ -88,11 +88,6 @@ function fmtEur(thousands: number): string {
 // Confidence-band model (unchanged from previous iteration)
 // ───────────────────────────────────────────────────────────────────────────
 
-const CONDITION_KEYS = [
-  'Italy follow-up coverage improves within 60 days',
-  'Germany reduction limited to lower-response activities',
-] as const;
-
 const DEFAULT_REALLOCATION = scenarioPlanner.defaultReallocationPct;
 const FOLLOWUP_BASELINE = 41;
 const FOLLOWUP_AT_DEFAULT = 60;
@@ -104,29 +99,21 @@ function achievableFollowup(reallocationPct: number): number {
   return Math.min(FOLLOWUP_CAP, raw);
 }
 
-function buildBandData(
-  reallocationPct: number,
-  conditionsChecked: Record<string, boolean>,
-) {
+// Build the confidence band. The reallocation % drives an impactMultiplier
+// that scales the base curve up from 100. The band represents inherent
+// directional uncertainty under the declared scenario assumptions.
+function buildBandData(reallocationPct: number) {
   const followup = achievableFollowup(reallocationPct);
   const impactMultiplier =
     (followup - FOLLOWUP_BASELINE) / (FOLLOWUP_AT_DEFAULT - FOLLOWUP_BASELINE);
-
-  const condEffects = scenarioPlanner.conditionEffects as Record<string, { widenBandBy: number }>;
-  let conditionWiden = 0;
-  for (const key of CONDITION_KEYS) {
-    if (conditionsChecked[key] === false) {
-      conditionWiden += condEffects[key]?.widenBandBy ?? 0;
-    }
-  }
 
   return scenarioPlanner.outcomes.base.map((b, idx) => {
     const conservative = scenarioPlanner.outcomes.conservative[idx].value;
     const best = scenarioPlanner.outcomes.best[idx].value;
 
     const dynamicBase = 100 + (b.value - 100) * impactMultiplier;
-    const upperSpread = (best - b.value) * impactMultiplier + conditionWiden;
-    const lowerSpread = (b.value - conservative) * impactMultiplier + conditionWiden;
+    const upperSpread = (best - b.value) * impactMultiplier;
+    const lowerSpread = (b.value - conservative) * impactMultiplier;
 
     return {
       month: idx,
@@ -394,47 +381,19 @@ const subLabelStyle: CSSProperties = {
   marginBottom: 10,
 };
 
-const condRowStyle: CSSProperties = {
+// Both Assumptions (left) and Data inputs (right) use the same bullet row
+// so the columns read as parallel statements, not as toggles.
+const bulletRowStyle: CSSProperties = {
   display: 'flex',
   alignItems: 'flex-start',
   gap: 10,
-  padding: '6px 0',
-  fontSize: 13,
-  color: NAVY_70,
-  lineHeight: 1.5,
-};
-
-const checkboxStyle: CSSProperties = {
-  width: 16,
-  height: 16,
-  borderRadius: 4,
-  border: `1.5px solid ${NAVY_12}`,
-  background: '#ffffff',
-  flexShrink: 0,
-  marginTop: 2,
-  cursor: 'pointer',
-  display: 'inline-flex',
-  alignItems: 'center',
-  justifyContent: 'center',
-};
-
-const checkboxCheckedStyle: CSSProperties = {
-  ...checkboxStyle,
-  background: BLUE,
-  borderColor: BLUE,
-};
-
-const assumpRowStyle: CSSProperties = {
-  display: 'flex',
-  alignItems: 'flex-start',
-  gap: 8,
   padding: '5px 0',
   fontSize: 13,
   color: NAVY_70,
-  lineHeight: 1.5,
+  lineHeight: 1.55,
 };
 
-const assumpBulletStyle: CSSProperties = {
+const bulletDotStyle: CSSProperties = {
   marginTop: 9,
   width: 4,
   height: 4,
@@ -443,7 +402,7 @@ const assumpBulletStyle: CSSProperties = {
   flexShrink: 0,
 };
 
-const assumpLabelStyle: CSSProperties = {
+const dataSourceLabelStyle: CSSProperties = {
   fontWeight: 700,
   color: NAVY,
 };
@@ -656,19 +615,13 @@ function Selector({ selectedId, options, buttonMinWidth = 130, ariaLabel }: Sele
 export default function ScenarioPlanner() {
   const navigate = useNavigate();
   const [reallocationPct, setReallocationPct] = useState<number>(DEFAULT_REALLOCATION);
-  const [conditions, setConditions] = useState<Record<string, boolean>>({
-    [CONDITION_KEYS[0]]: true,
-    [CONDITION_KEYS[1]]: true,
-  });
   const [modalOpen, setModalOpen] = useState(false);
   const [condCollapsed, setCondCollapsed] = useState(false);
 
   const bandData = useMemo(
-    () => buildBandData(reallocationPct, conditions),
-    [reallocationPct, conditions],
+    () => buildBandData(reallocationPct),
+    [reallocationPct],
   );
-
-  const widened = !conditions[CONDITION_KEYS[0]] || !conditions[CONDITION_KEYS[1]];
 
   const trackPct = (reallocationPct / scenarioPlanner.reallocationRangePct.max) * 100;
   const dynamicRangeStyle: CSSProperties = {
@@ -887,64 +840,27 @@ export default function ScenarioPlanner() {
         {!condCollapsed && (
           <div style={condAssumpGridStyle}>
             <div>
-              <div style={subLabelStyle}>Conditions to verify</div>
-              {CONDITION_KEYS.map((k) => {
-                const checked = !!conditions[k];
-                return (
-                  <div
-                    key={k}
-                    onClick={() => setConditions((p) => ({ ...p, [k]: !checked }))}
-                    style={{ ...condRowStyle, cursor: 'pointer' }}
-                    role="checkbox"
-                    aria-checked={checked}
-                    tabIndex={0}
-                    onKeyDown={(e) => {
-                      if (e.key === ' ' || e.key === 'Enter') {
-                        e.preventDefault();
-                        setConditions((p) => ({ ...p, [k]: !checked }));
-                      }
-                    }}
-                  >
-                    <span style={checked ? checkboxCheckedStyle : checkboxStyle} aria-hidden>
-                      {checked && (
-                        <svg width="10" height="10" viewBox="0 0 10 10" aria-hidden>
-                          <path d="M1.5 5L4 7.5L8.5 2.5" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" fill="none" />
-                        </svg>
-                      )}
-                    </span>
-                    <span>{k}</span>
-                  </div>
-                );
-              })}
-              {widened && (
-                <div
-                  style={{
-                    marginTop: 10,
-                    padding: '8px 12px',
-                    background: AMBER_BG,
-                    border: `1px solid ${AMBER_BORDER}`,
-                    borderRadius: 8,
-                    color: AMBER_TEXT,
-                    fontSize: 12,
-                    lineHeight: 1.45,
-                    fontWeight: 500,
-                  }}
-                >
-                  Confidence band widened because a required condition is unchecked.
-                </div>
-              )}
+              <div style={subLabelStyle}>Assumptions</div>
+              <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
+                {scenarioPlanner.scenarioAssumptions.map((a) => (
+                  <li key={a} style={bulletRowStyle}>
+                    <span style={bulletDotStyle} aria-hidden />
+                    <span>{a}</span>
+                  </li>
+                ))}
+              </ul>
             </div>
 
             <div>
-              <div style={subLabelStyle}>Assumptions in play</div>
+              <div style={subLabelStyle}>Data inputs</div>
               <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
-                {scenarioPlanner.assumptionsInPlay.map((a) => (
-                  <li key={a.source} style={assumpRowStyle}>
-                    <span style={assumpBulletStyle} aria-hidden />
+                {scenarioPlanner.dataInputs.map((d) => (
+                  <li key={d.source} style={bulletRowStyle}>
+                    <span style={bulletDotStyle} aria-hidden />
                     <span>
-                      <span style={assumpLabelStyle}>{a.source}</span>
+                      <span style={dataSourceLabelStyle}>{d.source}</span>
                       {' · '}
-                      {a.description}
+                      {d.description}
                     </span>
                   </li>
                 ))}

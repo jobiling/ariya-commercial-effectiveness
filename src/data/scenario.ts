@@ -663,14 +663,24 @@ export const scenarioPlanner = {
       focusNote: 'This is where the follow-up gap sits. The reallocation targets this step.',
     },
   ] as { node: string; status: Status; focus?: boolean; focusNote?: string }[],
-  // Compact assumption list rendered in the Conditions & Assumptions block on
-  // the Scenario Planner. Format: "{source} · {what we're pulling from it}".
-  assumptionsInPlay: [
+  // Declared statements about how the scenario plays out. These are not
+  // togglable knobs, they are the premises under which the directional
+  // impact holds.
+  scenarioAssumptions: [
+    'Italy follow-up coverage among high-potential trained HCPs improves within 60 days',
+    'Germany reduction limited to lower-response activities',
+    'No price or supply disruption during the 6-month window',
+    'No competitive event materially shifts category dynamics',
+  ],
+  // Underlying data sources powering the model. Format: "{source} · {what
+  // we're pulling from it}". Distinct from scenarioAssumptions: these are
+  // inputs, not premises.
+  dataInputs: [
     { source: 'Market performance', description: 'GER and ITA run-rate, last 6 months' },
     { source: 'CRM activity', description: 'trained-HCP follow-up coverage' },
     { source: 'Training & spend', description: 'participation, completion, cost per HCP' },
     { source: 'HCP segmentation', description: 'high-potential list, ITA' },
-    { source: 'Brand plan assumptions', description: 'response curves by category' },
+    { source: 'Brand plan', description: 'response curves by category' },
     { source: 'Finance · spend', description: 'committed vs. flexible spend, by book' },
   ],
   recommendation: {
