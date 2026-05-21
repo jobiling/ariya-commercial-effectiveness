@@ -128,27 +128,45 @@ const contextCardStyle: CSSProperties = {
   background: '#ffffff',
   border: `1px solid ${NAVY_12}`,
   borderRadius: 12,
-  padding: 22,
+  padding: '8px 24px 22px',
   boxShadow: '0 1px 2px rgba(5,10,68,0.04)',
 };
 
 const contextRowStyle: CSSProperties = {
   display: 'grid',
-  gridTemplateColumns: '170px 1fr 100px',
+  gridTemplateColumns: '230px 1fr 110px',
   alignItems: 'center',
-  columnGap: 16,
-  padding: '14px 0',
+  columnGap: 20,
+  padding: '18px 0',
   borderBottom: `1px solid ${NAVY_06}`,
 };
 
+const contextLabelStyle: CSSProperties = {
+  display: 'flex',
+  alignItems: 'center',
+  gap: 10,
+  fontSize: 14,
+  fontWeight: 600,
+  color: NAVY,
+  lineHeight: 1.4,
+};
+
+const contextDotStyle = (color: string): CSSProperties => ({
+  width: 8,
+  height: 8,
+  borderRadius: 999,
+  background: color,
+  flexShrink: 0,
+});
+
 const contextValueStyle: CSSProperties = {
-  fontSize: 13,
+  fontSize: 14,
   color: NAVY_70,
-  lineHeight: 1.5,
+  lineHeight: 1.55,
 };
 
 const contextNumberStyle: CSSProperties = {
-  fontSize: 20,
+  fontSize: 22,
   fontWeight: 700,
   color: NAVY,
   fontVariantNumeric: 'tabular-nums',
@@ -156,13 +174,20 @@ const contextNumberStyle: CSSProperties = {
 };
 
 const interpretationParagraphStyle: CSSProperties = {
-  marginTop: 14,
-  paddingTop: 14,
+  marginTop: 16,
+  paddingTop: 16,
   borderTop: `1px solid ${NAVY_12}`,
-  fontSize: 13,
+  fontSize: 14,
   fontStyle: 'italic',
   color: NAVY_70,
-  lineHeight: 1.55,
+  lineHeight: 1.6,
+};
+
+// Map signal tone to a tone dot color used in the Performance in Context labels.
+const TONE_DOT: Record<'on-track' | 'watch' | 'at-risk', string> = {
+  'on-track': '#16A34A',
+  watch: '#F59E0B',
+  'at-risk': '#E11D48',
 };
 
 const noContextStyle: CSSProperties = {
@@ -545,8 +570,9 @@ export default function MarketPerformance() {
         {contextEntry ? (
           <div style={contextCardStyle}>
             <div style={{ ...contextRowStyle, borderTop: 'none' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                <SignalChip tone={contextToneIntensity(contextEntry.performanceInContext.investmentIntensityPct)} variant="dot-only" label="Investment intensity" />
+              <div style={contextLabelStyle}>
+                <span style={contextDotStyle(TONE_DOT[contextToneIntensity(contextEntry.performanceInContext.investmentIntensityPct)])} />
+                Investment intensity
               </div>
               <div style={contextValueStyle}>
                 {intensityInterpretation(contextEntry.performanceInContext.investmentIntensityPct)}
@@ -554,8 +580,9 @@ export default function MarketPerformance() {
               <div style={contextNumberStyle}>{contextEntry.performanceInContext.investmentIntensityPct.toFixed(1)}%</div>
             </div>
             <div style={contextRowStyle}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                <SignalChip tone={contextToneFieldActivity(contextEntry.performanceInContext.fieldActivityIndex)} variant="dot-only" label="Field activity index" />
+              <div style={contextLabelStyle}>
+                <span style={contextDotStyle(TONE_DOT[contextToneFieldActivity(contextEntry.performanceInContext.fieldActivityIndex)])} />
+                Field activity index
               </div>
               <div style={contextValueStyle}>
                 {fieldActivityInterpretation(contextEntry.performanceInContext.fieldActivityIndex)}
@@ -563,8 +590,9 @@ export default function MarketPerformance() {
               <div style={contextNumberStyle}>{contextEntry.performanceInContext.fieldActivityIndex}</div>
             </div>
             <div style={contextRowStyle}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                <SignalChip tone={contextToneFollowup(contextEntry.performanceInContext.postTrainingFollowUpRatePct)} variant="dot-only" label="Post-training 60-day follow-up" />
+              <div style={contextLabelStyle}>
+                <span style={contextDotStyle(TONE_DOT[contextToneFollowup(contextEntry.performanceInContext.postTrainingFollowUpRatePct)])} />
+                Post-training 60-day follow-up
               </div>
               <div style={contextValueStyle}>
                 {followupInterpretation(contextEntry.performanceInContext.postTrainingFollowUpRatePct)}
@@ -572,8 +600,9 @@ export default function MarketPerformance() {
               <div style={contextNumberStyle}>{contextEntry.performanceInContext.postTrainingFollowUpRatePct}%</div>
             </div>
             <div style={contextRowStyle}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                <SignalChip tone={contextToneMarketShare(contextEntry.performanceInContext.marketSharePct)} variant="dot-only" label="Market share · Xeomin" />
+              <div style={contextLabelStyle}>
+                <span style={contextDotStyle(TONE_DOT[contextToneMarketShare(contextEntry.performanceInContext.marketSharePct)])} />
+                Market share · Xeomin
               </div>
               <div style={contextValueStyle}>
                 {marketShareInterpretation(contextEntry.performanceInContext.marketSharePct)}
@@ -581,8 +610,9 @@ export default function MarketPerformance() {
               <div style={contextNumberStyle}>{contextEntry.performanceInContext.marketSharePct.toFixed(1)}%</div>
             </div>
             <div style={{ ...contextRowStyle, borderBottom: 'none' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                <SignalChip tone={contextToneMargin(contextEntry.performanceInContext.contributionMarginPct)} variant="dot-only" label="Contribution margin" />
+              <div style={contextLabelStyle}>
+                <span style={contextDotStyle(TONE_DOT[contextToneMargin(contextEntry.performanceInContext.contributionMarginPct)])} />
+                Contribution margin
               </div>
               <div style={contextValueStyle}>
                 {marginInterpretation(contextEntry.performanceInContext.contributionMarginPct)}
