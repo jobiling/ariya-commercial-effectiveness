@@ -167,23 +167,25 @@ const cardStyle: CSSProperties = {
   boxShadow: `0 1px 2px ${NAVY_04}`,
 };
 
-// Header hierarchy on the page:
+// Canonical header hierarchy (matches Market Performance):
 //   Level 1: page title (gradient, handled by PageHeader)
-//   Level 2: section / card title — navy bold sentence case
-//   Level 3: sub-label inside a card — grey small-caps eyebrow
+//   Level 2: section grouping label — 11px / 800 / uppercase / NAVY_55
+//            (optional, sits OUTSIDE cards above a cluster of cards)
+//   Level 3: card title — 14px / 600 / navy / sentence case (this style)
+//   Level 4: sub-label inside a card — 10-11px / 800 / uppercase / NAVY_55
 //   Special: "Ariya recommends · Scenario answer" stays as a blue eyebrow
-//   because it marks the AI's voice, not a section title.
+//            because it marks the AI's voice, not a section title.
 const sectionTitleRowStyle: CSSProperties = {
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'space-between',
   gap: 12,
-  marginBottom: 16,
+  marginBottom: 14,
 };
 
 const sectionTitleStyle: CSSProperties = {
-  fontSize: 15,
-  fontWeight: 700,
+  fontSize: 14,
+  fontWeight: 600,
   color: NAVY,
   lineHeight: 1.35,
   margin: 0,
