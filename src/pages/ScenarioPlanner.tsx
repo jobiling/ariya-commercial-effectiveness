@@ -11,34 +11,141 @@ import {
   XAxis,
   YAxis,
 } from 'recharts';
-import { ChevronDown, ChevronUp, Info } from 'lucide-react';
+import {
+  ArrowRight,
+  ChevronDown,
+  ChevronRight,
+  ChevronUp,
+  Flag,
+  Info,
+} from 'lucide-react';
 import { PageHeader } from '../components/layout/PageHeader';
-import {
-  AssumptionList,
-  ConditionToggle,
-  CriticalPathChain,
-  SourceTag,
-} from '../components/composites';
-import {
-  LogDecisionModal,
-  RecommendationCard,
-  dateFromToday,
-} from '../components/decision';
+import { LogDecisionModal, RecommendationCard, dateFromToday } from '../components/decision';
 import type { LogDecisionDraft } from '../components/decision';
-import { scenarioPlanner } from '../data/scenario';
+import { investmentRadar, markets, scenarioPlanner } from '../data/scenario';
+
+// ───────────────────────────────────────────────────────────────────────────
+// Tokens
+// ───────────────────────────────────────────────────────────────────────────
 
 const NAVY = '#050A44';
 const NAVY_55 = 'rgba(5,10,68,0.55)';
 const NAVY_70 = 'rgba(5,10,68,0.70)';
 const NAVY_12 = 'rgba(5,10,68,0.12)';
 const NAVY_06 = 'rgba(5,10,68,0.06)';
+const NAVY_04 = 'rgba(5,10,68,0.04)';
+const BLUE = '#0055BB';
+const BLUE_TINT = '#EAF1FB';
 const TEAL = '#0F766E';
-const AMBER = '#F59E0B';
+const RED = '#E11D48';
+const GREEN = '#16A34A';
+const AMBER_BG = '#FEF3C7';
+const AMBER_BORDER = '#F59E0B';
+const AMBER_TEXT = '#92400E';
+
+// ───────────────────────────────────────────────────────────────────────────
+// Domain rules: which selectors are active in the demo scenario
+// ───────────────────────────────────────────────────────────────────────────
+
+const FROM_COUNTRY_ID = 'de';
+const FROM_CATEGORY_ID = 'marketing-campaigns';
+const TO_COUNTRY_ID = 'it';
+const TO_CATEGORY_ID = 'hcp-training';
+
+const FROM_COUNTRY_LABEL = 'Germany';
+const TO_COUNTRY_LABEL = 'Italy';
+
+// Lookup helper: find the spend (in € thousands) for a (categoryId, marketId)
+// pair from the InvestmentRadar dataset.
+function lookupSpendK(categoryId: string, marketId: string): number | null {
+  const cat = investmentRadar.find((c) => c.id === categoryId);
+  if (!cat) return null;
+  const cell = cat.cells.find((c) => c.marketId === marketId);
+  return cell ? cell.spendEur : null;
+}
+
+function lookupKpi(
+  categoryId: string,
+  marketId: string,
+): { proxyKpi: string; proxyKpiValue: string } | null {
+  const cat = investmentRadar.find((c) => c.id === categoryId);
+  if (!cat) return null;
+  const cell = cat.cells.find((c) => c.marketId === marketId);
+  return cell ? { proxyKpi: cell.proxyKpi, proxyKpiValue: cell.proxyKpiValue } : null;
+}
+
+function categoryName(categoryId: string): string {
+  return investmentRadar.find((c) => c.id === categoryId)?.name ?? categoryId;
+}
+
+// Format € thousands as €X.XXM (millions) for display.
+function fmtEur(thousands: number): string {
+  const millions = thousands / 1000;
+  return `€${millions.toFixed(2)}M`;
+}
+
+// ───────────────────────────────────────────────────────────────────────────
+// Confidence-band model (unchanged from previous iteration)
+// ───────────────────────────────────────────────────────────────────────────
+
+const CONDITION_KEYS = [
+  'Italy follow-up coverage improves within 60 days',
+  'Germany reduction limited to lower-response activities',
+] as const;
+
+const DEFAULT_REALLOCATION = scenarioPlanner.defaultReallocationPct;
+const FOLLOWUP_BASELINE = 41;
+const FOLLOWUP_AT_DEFAULT = 60;
+const FOLLOWUP_CAP = 75;
+
+function achievableFollowup(reallocationPct: number): number {
+  const linearRise = (FOLLOWUP_AT_DEFAULT - FOLLOWUP_BASELINE) / DEFAULT_REALLOCATION;
+  const raw = FOLLOWUP_BASELINE + reallocationPct * linearRise;
+  return Math.min(FOLLOWUP_CAP, raw);
+}
+
+function buildBandData(
+  reallocationPct: number,
+  conditionsChecked: Record<string, boolean>,
+) {
+  const followup = achievableFollowup(reallocationPct);
+  const impactMultiplier =
+    (followup - FOLLOWUP_BASELINE) / (FOLLOWUP_AT_DEFAULT - FOLLOWUP_BASELINE);
+
+  const condEffects = scenarioPlanner.conditionEffects as Record<string, { widenBandBy: number }>;
+  let conditionWiden = 0;
+  for (const key of CONDITION_KEYS) {
+    if (conditionsChecked[key] === false) {
+      conditionWiden += condEffects[key]?.widenBandBy ?? 0;
+    }
+  }
+
+  return scenarioPlanner.outcomes.base.map((b, idx) => {
+    const conservative = scenarioPlanner.outcomes.conservative[idx].value;
+    const best = scenarioPlanner.outcomes.best[idx].value;
+
+    const dynamicBase = 100 + (b.value - 100) * impactMultiplier;
+    const upperSpread = (best - b.value) * impactMultiplier + conditionWiden;
+    const lowerSpread = (b.value - conservative) * impactMultiplier + conditionWiden;
+
+    return {
+      month: idx,
+      monthLabel: `M${idx}`,
+      base: parseFloat(dynamicBase.toFixed(2)),
+      lower: parseFloat((dynamicBase - lowerSpread).toFixed(2)),
+      upper: parseFloat((dynamicBase + upperSpread).toFixed(2)),
+    };
+  });
+}
+
+// ───────────────────────────────────────────────────────────────────────────
+// Page layout styles
+// ───────────────────────────────────────────────────────────────────────────
 
 const pageStyle: CSSProperties = {
   display: 'flex',
   flexDirection: 'column',
-  gap: 24,
+  gap: 18,
   paddingBottom: 48,
 };
 
@@ -58,14 +165,214 @@ const directionalChipStyle: CSSProperties = {
   borderRadius: 999,
   background: '#ECFEFF',
   border: `1px solid #A5F3FC`,
-  color: '#0F766E',
+  color: TEAL,
   fontSize: 11,
   fontWeight: 800,
   letterSpacing: '0.04em',
   textTransform: 'uppercase',
 };
 
-const sectionLabelStyle: CSSProperties = {
+const cardStyle: CSSProperties = {
+  background: '#ffffff',
+  border: `1px solid ${NAVY_12}`,
+  borderRadius: 14,
+  padding: 22,
+  boxShadow: `0 1px 2px ${NAVY_04}`,
+};
+
+const cardEyebrowRowStyle: CSSProperties = {
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'space-between',
+  gap: 12,
+  marginBottom: 16,
+};
+
+const cardEyebrowStyle: CSSProperties = {
+  fontSize: 11,
+  fontWeight: 800,
+  letterSpacing: '0.08em',
+  textTransform: 'uppercase',
+  color: NAVY_55,
+};
+
+// ───────────────────────────────────────────────────────────────────────────
+// Scenario card: selector row
+// ───────────────────────────────────────────────────────────────────────────
+
+const selectorRowStyle: CSSProperties = {
+  display: 'flex',
+  alignItems: 'center',
+  gap: 10,
+  flexWrap: 'wrap',
+};
+
+const selectorRowLabelStyle: CSSProperties = {
+  fontSize: 13,
+  fontWeight: 600,
+  color: NAVY_55,
+  padding: '0 4px',
+};
+
+const selectorBtnStyle: CSSProperties = {
+  display: 'inline-flex',
+  alignItems: 'center',
+  gap: 8,
+  height: 38,
+  padding: '0 12px',
+  borderRadius: 10,
+  background: '#ffffff',
+  border: `1px solid ${NAVY_12}`,
+  color: NAVY,
+  fontSize: 13,
+  fontWeight: 600,
+  cursor: 'pointer',
+  fontFamily: 'inherit',
+  boxShadow: `0 1px 2px ${NAVY_04}`,
+  transition: 'background 120ms ease, border-color 120ms ease',
+};
+
+const selectorMenuStyle: CSSProperties = {
+  position: 'absolute',
+  top: 'calc(100% + 6px)',
+  left: 0,
+  minWidth: '100%',
+  background: '#ffffff',
+  border: `1px solid ${NAVY_12}`,
+  borderRadius: 12,
+  boxShadow: '0 12px 28px rgba(5,10,68,0.16), 0 2px 6px rgba(5,10,68,0.06)',
+  zIndex: 40,
+  padding: 6,
+  display: 'flex',
+  flexDirection: 'column',
+  gap: 2,
+  maxHeight: 360,
+  overflowY: 'auto',
+};
+
+const menuItemBase: CSSProperties = {
+  display: 'flex',
+  alignItems: 'center',
+  gap: 10,
+  padding: '8px 12px',
+  borderRadius: 8,
+  cursor: 'pointer',
+  fontSize: 13,
+  color: NAVY_70,
+  transition: 'background 120ms ease',
+  userSelect: 'none',
+};
+
+const menuItemValueStyle: CSSProperties = {
+  marginLeft: 'auto',
+  fontVariantNumeric: 'tabular-nums',
+  color: NAVY_55,
+  fontSize: 12,
+  fontWeight: 600,
+};
+
+// ───────────────────────────────────────────────────────────────────────────
+// Slider
+// ───────────────────────────────────────────────────────────────────────────
+
+const sliderRowStyle: CSSProperties = {
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'space-between',
+  gap: 12,
+};
+
+const sliderLabelStyle: CSSProperties = {
+  fontSize: 13,
+  fontWeight: 600,
+  color: NAVY_70,
+};
+
+const sliderValueStyle: CSSProperties = {
+  fontSize: 28,
+  fontWeight: 800,
+  color: NAVY,
+  fontVariantNumeric: 'tabular-nums',
+  lineHeight: 1,
+};
+
+const rangeInputStyle: CSSProperties = {
+  appearance: 'none',
+  WebkitAppearance: 'none',
+  width: '100%',
+  height: 6,
+  borderRadius: 999,
+  outline: 'none',
+  cursor: 'pointer',
+};
+
+const sliderTicksStyle: CSSProperties = {
+  display: 'flex',
+  justifyContent: 'space-between',
+  fontSize: 11,
+  color: NAVY_55,
+  fontVariantNumeric: 'tabular-nums',
+  marginTop: 6,
+};
+
+// ───────────────────────────────────────────────────────────────────────────
+// Summary tiles
+// ───────────────────────────────────────────────────────────────────────────
+
+const summaryGridStyle: CSSProperties = {
+  display: 'grid',
+  gridTemplateColumns: '1fr 1fr 1fr',
+  gap: 12,
+  marginTop: 4,
+};
+
+const summaryTileBase: CSSProperties = {
+  background: '#F7F8FC',
+  border: `1px solid ${NAVY_06}`,
+  borderRadius: 12,
+  padding: 14,
+  display: 'flex',
+  flexDirection: 'column',
+  gap: 6,
+};
+
+const summaryEyebrowStyle: CSSProperties = {
+  fontSize: 10,
+  fontWeight: 800,
+  letterSpacing: '0.08em',
+  textTransform: 'uppercase',
+  color: NAVY_55,
+};
+
+const summaryAmountRowStyle: CSSProperties = {
+  display: 'flex',
+  alignItems: 'center',
+  gap: 8,
+  flexWrap: 'wrap',
+  fontSize: 16,
+  fontWeight: 800,
+  color: NAVY,
+  fontVariantNumeric: 'tabular-nums',
+  lineHeight: 1.15,
+};
+
+const summarySubtitleStyle: CSSProperties = {
+  fontSize: 12,
+  color: NAVY_70,
+  lineHeight: 1.4,
+};
+
+// ───────────────────────────────────────────────────────────────────────────
+// Conditions & Assumptions (collapsible)
+// ───────────────────────────────────────────────────────────────────────────
+
+const condAssumpGridStyle: CSSProperties = {
+  display: 'grid',
+  gridTemplateColumns: '1fr 1.2fr',
+  gap: 32,
+};
+
+const subLabelStyle: CSSProperties = {
   fontSize: 11,
   fontWeight: 800,
   letterSpacing: '0.08em',
@@ -74,82 +381,157 @@ const sectionLabelStyle: CSSProperties = {
   marginBottom: 10,
 };
 
-const twoColStyle: CSSProperties = {
-  display: 'grid',
-  gridTemplateColumns: 'minmax(0, 1fr) minmax(0, 1.4fr)',
-  gap: 24,
-  alignItems: 'start',
-};
-
-const cardStyle: CSSProperties = {
-  background: '#ffffff',
-  border: `1px solid ${NAVY_12}`,
-  borderRadius: 14,
-  padding: 22,
-  boxShadow: '0 1px 2px rgba(5,10,68,0.04)',
+const condRowStyle: CSSProperties = {
   display: 'flex',
-  flexDirection: 'column',
-  gap: 18,
-};
-
-const sliderHeaderStyle: CSSProperties = {
-  display: 'flex',
-  justifyContent: 'space-between',
-  alignItems: 'baseline',
-  gap: 12,
-};
-
-const sliderValueStyle: CSSProperties = {
-  fontSize: 24,
-  fontWeight: 800,
-  color: NAVY,
-  fontVariantNumeric: 'tabular-nums',
-};
-
-const sliderLabelStyle: CSSProperties = {
+  alignItems: 'flex-start',
+  gap: 10,
+  padding: '6px 0',
   fontSize: 13,
-  fontWeight: 600,
   color: NAVY_70,
-  lineHeight: 1.4,
+  lineHeight: 1.5,
 };
 
-const sliderRangeRowStyle: CSSProperties = {
-  display: 'flex',
-  justifyContent: 'space-between',
-  fontSize: 11,
-  color: NAVY_55,
-  fontVariantNumeric: 'tabular-nums',
-  marginTop: 6,
+const checkboxStyle: CSSProperties = {
+  width: 16,
+  height: 16,
+  borderRadius: 4,
+  border: `1.5px solid ${NAVY_12}`,
+  background: '#ffffff',
+  flexShrink: 0,
+  marginTop: 2,
+  cursor: 'pointer',
+  display: 'inline-flex',
+  alignItems: 'center',
+  justifyContent: 'center',
 };
 
-const conditionsWrapStyle: CSSProperties = {
-  display: 'flex',
-  flexDirection: 'column',
-  gap: 4,
+const checkboxCheckedStyle: CSSProperties = {
+  ...checkboxStyle,
+  background: BLUE,
+  borderColor: BLUE,
 };
 
-const widenedNoteStyle: CSSProperties = {
+const assumpRowStyle: CSSProperties = {
   display: 'flex',
   alignItems: 'flex-start',
   gap: 8,
-  marginTop: 6,
-  padding: '8px 12px',
-  background: '#FEF3C7',
-  border: `1px solid ${AMBER}`,
-  borderRadius: 8,
-  color: '#7C2D12',
-  fontSize: 12,
-  lineHeight: 1.45,
-  fontWeight: 500,
+  padding: '5px 0',
+  fontSize: 13,
+  color: NAVY_70,
+  lineHeight: 1.5,
 };
 
-const chartCardStyle: CSSProperties = {
+const assumpBulletStyle: CSSProperties = {
+  marginTop: 9,
+  width: 4,
+  height: 4,
+  borderRadius: 999,
+  background: NAVY_55,
+  flexShrink: 0,
+};
+
+const assumpLabelStyle: CSSProperties = {
+  fontWeight: 700,
+  color: NAVY,
+};
+
+const collapseBtnStyle: CSSProperties = {
+  display: 'inline-flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  width: 32,
+  height: 32,
+  borderRadius: 8,
+  background: NAVY_06,
+  border: 'none',
+  color: NAVY_70,
+  cursor: 'pointer',
+  fontFamily: 'inherit',
+};
+
+// ───────────────────────────────────────────────────────────────────────────
+// Dependency chain (3 steps)
+// ───────────────────────────────────────────────────────────────────────────
+
+const chainRowStyle: CSSProperties = {
+  display: 'grid',
+  gridTemplateColumns: '1fr auto 1fr auto 1fr',
+  alignItems: 'stretch',
+  gap: 12,
+};
+
+const chainNodeBase: CSSProperties = {
   background: '#ffffff',
   border: `1px solid ${NAVY_12}`,
-  borderRadius: 14,
-  padding: 22,
-  boxShadow: '0 1px 2px rgba(5,10,68,0.04)',
+  borderRadius: 12,
+  padding: 16,
+  display: 'flex',
+  flexDirection: 'column',
+  gap: 4,
+  boxShadow: `0 1px 2px ${NAVY_04}`,
+  position: 'relative',
 };
+
+const chainNodeFocusStyle: CSSProperties = {
+  ...chainNodeBase,
+  background: AMBER_BG,
+  border: `1.5px solid ${AMBER_BORDER}`,
+};
+
+const chainStepEyebrowStyle: CSSProperties = {
+  fontSize: 10,
+  fontWeight: 800,
+  letterSpacing: '0.08em',
+  textTransform: 'uppercase',
+  color: NAVY_55,
+};
+
+const chainStepEyebrowFocusStyle: CSSProperties = {
+  ...chainStepEyebrowStyle,
+  color: AMBER_TEXT,
+};
+
+const chainStepTitleStyle: CSSProperties = {
+  fontSize: 14,
+  fontWeight: 700,
+  color: NAVY,
+  lineHeight: 1.35,
+};
+
+const chainFocusPillStyle: CSSProperties = {
+  position: 'absolute',
+  top: -10,
+  left: 14,
+  display: 'inline-flex',
+  alignItems: 'center',
+  gap: 6,
+  padding: '4px 10px',
+  background: NAVY,
+  color: '#ffffff',
+  borderRadius: 999,
+  fontSize: 9.5,
+  fontWeight: 800,
+  letterSpacing: '0.08em',
+  textTransform: 'uppercase',
+};
+
+const chainFocusNoteStyle: CSSProperties = {
+  fontSize: 12,
+  color: AMBER_TEXT,
+  lineHeight: 1.5,
+  fontStyle: 'italic',
+  marginTop: 4,
+};
+
+const chainArrowStyle: CSSProperties = {
+  display: 'flex',
+  alignItems: 'center',
+  color: NAVY_55,
+};
+
+// ───────────────────────────────────────────────────────────────────────────
+// Chart
+// ───────────────────────────────────────────────────────────────────────────
 
 const chartTitleStyle: CSSProperties = {
   fontSize: 15,
@@ -165,16 +547,6 @@ const chartSubtitleStyle: CSSProperties = {
   fontStyle: 'italic',
 };
 
-const chartCentralAssumptionStyle: CSSProperties = {
-  marginTop: 8,
-  padding: '8px 12px',
-  background: NAVY_06,
-  borderRadius: 8,
-  fontSize: 12,
-  color: NAVY_70,
-  lineHeight: 1.5,
-};
-
 const tooltipBoxStyle: CSSProperties = {
   background: NAVY,
   color: '#ffffff',
@@ -185,132 +557,103 @@ const tooltipBoxStyle: CSSProperties = {
   boxShadow: '0 8px 24px rgba(5,10,68,0.18)',
 };
 
-const dividerStyle: CSSProperties = {
-  height: 1,
-  background: NAVY_06,
-  margin: '4px 0',
-};
+// ───────────────────────────────────────────────────────────────────────────
+// Selector component
+// ───────────────────────────────────────────────────────────────────────────
 
-// Custom slider track using a native range input + a styled overlay would be ideal,
-// but for v1 we leverage the native range input with inline CSS styling.
-const rangeInputStyle: CSSProperties = {
-  appearance: 'none',
-  WebkitAppearance: 'none',
-  width: '100%',
-  height: 6,
-  background: `linear-gradient(to right, ${NAVY} 0%, ${NAVY} 0%, ${NAVY_12} 0%, ${NAVY_12} 100%)`,
-  borderRadius: 999,
-  outline: 'none',
-  cursor: 'pointer',
-};
-
-const CONDITION_KEYS = [
-  'Italy follow-up coverage improves within 60 days',
-  'Germany reduction limited to lower-response activities',
-] as const;
-
-const DEFAULT_REALLOCATION = scenarioPlanner.defaultReallocationPct;
-
-// Italy's current 60-day follow-up coverage for high-potential trained HCPs.
-const FOLLOWUP_BASELINE = 41;
-// Default scenario lands at 60% with 10% reallocation. We cap the achievable
-// uplift at 75% with diminishing returns above the default.
-const FOLLOWUP_AT_DEFAULT = 60;
-const FOLLOWUP_CAP = 75;
-
-/**
- * Derive the achievable 60-day follow-up coverage from the reallocation %.
- * - 0% reallocation → 41% (no money, no operational lift)
- * - 10% reallocation → 60% (the documented central assumption)
- * - 25% reallocation → 75% (capped, diminishing returns)
- */
-function achievableFollowup(reallocationPct: number): number {
-  const linearRise = (FOLLOWUP_AT_DEFAULT - FOLLOWUP_BASELINE) / DEFAULT_REALLOCATION; // 1.9
-  const raw = FOLLOWUP_BASELINE + reallocationPct * linearRise;
-  return Math.min(FOLLOWUP_CAP, raw);
-}
-
-// Build the confidence band data. Two effects in play:
-//   1. Reallocation % drives an impactMultiplier that scales the base curve up
-//      from baseline 100. At 0% reallocation the curve is flat at 100.
-//      At 10% (default) it matches the documented base outcomes.
-//      At 25% it stretches further upward.
-//   2. Conditions widen the band when unchecked.
-function buildBandData(
-  reallocationPct: number,
-  conditionsChecked: Record<string, boolean>,
-) {
-  const followup = achievableFollowup(reallocationPct);
-  const impactMultiplier =
-    (followup - FOLLOWUP_BASELINE) / (FOLLOWUP_AT_DEFAULT - FOLLOWUP_BASELINE); // 0..~1.79
-
-  const condEffects = scenarioPlanner.conditionEffects as Record<string, { widenBandBy: number }>;
-  let conditionWiden = 0;
-  for (const key of CONDITION_KEYS) {
-    if (conditionsChecked[key] === false) {
-      conditionWiden += condEffects[key]?.widenBandBy ?? 0;
-    }
-  }
-
-  return scenarioPlanner.outcomes.base.map((b, idx) => {
-    const conservative = scenarioPlanner.outcomes.conservative[idx].value;
-    const best = scenarioPlanner.outcomes.best[idx].value;
-
-    // Shift the base line up/down with the impact multiplier.
-    const dynamicBase = 100 + (b.value - 100) * impactMultiplier;
-    // Spread the band similarly, then widen further if conditions are unchecked.
-    const upperSpread = (best - b.value) * impactMultiplier + conditionWiden;
-    const lowerSpread = (b.value - conservative) * impactMultiplier + conditionWiden;
-
-    return {
-      month: idx,
-      monthLabel: `M${idx}`,
-      base: parseFloat(dynamicBase.toFixed(2)),
-      lower: parseFloat((dynamicBase - lowerSpread).toFixed(2)),
-      upper: parseFloat((dynamicBase + upperSpread).toFixed(2)),
-    };
-  });
-}
-
-// All scenarios live in one list. The active one is selectable; the previews are
-// rendered in the same dropdown, visibly disabled with a one-line description.
-interface ScenarioOption {
-  value: string;
+interface SelectorOption {
+  id: string;
   label: string;
-  description: string;
-  active?: boolean;
+  flag?: string;
+  value?: string;       // right-aligned subtle text (e.g. €2.84M)
+  selectable: boolean;
 }
 
-const SCENARIOS: ScenarioOption[] = [
-  {
-    value: 'reallocate-de-it',
-    label: 'Reallocate Germany → Italy',
-    description: 'Models reallocating up to 25% of Germany Xeomin marketing spend toward Italy post-training activation.',
-    active: true,
-  },
-  {
-    value: 'italy-followup-only',
-    label: 'Increase follow-up for trained HCPs (Italy)',
-    description: 'Isolates the operational impact of closing the Italy follow-up gap without any budget reallocation.',
-  },
-  {
-    value: 'reduce-weak-execution',
-    label: 'Reduce spend in markets with weak execution follow-through',
-    description: 'Identifies markets where investment is uncoupled from CRM follow-up discipline and tests the impact of trimming spend in those activities.',
-  },
-  {
-    value: 'reallocate-to-undertrained',
-    label: 'Reallocate training budget toward high-potential under-trained accounts',
-    description: 'Models redirecting training spend from saturated cohorts toward high-potential HCPs and accounts with low current training coverage.',
-  },
-  {
-    value: 'cross-market-compare',
-    label: 'Compare investment options across markets',
-    description: 'Benchmarks investment yield across all 8 European markets to surface alternative reallocation candidates.',
-  },
-];
+interface SelectorProps {
+  selectedId: string;
+  options: SelectorOption[];
+  // Width hint; the menu always grows to fit.
+  buttonMinWidth?: number;
+  ariaLabel: string;
+}
 
-const ACTIVE_SCENARIO = SCENARIOS.find((s) => s.active)!;
+function Selector({ selectedId, options, buttonMinWidth = 130, ariaLabel }: SelectorProps) {
+  const [open, setOpen] = useState(false);
+  const wrapRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    if (!open) return;
+    const onClick = (e: MouseEvent) => {
+      if (wrapRef.current && !wrapRef.current.contains(e.target as Node)) {
+        setOpen(false);
+      }
+    };
+    const onKey = (e: KeyboardEvent) => e.key === 'Escape' && setOpen(false);
+    document.addEventListener('mousedown', onClick);
+    document.addEventListener('keydown', onKey);
+    return () => {
+      document.removeEventListener('mousedown', onClick);
+      document.removeEventListener('keydown', onKey);
+    };
+  }, [open]);
+
+  const selected = options.find((o) => o.id === selectedId) ?? options[0];
+
+  return (
+    <div ref={wrapRef} style={{ position: 'relative', display: 'inline-block' }}>
+      <button
+        type="button"
+        onClick={() => setOpen((v) => !v)}
+        aria-haspopup="listbox"
+        aria-expanded={open}
+        aria-label={ariaLabel}
+        style={{ ...selectorBtnStyle, minWidth: buttonMinWidth }}
+      >
+        {selected.flag && <span aria-hidden style={{ fontSize: 16, lineHeight: 1 }}>{selected.flag}</span>}
+        <span style={{ flex: 1, textAlign: 'left' }}>{selected.label}</span>
+        {open ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
+      </button>
+      {open && (
+        <div role="listbox" style={selectorMenuStyle}>
+          {options.map((o) => {
+            const isSelected = o.id === selectedId;
+            const baseStyle: CSSProperties = {
+              ...menuItemBase,
+              background: isSelected ? BLUE_TINT : 'transparent',
+              color: isSelected ? NAVY : o.selectable ? NAVY_70 : 'rgba(5,10,68,0.40)',
+              fontWeight: isSelected ? 700 : 500,
+              cursor: o.selectable ? 'pointer' : 'not-allowed',
+            };
+            return (
+              <div
+                key={o.id}
+                role="option"
+                aria-selected={isSelected}
+                aria-disabled={!o.selectable}
+                onClick={() => o.selectable && setOpen(false)}
+                onMouseEnter={(e) => {
+                  if (o.selectable && !isSelected) e.currentTarget.style.background = NAVY_06;
+                }}
+                onMouseLeave={(e) => {
+                  if (o.selectable && !isSelected) e.currentTarget.style.background = 'transparent';
+                }}
+                style={baseStyle}
+              >
+                {o.flag && <span aria-hidden style={{ fontSize: 15, lineHeight: 1 }}>{o.flag}</span>}
+                <span>{o.label}</span>
+                {o.value && <span style={menuItemValueStyle}>{o.value}</span>}
+              </div>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ───────────────────────────────────────────────────────────────────────────
+// Page
+// ───────────────────────────────────────────────────────────────────────────
 
 export default function ScenarioPlanner() {
   const navigate = useNavigate();
@@ -320,27 +663,7 @@ export default function ScenarioPlanner() {
     [CONDITION_KEYS[1]]: true,
   });
   const [modalOpen, setModalOpen] = useState(false);
-  const [previewOpen, setPreviewOpen] = useState(false);
-  const previewRef = useRef<HTMLDivElement | null>(null);
-
-  // Close the preview dropdown on outside click.
-  useEffect(() => {
-    if (!previewOpen) return;
-    const onClick = (e: MouseEvent) => {
-      if (previewRef.current && !previewRef.current.contains(e.target as Node)) {
-        setPreviewOpen(false);
-      }
-    };
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') setPreviewOpen(false);
-    };
-    document.addEventListener('mousedown', onClick);
-    document.addEventListener('keydown', onKey);
-    return () => {
-      document.removeEventListener('mousedown', onClick);
-      document.removeEventListener('keydown', onKey);
-    };
-  }, [previewOpen]);
+  const [condCollapsed, setCondCollapsed] = useState(false);
 
   const bandData = useMemo(
     () => buildBandData(reallocationPct, conditions),
@@ -349,12 +672,54 @@ export default function ScenarioPlanner() {
 
   const widened = !conditions[CONDITION_KEYS[0]] || !conditions[CONDITION_KEYS[1]];
 
-  // Background gradient for the range input track so the filled portion uses NAVY.
   const trackPct = (reallocationPct / scenarioPlanner.reallocationRangePct.max) * 100;
   const dynamicRangeStyle: CSSProperties = {
     ...rangeInputStyle,
     background: `linear-gradient(to right, ${NAVY} 0%, ${NAVY} ${trackPct}%, ${NAVY_12} ${trackPct}%, ${NAVY_12} 100%)`,
   };
+
+  // Spend lookups for the selected (locked) From / To combination.
+  const fromSpendK = lookupSpendK(FROM_CATEGORY_ID, FROM_COUNTRY_ID) ?? 0;
+  const toSpendK = lookupSpendK(TO_CATEGORY_ID, TO_COUNTRY_ID) ?? 0;
+  const fromKpi = lookupKpi(FROM_CATEGORY_ID, FROM_COUNTRY_ID);
+  const toKpi = lookupKpi(TO_CATEGORY_ID, TO_COUNTRY_ID);
+
+  const reallocAmountK = (fromSpendK * reallocationPct) / 100;
+  const fromNewSpendK = fromSpendK - reallocAmountK;
+  const toNewSpendK = toSpendK + reallocAmountK;
+
+  // Selector option lists. Only the locked combination is selectable.
+  const fromCountryOptions: SelectorOption[] = markets.map((m) => ({
+    id: m.id,
+    label: m.name,
+    flag: m.flag,
+    selectable: m.id === FROM_COUNTRY_ID,
+  }));
+  const toCountryOptions: SelectorOption[] = markets.map((m) => ({
+    id: m.id,
+    label: m.name,
+    flag: m.flag,
+    selectable: m.id === TO_COUNTRY_ID,
+  }));
+  // Category options: show all categories with the from-country's spend.
+  const fromCategoryOptions: SelectorOption[] = investmentRadar.map((c) => {
+    const k = lookupSpendK(c.id, FROM_COUNTRY_ID);
+    return {
+      id: c.id,
+      label: c.name,
+      value: k != null ? fmtEur(k) : '—',
+      selectable: c.id === FROM_CATEGORY_ID,
+    };
+  });
+  const toCategoryOptions: SelectorOption[] = investmentRadar.map((c) => {
+    const k = lookupSpendK(c.id, TO_COUNTRY_ID);
+    return {
+      id: c.id,
+      label: c.name,
+      value: k != null ? fmtEur(k) : '—',
+      selectable: c.id === TO_CATEGORY_ID,
+    };
+  });
 
   const draft: LogDecisionDraft = {
     decision: scenarioPlanner.recommendation.recommendation,
@@ -383,7 +748,7 @@ export default function ScenarioPlanner() {
     <div style={pageStyle}>
       <div style={headerStripeStyle}>
         <PageHeader
-          title="Scenario Planner"
+          title="Scenario planner"
           subtitle="Directional impact under explicit assumptions. Not a forecast."
         />
         <span style={directionalChipStyle}>
@@ -391,381 +756,365 @@ export default function ScenarioPlanner() {
         </span>
       </div>
 
-      <div>
-        <div style={sectionLabelStyle}>Scenario</div>
-        <div ref={previewRef} style={{ position: 'relative', display: 'inline-block' }}>
+      {/* ─── Scenario card ────────────────────────────────────────── */}
+      <section style={cardStyle}>
+        <div style={cardEyebrowRowStyle}>
+          <span style={cardEyebrowStyle}>Scenario</span>
+        </div>
+
+        <div style={selectorRowStyle}>
+          <span style={selectorRowLabelStyle}>From</span>
+          <Selector
+            selectedId={FROM_COUNTRY_ID}
+            options={fromCountryOptions}
+            ariaLabel="From country"
+            buttonMinWidth={140}
+          />
+          <Selector
+            selectedId={FROM_CATEGORY_ID}
+            options={fromCategoryOptions}
+            ariaLabel="From category"
+            buttonMinWidth={220}
+          />
+          <span style={selectorRowLabelStyle}>toward</span>
+          <Selector
+            selectedId={TO_COUNTRY_ID}
+            options={toCountryOptions}
+            ariaLabel="To country"
+            buttonMinWidth={120}
+          />
+          <Selector
+            selectedId={TO_CATEGORY_ID}
+            options={toCategoryOptions}
+            ariaLabel="To category"
+            buttonMinWidth={220}
+          />
+        </div>
+
+        <div style={{ marginTop: 20 }}>
+          <div style={sliderRowStyle}>
+            <label htmlFor="realloc-slider" style={sliderLabelStyle}>
+              Share to be reallocated
+            </label>
+            <span style={sliderValueStyle}>{reallocationPct}%</span>
+          </div>
+          <input
+            id="realloc-slider"
+            type="range"
+            min={scenarioPlanner.reallocationRangePct.min}
+            max={scenarioPlanner.reallocationRangePct.max}
+            step={1}
+            value={reallocationPct}
+            onChange={(e) => setReallocationPct(Number(e.target.value))}
+            style={{ ...dynamicRangeStyle, marginTop: 10 }}
+            aria-valuemin={scenarioPlanner.reallocationRangePct.min}
+            aria-valuemax={scenarioPlanner.reallocationRangePct.max}
+            aria-valuenow={reallocationPct}
+          />
+          <div style={sliderTicksStyle}>
+            <span>{scenarioPlanner.reallocationRangePct.min}%</span>
+            <span>Default 10%</span>
+            <span>{scenarioPlanner.reallocationRangePct.max}%</span>
+          </div>
+        </div>
+
+        <div style={summaryGridStyle}>
+          {/* FROM */}
+          <div style={summaryTileBase}>
+            <span style={summaryEyebrowStyle}>From book · {FROM_COUNTRY_LABEL.toUpperCase().slice(0, 3)}</span>
+            <div style={summaryAmountRowStyle}>
+              <span>{fmtEur(fromSpendK)}</span>
+              <ArrowRight size={14} color={RED} strokeWidth={2.5} />
+              <span style={{ color: RED }}>{fmtEur(fromNewSpendK)}</span>
+            </div>
+            <div style={summarySubtitleStyle}>
+              {categoryName(FROM_CATEGORY_ID)}
+              {fromKpi && (
+                <>
+                  {' · '}
+                  KPI {fromKpi.proxyKpiValue}
+                </>
+              )}
+            </div>
+          </div>
+
+          {/* REALLOCATING */}
+          <div style={summaryTileBase}>
+            <span style={summaryEyebrowStyle}>Reallocating</span>
+            <div style={summaryAmountRowStyle}>
+              <ArrowRight size={14} color={BLUE} strokeWidth={2.5} />
+              <span style={{ color: BLUE }}>{fmtEur(reallocAmountK)}</span>
+            </div>
+            <div style={summarySubtitleStyle}>
+              {reallocationPct}% of {FROM_COUNTRY_LABEL.toUpperCase().slice(0, 3)} {categoryName(FROM_CATEGORY_ID).toLowerCase()}
+            </div>
+          </div>
+
+          {/* TO */}
+          <div style={summaryTileBase}>
+            <span style={summaryEyebrowStyle}>To book · {TO_COUNTRY_LABEL.toUpperCase().slice(0, 3)}</span>
+            <div style={summaryAmountRowStyle}>
+              <span>{fmtEur(toSpendK)}</span>
+              <ArrowRight size={14} color={GREEN} strokeWidth={2.5} />
+              <span style={{ color: GREEN }}>{fmtEur(toNewSpendK)}</span>
+            </div>
+            <div style={summarySubtitleStyle}>
+              {categoryName(TO_CATEGORY_ID)}
+              {toKpi && (
+                <>
+                  {' · '}
+                  KPI {toKpi.proxyKpiValue}
+                </>
+              )}
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ─── Conditions & Assumptions (collapsible) ──────────────── */}
+      <section style={cardStyle}>
+        <div style={cardEyebrowRowStyle}>
+          <span style={cardEyebrowStyle}>Conditions &amp; assumptions</span>
           <button
             type="button"
-            onClick={() => setPreviewOpen((v) => !v)}
-            aria-expanded={previewOpen}
-            aria-haspopup="listbox"
-            style={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: 10,
-              minWidth: 320,
-              height: 42,
-              padding: '0 16px',
-              borderRadius: 10,
-              background: '#ffffff',
-              border: `1px solid ${NAVY_12}`,
-              color: NAVY,
-              fontSize: 14,
-              fontWeight: 700,
-              cursor: 'pointer',
-              fontFamily: 'inherit',
-              boxShadow: '0 1px 2px rgba(5,10,68,0.04)',
-              justifyContent: 'space-between',
-            }}
+            onClick={() => setCondCollapsed((v) => !v)}
+            aria-expanded={!condCollapsed}
+            aria-label={condCollapsed ? 'Show conditions and assumptions' : 'Hide conditions and assumptions'}
+            style={collapseBtnStyle}
           >
-            <span>{ACTIVE_SCENARIO.label}</span>
-            {previewOpen ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+            {condCollapsed ? <ChevronDown size={16} /> : <ChevronUp size={16} />}
           </button>
-          {previewOpen && (
-            <div
-              style={{
-                position: 'absolute',
-                top: 'calc(100% + 6px)',
-                left: 0,
-                width: 420,
-                background: '#ffffff',
-                border: `1px solid ${NAVY_12}`,
-                borderRadius: 12,
-                boxShadow: '0 12px 28px rgba(5,10,68,0.16), 0 2px 6px rgba(5,10,68,0.06)',
-                zIndex: 40,
-                padding: 8,
-                display: 'flex',
-                flexDirection: 'column',
-                gap: 4,
-              }}
-              role="listbox"
-              aria-label="Choose scenario"
-            >
-              {SCENARIOS.map((s) => {
-                const selectable = s.active;
+        </div>
+
+        {!condCollapsed && (
+          <div style={condAssumpGridStyle}>
+            <div>
+              <div style={subLabelStyle}>Conditions to verify</div>
+              {CONDITION_KEYS.map((k) => {
+                const checked = !!conditions[k];
                 return (
                   <div
-                    key={s.value}
-                    role="option"
-                    aria-selected={!!s.active}
-                    aria-disabled={!selectable}
-                    onClick={() => {
-                      if (selectable) setPreviewOpen(false);
-                    }}
-                    style={{
-                      padding: '12px 14px',
-                      borderRadius: 10,
-                      background: s.active ? '#E8EAF6' : 'transparent',
-                      cursor: selectable ? 'pointer' : 'not-allowed',
-                      display: 'flex',
-                      flexDirection: 'column',
-                      gap: 4,
-                      opacity: selectable ? 1 : 0.78,
-                      transition: 'background 120ms ease',
-                    }}
-                    onMouseEnter={(e) => {
-                      if (selectable && !s.active) e.currentTarget.style.background = NAVY_06;
-                    }}
-                    onMouseLeave={(e) => {
-                      if (selectable && !s.active) e.currentTarget.style.background = 'transparent';
+                    key={k}
+                    onClick={() => setConditions((p) => ({ ...p, [k]: !checked }))}
+                    style={{ ...condRowStyle, cursor: 'pointer' }}
+                    role="checkbox"
+                    aria-checked={checked}
+                    tabIndex={0}
+                    onKeyDown={(e) => {
+                      if (e.key === ' ' || e.key === 'Enter') {
+                        e.preventDefault();
+                        setConditions((p) => ({ ...p, [k]: !checked }));
+                      }
                     }}
                   >
-                    <div
-                      style={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'space-between',
-                        gap: 10,
-                      }}
-                    >
-                      <span style={{ fontSize: 13, fontWeight: 700, color: NAVY, lineHeight: 1.4 }}>
-                        {s.label}
-                      </span>
-                      {s.active ? (
-                        <span
-                          style={{
-                            display: 'inline-flex',
-                            alignItems: 'center',
-                            padding: '2px 8px',
-                            borderRadius: 999,
-                            background: NAVY,
-                            color: '#ffffff',
-                            fontSize: 10,
-                            fontWeight: 800,
-                            letterSpacing: '0.04em',
-                            textTransform: 'uppercase',
-                          }}
-                        >
-                          Selected
-                        </span>
-                      ) : (
-                        <span
-                          style={{
-                            display: 'inline-flex',
-                            alignItems: 'center',
-                            padding: '2px 8px',
-                            borderRadius: 999,
-                            background: NAVY_06,
-                            color: NAVY_70,
-                            fontSize: 10,
-                            fontWeight: 800,
-                            letterSpacing: '0.04em',
-                            textTransform: 'uppercase',
-                          }}
-                        >
-                          Coming soon
-                        </span>
+                    <span style={checked ? checkboxCheckedStyle : checkboxStyle} aria-hidden>
+                      {checked && (
+                        <svg width="10" height="10" viewBox="0 0 10 10" aria-hidden>
+                          <path d="M1.5 5L4 7.5L8.5 2.5" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" fill="none" />
+                        </svg>
                       )}
-                    </div>
-                    <span style={{ fontSize: 12, color: NAVY_70, lineHeight: 1.5 }}>
-                      {s.description}
                     </span>
+                    <span>{k}</span>
                   </div>
                 );
               })}
-            </div>
-          )}
-        </div>
-      </div>
-
-      <div>
-        <div style={sectionLabelStyle}>Operational chain · where this scenario depends on execution</div>
-        <CriticalPathChain
-          nodes={scenarioPlanner.operationalChain.map((n) => ({
-            node: n.node,
-            status: n.status,
-          }))}
-        />
-      </div>
-
-      <div style={twoColStyle}>
-        {/* LEFT: Inputs card */}
-        <section style={cardStyle}>
-          <div>
-            <div style={sectionLabelStyle}>Inputs</div>
-            <div style={sliderHeaderStyle}>
-              <label style={sliderLabelStyle} htmlFor="realloc-slider">
-                Share of Germany marketing budget to reallocate
-              </label>
-              <span style={sliderValueStyle}>{reallocationPct}%</span>
-            </div>
-            <input
-              id="realloc-slider"
-              type="range"
-              min={scenarioPlanner.reallocationRangePct.min}
-              max={scenarioPlanner.reallocationRangePct.max}
-              step={1}
-              value={reallocationPct}
-              onChange={(e) => setReallocationPct(Number(e.target.value))}
-              style={dynamicRangeStyle}
-              aria-valuemin={scenarioPlanner.reallocationRangePct.min}
-              aria-valuemax={scenarioPlanner.reallocationRangePct.max}
-              aria-valuenow={reallocationPct}
-            />
-            <div style={sliderRangeRowStyle}>
-              <span>{scenarioPlanner.reallocationRangePct.min}%</span>
-              <span>Default 10%</span>
-              <span>{scenarioPlanner.reallocationRangePct.max}%</span>
-            </div>
-          </div>
-
-          <div style={dividerStyle} />
-
-          <div>
-            <div style={sectionLabelStyle}>Conditions to verify</div>
-            <div style={conditionsWrapStyle}>
-              {CONDITION_KEYS.map((key) => (
-                <ConditionToggle
-                  key={key}
-                  label={key}
-                  checked={conditions[key]}
-                  onChange={(checked) =>
-                    setConditions((prev) => ({ ...prev, [key]: checked }))
-                  }
-                />
-              ))}
-            </div>
-            {widened && (
-              <div style={widenedNoteStyle}>
-                <Info size={14} strokeWidth={2.5} style={{ flexShrink: 0, marginTop: 1 }} />
-                <span>
+              {widened && (
+                <div
+                  style={{
+                    marginTop: 10,
+                    padding: '8px 12px',
+                    background: AMBER_BG,
+                    border: `1px solid ${AMBER_BORDER}`,
+                    borderRadius: 8,
+                    color: AMBER_TEXT,
+                    fontSize: 12,
+                    lineHeight: 1.45,
+                    fontWeight: 500,
+                  }}
+                >
                   Confidence band widened because a required condition is unchecked.
-                </span>
-              </div>
-            )}
-          </div>
+                </div>
+              )}
+            </div>
 
-          <div style={dividerStyle} />
-
-          <AssumptionList items={scenarioPlanner.assumptions} />
-
-          <div style={{ ...dividerStyle, marginTop: 4 }} />
-
-          <SourceTag
-            label={scenarioPlanner.recommendation.sources.join(' · ')}
-          />
-        </section>
-
-        {/* RIGHT: Chart card only */}
-        <section style={chartCardStyle}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 12, flexWrap: 'wrap' }}>
             <div>
-              <h2 style={chartTitleStyle}>Directional net commercial impact · 6-month window</h2>
-              <p style={chartSubtitleStyle}>Directional. Not a forecast.</p>
+              <div style={subLabelStyle}>Assumptions in play</div>
+              <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
+                {scenarioPlanner.assumptionsInPlay.map((a) => (
+                  <li key={a.source} style={assumpRowStyle}>
+                    <span style={assumpBulletStyle} aria-hidden />
+                    <span>
+                      <span style={assumpLabelStyle}>{a.source}</span>
+                      {' · '}
+                      {a.description}
+                    </span>
+                  </li>
+                ))}
+              </ul>
             </div>
-            <div style={{ display: 'flex', gap: 14, fontSize: 11, color: NAVY_70, fontWeight: 600, alignSelf: 'flex-end' }}>
-              <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
-                <span style={{ width: 16, height: 2.5, background: TEAL, borderRadius: 2 }} />
-                Base
-              </span>
-              <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
-                <span style={{ width: 14, height: 10, background: 'rgba(15,118,110,0.20)', borderRadius: 3 }} />
-                Confidence band
-              </span>
-            </div>
           </div>
+        )}
+      </section>
 
-          <div
-            style={{
-              display: 'flex',
-              flexDirection: 'column',
-              gap: 6,
-              marginTop: 8,
-            }}
-          >
-            <p style={chartCentralAssumptionStyle}>
-              <strong style={{ color: NAVY, fontWeight: 700 }}>Central assumption (fixed):</strong>{' '}
-              The reallocated Germany marketing spend can be operationally mobilised by Italy to lift
-              60-day follow-up coverage for high-potential trained HCPs above today&rsquo;s 41% baseline.
-            </p>
-            <p
-              style={{
-                margin: 0,
-                padding: '8px 12px',
-                background: '#E0E7FF',
-                border: '1px solid #C7D2FE',
-                borderRadius: 8,
-                fontSize: 12,
-                color: '#3730A3',
-                lineHeight: 1.5,
-              }}
-            >
-              <strong style={{ color: '#1E1B4B', fontWeight: 700 }}>Currently modelling:</strong>{' '}
-              <strong style={{ color: '#1E1B4B', fontWeight: 700 }}>{reallocationPct}%</strong>{' '}
-              reallocation drives estimated follow-up coverage to{' '}
-              <strong style={{ color: '#1E1B4B', fontWeight: 700 }}>
-                {achievableFollowup(reallocationPct).toFixed(0)}%
-              </strong>{' '}
-              (from 41% baseline)
-              {' · '}
-              <strong style={{ color: '#1E1B4B', fontWeight: 700 }}>
-                {Object.values(conditions).filter(Boolean).length} of {CONDITION_KEYS.length}
-              </strong>{' '}
-              conditions assumed met
-              {widened ? ' · confidence band widened' : ''}
-            </p>
+      {/* ─── Dependency: 3-step chain ───────────────────────────── */}
+      <section>
+        <div style={{ ...cardEyebrowStyle, marginBottom: 12 }}>
+          Dependency · Where the impact comes from
+        </div>
+        <div style={chainRowStyle}>
+          {scenarioPlanner.operationalChain.map((node, idx) => {
+            const isFocus = !!node.focus;
+            return (
+              <div key={node.node} style={{ display: 'contents' }}>
+                <article style={isFocus ? chainNodeFocusStyle : chainNodeBase}>
+                  {isFocus && (
+                    <span style={chainFocusPillStyle}>
+                      <Flag size={10} strokeWidth={2.5} /> Focus of this scenario
+                    </span>
+                  )}
+                  <span style={isFocus ? chainStepEyebrowFocusStyle : chainStepEyebrowStyle}>
+                    Step {idx + 1}
+                  </span>
+                  <div style={chainStepTitleStyle}>{node.node}</div>
+                  {isFocus && node.focusNote && (
+                    <div style={chainFocusNoteStyle}>{node.focusNote}</div>
+                  )}
+                </article>
+                {idx < scenarioPlanner.operationalChain.length - 1 && (
+                  <div style={chainArrowStyle}>
+                    <ChevronRight size={20} />
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
+      </section>
+
+      {/* ─── Chart (full width) ─────────────────────────────────── */}
+      <section style={cardStyle}>
+        <div
+          style={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'flex-start',
+            gap: 12,
+            flexWrap: 'wrap',
+          }}
+        >
+          <div>
+            <h2 style={chartTitleStyle}>Directional net commercial impact · 6-month window</h2>
+            <p style={chartSubtitleStyle}>Directional. Not a forecast.</p>
           </div>
-
-          <div style={{ width: '100%', height: 340, marginTop: 12 }}>
-            <ResponsiveContainer>
-              <ComposedChart data={bandData} margin={{ top: 12, right: 24, bottom: 32, left: 32 }}>
-                <defs>
-                  <linearGradient id="band-grad" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor={TEAL} stopOpacity={0.28} />
-                    <stop offset="100%" stopColor={TEAL} stopOpacity={0.12} />
-                  </linearGradient>
-                </defs>
-                <CartesianGrid stroke="rgba(5,10,68,0.06)" strokeDasharray="3 3" />
-                <XAxis
-                  dataKey="monthLabel"
-                  tick={{ fill: NAVY_55, fontSize: 11 }}
-                  tickLine={false}
-                  axisLine={{ stroke: NAVY_12 }}
-                  label={{
-                    value: 'Months from now (M0 = today)',
-                    position: 'insideBottom',
-                    offset: -4,
-                    fill: NAVY_55,
-                    fontSize: 11,
-                    fontWeight: 600,
-                  }}
-                />
-                <YAxis
-                  domain={['dataMin - 0.5', 'dataMax + 0.5']}
-                  tick={{ fill: NAVY_55, fontSize: 11 }}
-                  tickLine={false}
-                  axisLine={{ stroke: NAVY_12 }}
-                  width={56}
-                  label={{
-                    value: "Italy Xeomin run-rate · 100 = today",
-                    angle: -90,
-                    position: 'insideLeft',
-                    offset: 0,
-                    fill: NAVY_55,
-                    fontSize: 11,
-                    fontWeight: 600,
-                    style: { textAnchor: 'middle' },
-                  }}
-                />
-                <Tooltip
-                  contentStyle={tooltipBoxStyle as any}
-                  itemStyle={{ color: '#ffffff' }}
-                  labelStyle={{ color: 'rgba(255,255,255,0.8)' }}
-                  formatter={(v: any, name: any) => [
-                    typeof v === 'number' ? v.toFixed(2) : v,
-                    name === 'upper' ? 'Best' : name === 'lower' ? 'Conservative' : 'Base',
-                  ]}
-                />
-                <ReferenceLine y={100} stroke={NAVY_12} strokeDasharray="4 4" />
-                {/* Upper bound area, filled to lower bound via baseLine of zero (custom approach) */}
-                <Area
-                  type="monotone"
-                  dataKey="upper"
-                  stroke="none"
-                  fill="url(#band-grad)"
-                  isAnimationActive={true}
-                  animationDuration={220}
-                />
-                <Area
-                  type="monotone"
-                  dataKey="lower"
-                  stroke="none"
-                  fill="#ffffff"
-                  isAnimationActive={true}
-                  animationDuration={220}
-                />
-                <Line
-                  type="monotone"
-                  dataKey="base"
-                  stroke={TEAL}
-                  strokeWidth={2.5}
-                  dot={{ fill: TEAL, r: 3 }}
-                  isAnimationActive={true}
-                  animationDuration={220}
-                />
-              </ComposedChart>
-            </ResponsiveContainer>
+          <div style={{ display: 'flex', gap: 14, fontSize: 11, color: NAVY_70, fontWeight: 600 }}>
+            <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+              <span style={{ width: 16, height: 2.5, background: BLUE, borderRadius: 2 }} />
+              Base
+            </span>
+            <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+              <span style={{ width: 14, height: 10, background: 'rgba(0,85,187,0.18)', borderRadius: 3 }} />
+              Confidence band
+            </span>
           </div>
+        </div>
 
-          <p
-            style={{
-              marginTop: 10,
-              marginBottom: 0,
-              fontSize: 11,
-              color: NAVY_55,
-              lineHeight: 1.5,
-              fontStyle: 'italic',
-            }}
-          >
-            How to read the Y-axis: values are indexed to today&rsquo;s Italy Xeomin run-rate.
-            100 = no change. 103 = a 3% lift versus today. 99 = a 1% decline.
-            The shaded band is the directional best–conservative range under the
-            modelled inputs.
-          </p>
-        </section>
-      </div>
+        <div style={{ width: '100%', height: 360, marginTop: 14 }}>
+          <ResponsiveContainer>
+            <ComposedChart data={bandData} margin={{ top: 12, right: 24, bottom: 36, left: 36 }}>
+              <defs>
+                <linearGradient id="band-grad" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stopColor={BLUE} stopOpacity={0.24} />
+                  <stop offset="100%" stopColor={BLUE} stopOpacity={0.10} />
+                </linearGradient>
+              </defs>
+              <CartesianGrid stroke="rgba(5,10,68,0.06)" strokeDasharray="3 3" />
+              <XAxis
+                dataKey="monthLabel"
+                tick={{ fill: NAVY_55, fontSize: 11 }}
+                tickLine={false}
+                axisLine={{ stroke: NAVY_12 }}
+                label={{
+                  value: 'Months from now (M0 = today)',
+                  position: 'insideBottom',
+                  offset: -8,
+                  fill: NAVY_55,
+                  fontSize: 11,
+                  fontWeight: 600,
+                }}
+              />
+              <YAxis
+                domain={['dataMin - 0.5', 'dataMax + 0.5']}
+                tick={{ fill: NAVY_55, fontSize: 11 }}
+                tickLine={false}
+                axisLine={{ stroke: NAVY_12 }}
+                width={64}
+                label={{
+                  value: 'Italy Xeomin run-rate · 100 = today',
+                  angle: -90,
+                  position: 'insideLeft',
+                  offset: 4,
+                  fill: NAVY_55,
+                  fontSize: 11,
+                  fontWeight: 600,
+                  style: { textAnchor: 'middle' },
+                }}
+              />
+              <Tooltip
+                contentStyle={tooltipBoxStyle as any}
+                itemStyle={{ color: '#ffffff' }}
+                labelStyle={{ color: 'rgba(255,255,255,0.8)' }}
+                formatter={(v: any, name: any) => [
+                  typeof v === 'number' ? v.toFixed(2) : v,
+                  name === 'upper' ? 'Best' : name === 'lower' ? 'Conservative' : 'Base',
+                ]}
+              />
+              <ReferenceLine y={100} stroke={NAVY_12} strokeDasharray="4 4" />
+              <Area
+                type="monotone"
+                dataKey="upper"
+                stroke="none"
+                fill="url(#band-grad)"
+                isAnimationActive
+                animationDuration={220}
+              />
+              <Area
+                type="monotone"
+                dataKey="lower"
+                stroke="none"
+                fill="#ffffff"
+                isAnimationActive
+                animationDuration={220}
+              />
+              <Line
+                type="monotone"
+                dataKey="base"
+                stroke={BLUE}
+                strokeWidth={2.5}
+                dot={{ fill: BLUE, r: 3 }}
+                isAnimationActive
+                animationDuration={220}
+              />
+            </ComposedChart>
+          </ResponsiveContainer>
+        </div>
 
-      {/* Full-width recommendation below the inputs + chart row */}
+        <p
+          style={{
+            marginTop: 10,
+            marginBottom: 0,
+            fontSize: 11,
+            color: NAVY_55,
+            lineHeight: 1.5,
+            fontStyle: 'italic',
+          }}
+        >
+          How to read the Y-axis: values are indexed to today&rsquo;s Italy Xeomin run-rate.
+          100 = no change. 103 = a 3% lift versus today. 99 = a 1% decline. The shaded band is
+          the directional best–conservative range under the modelled inputs.
+        </p>
+      </section>
+
+      {/* ─── Ariya recommends ───────────────────────────────────── */}
       <RecommendationCard
         eyebrow={scenarioPlanner.recommendation.eyebrow}
         meta={scenarioPlanner.recommendation.headerMeta}
@@ -781,20 +1130,9 @@ export default function ScenarioPlanner() {
         footerMeta={scenarioPlanner.recommendation.footerMeta}
         collapsible
         actions={[
-          {
-            label: 'Log this decision →',
-            onClick: () => setModalOpen(true),
-            primary: true,
-          },
-          {
-            label: 'Open in Ask Ariya',
-            onClick: openInAskAriya,
-          },
-          {
-            label: 'Trace evidence',
-            onClick: () => navigate('/source-confidence'),
-            tone: 'quiet',
-          },
+          { label: 'Log this decision →', onClick: () => setModalOpen(true), primary: true },
+          { label: 'Open in Ask Ariya', onClick: openInAskAriya },
+          { label: 'Trace evidence', onClick: () => navigate('/source-confidence'), tone: 'quiet' },
         ]}
       />
 
@@ -807,4 +1145,3 @@ export default function ScenarioPlanner() {
     </div>
   );
 }
-

@@ -654,10 +654,24 @@ export const scenarioPlanner = {
     'Germany reduction limited to lower-response activities': { widenBandBy: 0.4 },
   },
   operationalChain: [
-    { node: 'HCP selection', status: 'Verified' },
-    { node: 'Training delivered', status: 'Verified' },
-    { node: '60-day follow-up', status: 'At Risk' },
-    { node: 'Commercial impact', status: 'Pending' },
+    { node: 'HCP selection', status: 'Verified' as Status },
+    { node: 'Training', status: 'Verified' as Status },
+    {
+      node: '60-day follow-up',
+      status: 'At Risk' as Status,
+      focus: true,
+      focusNote: 'This is where the follow-up gap sits. The reallocation targets this step.',
+    },
+  ] as { node: string; status: Status; focus?: boolean; focusNote?: string }[],
+  // Compact assumption list rendered in the Conditions & Assumptions block on
+  // the Scenario Planner. Format: "{source} · {what we're pulling from it}".
+  assumptionsInPlay: [
+    { source: 'Market performance', description: 'GER and ITA run-rate, last 6 months' },
+    { source: 'CRM activity', description: 'trained-HCP follow-up coverage' },
+    { source: 'Training & spend', description: 'participation, completion, cost per HCP' },
+    { source: 'HCP segmentation', description: 'high-potential list, ITA' },
+    { source: 'Brand plan assumptions', description: 'response curves by category' },
+    { source: 'Finance · spend', description: 'committed vs. flexible spend, by book' },
   ],
   recommendation: {
     eyebrow: 'Ariya recommends · Scenario answer',
