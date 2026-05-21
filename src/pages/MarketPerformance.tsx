@@ -642,23 +642,28 @@ function InvestmentMix({ mix }: { mix: { label: string; value: number; color: st
   );
 }
 
-// Single-tone vertical bar chart. The trend is in the bar heights; we don't
-// colour each bar separately because that reads as an alarm — the editorial
-// callout below the card carries the interpretation.
-function VisitsBarChart({
-  data,
-  tone,
-}: {
-  data: { month: string; visits: number }[];
-  tone: StatTone;
-}) {
-  // Use a baseline 10% below the lowest value so the relative variation between
-  // bars is actually visible (not just clustered at the top).
+// Per-bar tone-coloured vertical chart. Each bar is coloured by its own
+// `tone` so on-track months render green and at-risk months render red — the
+// editorial story of the chart is visible at a glance.
+//
+// Layout note: the container has explicit top padding so the tallest bars
+// don't touch the inner sub-label above ("HCP VISITS PER MONTH …"). The
+// chart area is taller than the maximum bar height (CHART_AREA_H > BAR_MAX),
+// which guarantees the gap.
+function VisitsBarChart({ data }: { data: { month: string; visits: number; tone: StatTone }[] }) {
+  // Baseline well below the lowest value so the variation between bars reads
+  // visually instead of clustering at the top.
   const max = Math.max(...data.map((d) => d.visits)) || 1;
   const min = Math.min(...data.map((d) => d.visits)) || 0;
   const range = Math.max(max - min, 1);
   const baseline = Math.max(0, min - range * 0.4);
   const span = max - baseline;
+
+  const BAR_MAX = 76;          // tallest possible bar
+  const CHART_AREA_H = 100;    // bar area (top padding + bars)
+  const LABEL_AREA_H = 18;     // space reserved for the month labels under the bars
+  const TOP_PADDING = 14;      // gap between top of chart and inner sub-label above
+
   return (
     <div
       style={{
@@ -666,29 +671,47 @@ function VisitsBarChart({
         alignItems: 'flex-end',
         justifyContent: 'space-between',
         gap: 6,
-        height: 100,
-        paddingBottom: 16,
+        height: CHART_AREA_H + LABEL_AREA_H,
+        paddingTop: TOP_PADDING,
+        paddingBottom: 0,
         position: 'relative',
       }}
     >
       {data.map((d) => {
-        const h = ((d.visits - baseline) / span) * 80;
+        const h = ((d.visits - baseline) / span) * BAR_MAX;
         return (
           <div
             key={d.month}
-            style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', flex: 1 }}
+            style={{
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              justifyContent: 'flex-end',
+              flex: 1,
+              height: '100%',
+            }}
           >
             <div
               style={{
                 width: '100%',
                 maxWidth: 32,
                 height: `${h}px`,
-                background: TONE_BAR[tone],
+                background: TONE_BAR[d.tone],
                 borderRadius: 4,
               }}
               title={`${d.month}: ${d.visits} visits`}
             />
-            <span style={{ marginTop: 6, fontSize: 10, color: NAVY_55 }}>{d.month}</span>
+            <span
+              style={{
+                marginTop: 6,
+                fontSize: 10,
+                color: NAVY_55,
+                lineHeight: 1,
+                height: LABEL_AREA_H - 6,
+              }}
+            >
+              {d.month}
+            </span>
           </div>
         );
       })}
@@ -1043,10 +1066,7 @@ export default function MarketPerformance() {
               innerLabel="HCP visits per month · last 6 months"
               innerContent={
                 ctx.hcpVisitsPerMonth ? (
-                  <VisitsBarChart
-                    data={ctx.hcpVisitsPerMonth}
-                    tone={ctx.callouts?.fieldActivity?.tone ?? 'watch'}
-                  />
+                  <VisitsBarChart data={ctx.hcpVisitsPerMonth} />
                 ) : (
                   <FallbackInner />
                 )
