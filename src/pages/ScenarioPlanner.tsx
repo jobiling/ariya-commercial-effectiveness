@@ -598,14 +598,45 @@ export default function ScenarioPlanner() {
             </div>
           </div>
 
-          <p style={chartCentralAssumptionStyle}>
-            <strong style={{ color: NAVY, fontWeight: 700 }}>Central assumption:</strong>{' '}
-            {scenarioPlanner.centralAssumption}
-          </p>
+          <div
+            style={{
+              display: 'flex',
+              flexDirection: 'column',
+              gap: 6,
+              marginTop: 8,
+            }}
+          >
+            <p style={chartCentralAssumptionStyle}>
+              <strong style={{ color: NAVY, fontWeight: 700 }}>Central assumption (fixed):</strong>{' '}
+              {scenarioPlanner.centralAssumption}
+            </p>
+            <p
+              style={{
+                margin: 0,
+                padding: '8px 12px',
+                background: '#E0E7FF',
+                border: '1px solid #C7D2FE',
+                borderRadius: 8,
+                fontSize: 12,
+                color: '#3730A3',
+                lineHeight: 1.5,
+              }}
+            >
+              <strong style={{ color: '#1E1B4B', fontWeight: 700 }}>Currently modelling:</strong>{' '}
+              <strong style={{ color: '#1E1B4B', fontWeight: 700 }}>{reallocationPct}%</strong>{' '}
+              reallocation
+              {' · '}
+              <strong style={{ color: '#1E1B4B', fontWeight: 700 }}>
+                {Object.values(conditions).filter(Boolean).length} of {CONDITION_KEYS.length}
+              </strong>{' '}
+              conditions assumed met
+              {widened ? ' · confidence band widened' : ''}
+            </p>
+          </div>
 
-          <div style={{ width: '100%', height: 320, marginTop: 8 }}>
+          <div style={{ width: '100%', height: 340, marginTop: 12 }}>
             <ResponsiveContainer>
-              <ComposedChart data={bandData} margin={{ top: 12, right: 20, bottom: 8, left: -16 }}>
+              <ComposedChart data={bandData} margin={{ top: 12, right: 24, bottom: 32, left: 8 }}>
                 <defs>
                   <linearGradient id="band-grad" x1="0" y1="0" x2="0" y2="1">
                     <stop offset="0%" stopColor={TEAL} stopOpacity={0.28} />
@@ -618,12 +649,30 @@ export default function ScenarioPlanner() {
                   tick={{ fill: NAVY_55, fontSize: 11 }}
                   tickLine={false}
                   axisLine={{ stroke: NAVY_12 }}
+                  label={{
+                    value: 'Months from now (M0 = today)',
+                    position: 'insideBottom',
+                    offset: -4,
+                    fill: NAVY_55,
+                    fontSize: 11,
+                    fontWeight: 600,
+                  }}
                 />
                 <YAxis
                   domain={['dataMin - 0.5', 'dataMax + 0.5']}
                   tick={{ fill: NAVY_55, fontSize: 11 }}
                   tickLine={false}
                   axisLine={{ stroke: NAVY_12 }}
+                  label={{
+                    value: 'Net commercial impact · indexed, baseline = 100',
+                    angle: -90,
+                    position: 'insideLeft',
+                    offset: 16,
+                    fill: NAVY_55,
+                    fontSize: 11,
+                    fontWeight: 600,
+                    style: { textAnchor: 'middle' },
+                  }}
                 />
                 <Tooltip
                   contentStyle={tooltipBoxStyle as any}
