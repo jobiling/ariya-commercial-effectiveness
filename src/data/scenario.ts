@@ -160,6 +160,16 @@ export const overview = {
 // MARKET PERFORMANCE detail
 // ---------------------------------------------------------------------------
 
+export type StatTone = 'on-track' | 'watch' | 'at-risk';
+
+export interface StatCallout {
+  tone: StatTone;
+  label: string;        // e.g. "Why it's strong", "What it means", "Why it's the break point"
+  body: string;
+  action: string;       // CTA text
+  actionRoute?: string; // optional route the CTA navigates to
+}
+
 export interface MarketContext {
   marketId: string;
   forecastVsActual: { quarter: string; forecast: number; actual: number }[];
@@ -170,6 +180,31 @@ export interface MarketContext {
     marketSharePct: number;          // illustrative, Xeomin in aesthetic neuromodulator
     contributionMarginPct: number;   // illustrative
     interpretation: string;
+    // Stat-card delta vs benchmark, shown in the top-right pill of each card.
+    // Sign indicates direction (positive = above benchmark).
+    deltas?: {
+      investmentIntensity?: number;
+      fieldActivity?: number;
+      followup?: number;
+      marketShare?: number;
+      margin?: number;
+    };
+    // Inner mini-visualisation data per stat card.
+    investmentMix?: { label: string; value: number; color: string }[];
+    hcpVisitsPerMonth?: { month: string; visits: number; tone: StatTone }[];
+    followupPeers?: { label: string; value: number; highlight?: boolean }[];
+    marketShareTrend?: { quarter: string; value: number }[];
+    marginTrend?: { quarter: string; value: number }[];
+    marketShareBenchmark?: number;
+    marginBenchmark?: number;
+    // Per-card editorial callout.
+    callouts?: {
+      investmentIntensity?: StatCallout;
+      fieldActivity?: StatCallout;
+      followup?: StatCallout;
+      marketShare?: StatCallout;
+      margin?: StatCallout;
+    };
   };
 }
 
@@ -188,6 +223,90 @@ export const marketPerformanceContext: MarketContext[] = [
       contributionMarginPct: 58.6,
       interpretation:
         'Performance below plan in Italy coincides with a 41% post-training 60-day follow-up rate among trained HCPs. Field activity is near expected, but it is not concentrated on the highest-potential trained HCPs.',
+      deltas: {
+        investmentIntensity: 2.9,
+        fieldActivity: -4,
+        followup: -24,
+        marketShare: -1.6,
+        margin: -1.4,
+      },
+      investmentMix: [
+        { label: 'Marketing campaigns', value: 32, color: '#0B2F8A' },
+        { label: 'Field force', value: 28, color: '#1A6BFF' },
+        { label: 'HCP training & ed.', value: 18, color: '#5C9BFF' },
+        { label: 'Congresses & events', value: 12, color: '#9BC1FF' },
+        { label: 'Other', value: 10, color: '#CFE0FF' },
+      ],
+      hcpVisitsPerMonth: [
+        { month: 'Dec', visits: 86, tone: 'on-track' },
+        { month: 'Jan', visits: 92, tone: 'on-track' },
+        { month: 'Feb', visits: 88, tone: 'on-track' },
+        { month: 'Mar', visits: 78, tone: 'at-risk' },
+        { month: 'Apr', visits: 74, tone: 'at-risk' },
+        { month: 'May', visits: 71, tone: 'at-risk' },
+      ],
+      followupPeers: [
+        { label: 'Germany', value: 68 },
+        { label: 'EU bench.', value: 65 },
+        { label: 'France', value: 63 },
+        { label: 'Spain', value: 58 },
+        { label: 'Italy', value: 41, highlight: true },
+      ],
+      marketShareTrend: [
+        { quarter: 'Q-5', value: 24.2 },
+        { quarter: 'Q-4', value: 23.9 },
+        { quarter: 'Q-3', value: 23.4 },
+        { quarter: 'Q-2', value: 23.0 },
+        { quarter: 'Q-1', value: 22.7 },
+        { quarter: 'Q1', value: 22.4 },
+      ],
+      marketShareBenchmark: 24,
+      marginTrend: [
+        { quarter: 'Q-5', value: 60.4 },
+        { quarter: 'Q-4', value: 60.1 },
+        { quarter: 'Q-3', value: 59.7 },
+        { quarter: 'Q-2', value: 59.3 },
+        { quarter: 'Q-1', value: 58.9 },
+        { quarter: 'Q1', value: 58.6 },
+      ],
+      marginBenchmark: 60,
+      callouts: {
+        investmentIntensity: {
+          tone: 'on-track',
+          label: "Why it's strong",
+          body: 'Italy invests above peers, but most goes to broad marketing — not training-driven activation.',
+          action: 'See drivers',
+          actionRoute: '/investment-radar',
+        },
+        fieldActivity: {
+          tone: 'watch',
+          label: 'What it means',
+          body: 'Volume of visits is near target. But coverage is not concentrated on highest-potential trained HCPs.',
+          action: 'See drivers',
+          actionRoute: '/customer-account-focus',
+        },
+        followup: {
+          tone: 'at-risk',
+          label: "Why it's the break point",
+          body: 'The break point. 24 points below benchmark. Trained HCPs are not being re-engaged in the critical 60-day window.',
+          action: 'Investigate',
+          actionRoute: '/execution-signals',
+        },
+        marketShare: {
+          tone: 'watch',
+          label: 'What it means',
+          body: 'Slowly losing share. The slope tracks the follow-up gap quarter by quarter.',
+          action: 'See drivers',
+          actionRoute: '/investment-radar',
+        },
+        margin: {
+          tone: 'watch',
+          label: 'What it means',
+          body: 'Near benchmark but slipping. Driven less by price and more by promotional spend not converting to volume.',
+          action: 'See drivers',
+          actionRoute: '/investment-radar',
+        },
+      },
     },
   },
   {
@@ -204,6 +323,90 @@ export const marketPerformanceContext: MarketContext[] = [
       contributionMarginPct: 62.1,
       interpretation:
         'Germany has the highest investment intensity and field activity well above expected, yet growth vs plan is negative. This is a yield problem, not an effort problem. Lower-response activities are the candidates for reallocation.',
+      deltas: {
+        investmentIntensity: 5.3,
+        fieldActivity: 4,
+        followup: 3,
+        marketShare: 3.9,
+        margin: 2.1,
+      },
+      investmentMix: [
+        { label: 'Marketing campaigns', value: 26, color: '#0B2F8A' },
+        { label: 'Field force', value: 34, color: '#1A6BFF' },
+        { label: 'HCP training & ed.', value: 17, color: '#5C9BFF' },
+        { label: 'Congresses & events', value: 13, color: '#9BC1FF' },
+        { label: 'Other', value: 10, color: '#CFE0FF' },
+      ],
+      hcpVisitsPerMonth: [
+        { month: 'Dec', visits: 98, tone: 'on-track' },
+        { month: 'Jan', visits: 104, tone: 'on-track' },
+        { month: 'Feb', visits: 106, tone: 'on-track' },
+        { month: 'Mar', visits: 108, tone: 'on-track' },
+        { month: 'Apr', visits: 105, tone: 'on-track' },
+        { month: 'May', visits: 103, tone: 'on-track' },
+      ],
+      followupPeers: [
+        { label: 'Germany', value: 68, highlight: true },
+        { label: 'EU bench.', value: 65 },
+        { label: 'France', value: 63 },
+        { label: 'Spain', value: 58 },
+        { label: 'Italy', value: 41 },
+      ],
+      marketShareTrend: [
+        { quarter: 'Q-5', value: 28.4 },
+        { quarter: 'Q-4', value: 28.2 },
+        { quarter: 'Q-3', value: 28.0 },
+        { quarter: 'Q-2', value: 28.0 },
+        { quarter: 'Q-1', value: 27.9 },
+        { quarter: 'Q1', value: 27.9 },
+      ],
+      marketShareBenchmark: 24,
+      marginTrend: [
+        { quarter: 'Q-5', value: 62.6 },
+        { quarter: 'Q-4', value: 62.4 },
+        { quarter: 'Q-3', value: 62.3 },
+        { quarter: 'Q-2', value: 62.2 },
+        { quarter: 'Q-1', value: 62.1 },
+        { quarter: 'Q1', value: 62.1 },
+      ],
+      marginBenchmark: 60,
+      callouts: {
+        investmentIntensity: {
+          tone: 'watch',
+          label: 'What it means',
+          body: 'Highest investment intensity in Europe. Lower-response activities are the candidates for reallocation, not field or priority accounts.',
+          action: 'See drivers',
+          actionRoute: '/investment-radar',
+        },
+        fieldActivity: {
+          tone: 'on-track',
+          label: "Why it's strong",
+          body: 'Field activity is above target and well distributed. Coverage discipline on priority accounts is intact.',
+          action: 'See drivers',
+          actionRoute: '/customer-account-focus',
+        },
+        followup: {
+          tone: 'on-track',
+          label: "Why it's strong",
+          body: '68% follow-up coverage, above the European benchmark. Post-training engagement is reaching trained HCPs.',
+          action: 'See drivers',
+          actionRoute: '/execution-signals',
+        },
+        marketShare: {
+          tone: 'on-track',
+          label: "Why it's strong",
+          body: 'Share is stable and above benchmark. The challenge is yield on existing share, not share itself.',
+          action: 'See drivers',
+          actionRoute: '/investment-radar',
+        },
+        margin: {
+          tone: 'on-track',
+          label: "Why it's strong",
+          body: 'Margin is healthy and stable. The growth gap is volume, not profitability.',
+          action: 'See drivers',
+          actionRoute: '/investment-radar',
+        },
+      },
     },
   },
 ];
