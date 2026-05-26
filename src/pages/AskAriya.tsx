@@ -180,6 +180,61 @@ const followUpCardStyle: CSSProperties = {
   transition: 'transform 150ms ease, box-shadow 150ms ease, border-color 150ms ease',
 };
 
+// Hero chip used to promote the lead question inside its tier (e.g.
+// italy-60d-checkpoint inside Tier 1). Full-width, blue left stripe that
+// mirrors the BLUE stripe on the AssemblyAnswer card, slightly bigger
+// type than the standard follow-up chip.
+const heroChipStyle: CSSProperties = {
+  background: '#ffffff',
+  border: `1px solid ${NAVY_12}`,
+  borderLeft: `4px solid ${BLUE}`,
+  borderRadius: 12,
+  padding: '16px 18px',
+  display: 'flex',
+  alignItems: 'center',
+  gap: 14,
+  cursor: 'pointer',
+  textAlign: 'left',
+  fontFamily: 'inherit',
+  width: '100%',
+  boxShadow: '0 1px 2px rgba(5,10,68,0.04)',
+  transition: 'transform 150ms ease, box-shadow 150ms ease, border-color 150ms ease',
+};
+
+const heroChipBodyStyle: CSSProperties = {
+  flex: 1,
+  display: 'flex',
+  flexDirection: 'column',
+  gap: 4,
+  minWidth: 0,
+};
+
+const heroChipEyebrowStyle: CSSProperties = {
+  fontSize: 10,
+  fontWeight: 800,
+  letterSpacing: '0.08em',
+  textTransform: 'uppercase',
+  color: BLUE,
+};
+
+const heroChipQuestionStyle: CSSProperties = {
+  fontSize: 16,
+  fontWeight: 600,
+  color: NAVY,
+  lineHeight: 1.4,
+  margin: 0,
+};
+
+const heroChipCtaStyle: CSSProperties = {
+  display: 'inline-flex',
+  alignItems: 'center',
+  gap: 4,
+  flexShrink: 0,
+  color: BLUE,
+  fontSize: 13,
+  fontWeight: 700,
+};
+
 // Tier sections ────────────────────────────────────────────────
 
 const tierSectionStyle: CSSProperties = {
@@ -540,17 +595,45 @@ export default function AskAriya() {
             </p>
           )}
 
-          {/* Tier 1 · Pressure-test */}
+          {/* Tier 1 · Pressure-test
+              First entry (italy-60d-checkpoint) renders as a full-width
+              hero chip with a blue stripe. The remaining three follow in
+              the standard 2-col chip grid. */}
           <section style={tierSectionStyle}>
             <div style={tierHeaderStyle}>
               <h3 style={tierTitleStyle}>{TIER_1_LABEL}</h3>
               <p style={tierSubtitleStyle}>{TIER_1_SUBTITLE}</p>
             </div>
-            <div style={followUpsGridStyle}>
-              {tier1.map((ex) => (
-                <FollowUpChip key={ex.id} exchange={ex} onSend={(e) => send('', e)} />
-              ))}
-            </div>
+            {tier1[0] && (
+              <button
+                type="button"
+                onClick={() => send('', tier1[0])}
+                style={heroChipStyle}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.transform = 'translateY(-1px)';
+                  e.currentTarget.style.boxShadow = '0 6px 16px rgba(5,10,68,0.08)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.transform = 'translateY(0)';
+                  e.currentTarget.style.boxShadow = '0 1px 2px rgba(5,10,68,0.04)';
+                }}
+              >
+                <div style={heroChipBodyStyle}>
+                  <span style={heroChipEyebrowStyle}>Start here</span>
+                  <p style={heroChipQuestionStyle}>{tier1[0].question}</p>
+                </div>
+                <span style={heroChipCtaStyle}>
+                  Ask this <ArrowRight size={14} strokeWidth={2.5} />
+                </span>
+              </button>
+            )}
+            {tier1.length > 1 && (
+              <div style={followUpsGridStyle}>
+                {tier1.slice(1).map((ex) => (
+                  <FollowUpChip key={ex.id} exchange={ex} onSend={(e) => send('', e)} />
+                ))}
+              </div>
+            )}
           </section>
 
           {/* Tier 2 · Other open decisions */}
