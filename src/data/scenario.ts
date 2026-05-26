@@ -258,6 +258,15 @@ export interface MarketContext {
   };
 }
 
+// Editorial note rendered at the top of Market Performance to mark the
+// surface as one input into the assembly chain rather than a standalone
+// BI dashboard. Page-level (not tied to any specific market) so it lives
+// next to marketPerformanceContext rather than inside it.
+export const marketPerformanceAriyaNote = {
+  eyebrow: 'Ariya note',
+  body: 'Performance alone does not justify reallocation. The Italy share slope is directionally aligned with the post-training follow-up gap, concentrated in the high-potential dermatologist segment. The decision depends on execution follow-through.',
+} as const;
+
 export const marketPerformanceContext: MarketContext[] = [
   {
     marketId: 'it',

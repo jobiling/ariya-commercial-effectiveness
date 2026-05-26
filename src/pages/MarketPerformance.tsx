@@ -18,8 +18,14 @@ import {
   XAxis,
   YAxis,
 } from 'recharts';
-import { WhatThisSuggests } from '../components/decision';
-import { brands, marketPerformanceContext, markets } from '../data/scenario';
+import { AriyaNote, WhatThisSuggests } from '../components/decision';
+import { PageHeader } from '../components/layout/PageHeader';
+import {
+  brands,
+  marketPerformanceAriyaNote,
+  marketPerformanceContext,
+  markets,
+} from '../data/scenario';
 import type { StatCallout, StatTone } from '../data/scenario';
 
 // ───────────────────────────────────────────────────────────────────────────
@@ -893,6 +899,20 @@ export default function MarketPerformance() {
 
   return (
     <div style={pageStyle}>
+      <PageHeader
+        title="Market Performance"
+        subtitle="Which markets are performing above or below expectation, and why?"
+      />
+
+      {/* Ariya note · page-level editorial framing. Sits above the market
+          selector so it stays visible across every market view — it does
+          not change when the user switches between Italy, Germany, Spain,
+          etc. */}
+      <AriyaNote
+        eyebrow={marketPerformanceAriyaNote.eyebrow}
+        body={marketPerformanceAriyaNote.body}
+      />
+
       {/* ── Country pill row ───────────────────────────────────────── */}
       <div style={pillRowStyle} role="tablist" aria-label="Select market">
         {markets.map((m) => {
@@ -1188,7 +1208,7 @@ export default function MarketPerformance() {
       </section>
 
       <WhatThisSuggests
-        text="Italy and Germany show different break points. Investment Radar isolates which categories carry which problem."
+        text="For Italy, the break point is post-training execution. For Germany, it sits inside the marketing-campaigns category. Investment Radar isolates which categories carry which."
         to="/investment-radar"
         linkLabel="Open Investment Radar"
       />

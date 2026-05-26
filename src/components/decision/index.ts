@@ -26,3 +26,6 @@ export type { AssemblyAnswerProps } from './AssemblyAnswer';
 
 export { PlaceholderAnswer } from './PlaceholderAnswer';
 export type { PlaceholderAnswerProps } from './PlaceholderAnswer';
+
+export { AriyaNote } from './AriyaNote';
+export type { AriyaNoteProps } from './AriyaNote';
