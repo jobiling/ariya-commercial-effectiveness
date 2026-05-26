@@ -1,5 +1,6 @@
 import { useMemo, useState, type CSSProperties } from 'react';
-import { AlertTriangle, ChevronRight } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { AlertTriangle, ArrowRight, ChevronRight } from 'lucide-react';
 import { PageHeader } from '../components/layout/PageHeader';
 import { Donut, FilterDropdown } from '../components/composites';
 import type { FilterOption } from '../components/composites';
@@ -268,6 +269,8 @@ function donutToneFromPct(pct: number) {
 }
 
 export default function CustomerAccountFocus() {
+  const navigate = useNavigate();
+
   // Build the set of markets that actually have segments.
   const availableMarketIds = useMemo(() => {
     const ids = new Set(hcpSegments.map((s) => s.marketId));
@@ -715,20 +718,43 @@ export default function CustomerAccountFocus() {
 
             <div>
               {isItDermHigh ? (
-                <RecommendationCard
-                  eyebrow={italyHighPotentialDermRecommendation.eyebrow}
-                  meta={italyHighPotentialDermRecommendation.headerMeta}
-                  pill={italyHighPotentialDermRecommendation.pill}
-                  recommendation={italyHighPotentialDermRecommendation.recommendation}
-                  whyBullets={italyHighPotentialDermRecommendation.whyBullets}
-                  confidence={italyHighPotentialDermRecommendation.confidence}
-                  confidenceRationale={italyHighPotentialDermRecommendation.confidenceRationale}
-                  conditions={italyHighPotentialDermRecommendation.conditions}
-                  nextActions={italyHighPotentialDermRecommendation.nextActions}
-                  nextActionsMeta={italyHighPotentialDermRecommendation.nextActionsMeta}
-                  sources={italyHighPotentialDermRecommendation.sources}
-                  footerMeta={italyHighPotentialDermRecommendation.footerMeta}
-                />
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+                  <RecommendationCard
+                    eyebrow={italyHighPotentialDermRecommendation.eyebrow}
+                    meta={italyHighPotentialDermRecommendation.headerMeta}
+                    pill={italyHighPotentialDermRecommendation.pill}
+                    recommendation={italyHighPotentialDermRecommendation.recommendation}
+                    confidence={italyHighPotentialDermRecommendation.confidence}
+                    confidenceRationale={italyHighPotentialDermRecommendation.confidenceRationale}
+                    conditions={italyHighPotentialDermRecommendation.conditions}
+                    nextActions={italyHighPotentialDermRecommendation.nextActions}
+                    nextActionsMeta={italyHighPotentialDermRecommendation.nextActionsMeta}
+                    sources={italyHighPotentialDermRecommendation.sources}
+                    footerMeta={italyHighPotentialDermRecommendation.footerMeta}
+                    variant="compact"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => navigate('/ask-ariya?q=black-box-italy')}
+                    style={{
+                      alignSelf: 'flex-start',
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: 4,
+                      padding: '6px 4px',
+                      background: 'transparent',
+                      border: 'none',
+                      color: '#0055BB',
+                      fontSize: 13,
+                      fontWeight: 700,
+                      cursor: 'pointer',
+                      fontFamily: 'inherit',
+                    }}
+                  >
+                    Ask Ariya for the full reasoning
+                    <ArrowRight size={14} strokeWidth={2.5} />
+                  </button>
+                </div>
               ) : (
                 <div style={placeholderCardStyle}>
                   <div

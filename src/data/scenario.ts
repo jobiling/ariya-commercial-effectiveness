@@ -997,19 +997,78 @@ export interface AriyaExchange {
     headerMeta?: string;        // e.g. "Generated for Europe Leadership · 21 May"
     nextActionsMeta?: string;   // e.g. "4 steps · spans to Q3 planning"
     footerMeta?: string;        // e.g. "Reversible · revisit at 60 days"
+    // Used only by the AssemblyAnswer renderer on Ask Ariya. Each item ties a
+    // single sentence of reasoning to one of the sources in `sources`. When
+    // present, AssemblyAnswer renders the chain row-by-row between the Sources
+    // strip and the recommended action; when absent, it falls back to the
+    // single `reasoning` paragraph.
+    reasoningChain?: { source: string; text: string }[];
   };
 }
 
 export const askAriya: AriyaExchange[] = [
+  {
+    // Hero exchange — the one place where the full assembly chain plays out
+    // on screen, source by source, reasoning row by reasoning row. Other
+    // pages link here via /ask-ariya?q=black-box-italy when their compact
+    // recommendation card lacks the room to unpack the full chain.
+    id: 'black-box-italy',
+    question: 'What does the training black box look like for Xeomin in Italy right now?',
+    response: {
+      recommendedAction:
+        'Fix follow-up cadence on the Italy high-potential dermatologist cohort before reducing Germany spend.',
+      reasoning:
+        'Italy Xeomin share is slipping and the slope is directionally aligned with the post-training follow-up gap. Selection of trained HCPs in Italy is defensible: 64% of high-potential dermatologists are trained, in line with the European benchmark. The break point is post-training execution. 38% of trained Italian high-potential dermatologists receive a follow-up within 60 days, vs 72% for the equivalent German cohort. The gap is concentrated in the cohort that matters most to Xeomin Italy outcomes.',
+      scenarioView:
+        'Closing the Italy follow-up gap is operationally bounded and within the existing investment envelope. A separate question of whether to reduce Germany spend can be sequenced after Italy execution improves, and limited to lower-response marketing activities identified via Investment Radar.',
+      requiredConditions: [
+        'High-potential trained HCP list confirmed by Italy commercial operations',
+        'Italy NSM owns the 60-day follow-up cadence',
+        'First-line managers track post-training engagement weekly',
+        'Germany reduction sequenced after Italy execution improves',
+        'Review at 60 days using CRM follow-up and performance signals',
+      ],
+      recommendedNextActions: [
+        { action: 'Confirm Italy high-potential trained HCP list', owner: 'Italy commercial ops', timeframe: 'Within 5 days', priority: true },
+        { action: 'Launch 60-day follow-up sprint', owner: 'Italy NSM', timeframe: 'Within 10 days', priority: true },
+        { action: 'Install weekly first-line manager tracking', owner: 'Italy NSM', timeframe: 'Within 14 days' },
+        { action: 'Reassess at 60 days, then decide on Germany reallocation scope', owner: 'Europe Leadership', timeframe: '60 days' },
+      ],
+      sources: [
+        'Market performance',
+        'CRM activity',
+        'Training participation and spend',
+        'HCP segmentation',
+        'Finance',
+        'Market context',
+      ],
+      reasoningChain: [
+        { source: 'Market performance', text: 'Italy Xeomin share is slipping into Q2, while German share holds under spend pressure.' },
+        { source: 'Training participation and spend', text: 'Italy carries €1.24M in HCP injection training over 18 months, concentrated in dermatology.' },
+        { source: 'CRM activity', text: 'Italy 60-day post-training follow-up sits at 41% overall, 38% in the high-potential dermatologist segment, vs 65% European benchmark.' },
+        { source: 'HCP segmentation', text: 'Italian high-potential dermatologists are the largest single cohort by potential weight in market.' },
+        { source: 'Finance', text: 'Italy investment intensity is 14.8%, Germany 17.2%. The Italy gap is execution, not spend.' },
+        { source: 'Market context', text: 'No competitive event or supply disruption explains the Italy slope over the window.' },
+      ],
+      confidence: 'Medium',
+      confidenceRationale:
+        'Segment-level proxy KPIs are reliable. Account-level linkage between follow-up and revenue is directional, not causal.',
+      linksTo: [
+        { label: 'Open in Scenario Planner', route: '/scenario-planner' },
+        { label: 'Open Source Confidence', route: '/source-confidence' },
+        { label: 'Log this decision', route: '/decision-log?from=ask-ariya' },
+      ],
+    },
+  },
   {
     id: 'reallocate-de-it',
     question:
       "If we shift 10% of Germany's marketing budget to Italy post-training activation for Xeomin, what is the directional impact?",
     response: {
       recommendedAction:
-        'Do not shift budget broadly. Reallocate only toward high-potential trained HCPs in Italy with a defined follow-up plan and field manager accountability.',
+        'Sequence Italy follow-up before any Germany reduction. The reallocation itself is a 60-days-later question, not a now question.',
       reasoning:
-        'Italy shows evidence of higher potential response among trained HCPs when follow-up occurs, but follow-up discipline is inconsistent. Germany shows pressure on net impact, but reducing spend without protecting priority accounts may create downside risk.',
+        'Italy shows evidence of higher potential response among trained HCPs when follow-up occurs, but follow-up discipline is inconsistent. Investment Radar points to lower-response marketing activities in Germany as the candidate pool for any future reallocation, not field force or priority account coverage.',
       scenarioView:
         'Directional net impact appears positive under the assumption that Italy improves follow-up coverage among high-potential trained HCPs within 60 days. Confidence is medium because account-level linkage and market-level confounders require validation.',
       requiredConditions: [
@@ -1060,7 +1119,7 @@ export const askAriya: AriyaExchange[] = [
       recommendedAction:
         'Focus first on the Italy follow-up gap. It is the single largest correctable drag on Xeomin Europe.',
       reasoning:
-        'Italy concentrates HCP training investment but only 41% of high-potential trained HCPs receive a follow-up within 60 days, vs a 65% European benchmark. The gap maps to ~47 high-potential trained HCPs with no recent field contact.',
+        'Italy 60-day follow-up sits at 41% vs the 65% European benchmark. The gap maps to ~47 high-potential trained HCPs with no recent field contact.',
       scenarioView:
         'Closing this gap is operationally bounded and within the existing investment envelope. Directional impact is contained to Italy in the short term.',
       requiredConditions: [

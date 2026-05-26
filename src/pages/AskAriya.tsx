@@ -1,15 +1,19 @@
-import { useEffect, useMemo, useRef, useState, type CSSProperties, type ReactNode } from 'react';
+import { useEffect, useMemo, useRef, useState, type CSSProperties } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { ArrowRight, AlertTriangle, Radio, Compass, Sparkles } from 'lucide-react';
+import { ArrowRight, Sparkles } from 'lucide-react';
 import { PageHeader } from '../components/layout/PageHeader';
 import {
+  AssemblyAnswer,
   LogDecisionModal,
-  RecommendationCard,
   dateFromToday,
 } from '../components/decision';
 import type { LogDecisionDraft } from '../components/decision';
 import { askAriya } from '../data/scenario';
 import type { AriyaExchange } from '../data/scenario';
+
+// ───────────────────────────────────────────────────────────────────────────
+// Tokens
+// ───────────────────────────────────────────────────────────────────────────
 
 const NAVY = '#050A44';
 const NAVY_55 = 'rgba(5,10,68,0.55)';
@@ -18,7 +22,12 @@ const NAVY_12 = 'rgba(5,10,68,0.12)';
 const NAVY_06 = 'rgba(5,10,68,0.06)';
 const CANVAS = '#F7F8FC';
 const BLUE = '#0055BB';
-const LAVENDER = '#E8EAF6';
+
+const HERO_EXCHANGE_ID = 'black-box-italy';
+
+// ───────────────────────────────────────────────────────────────────────────
+// Layout
+// ───────────────────────────────────────────────────────────────────────────
 
 const pageStyle: CSSProperties = {
   display: 'flex',
@@ -27,7 +36,7 @@ const pageStyle: CSSProperties = {
   paddingBottom: 80,
 };
 
-// ─── Top input card ─────────────────────────────────────────────────────────
+// Top input card ────────────────────────────────────────────────
 
 const inputCardStyle: CSSProperties = {
   background: '#ffffff',
@@ -96,206 +105,94 @@ const submitBtnDisabledStyle: CSSProperties = {
   cursor: 'not-allowed',
 };
 
-// ─── Section headers ────────────────────────────────────────────────────────
+// Hero suggestion card ─────────────────────────────────────────
 
-const sectionTitleStyle: CSSProperties = {
-  fontSize: 16,
-  fontWeight: 700,
-  color: NAVY,
-  margin: 0,
+const heroCardStyle: CSSProperties = {
+  background: '#ffffff',
+  border: `1px solid ${NAVY_12}`,
+  borderRadius: 14,
+  padding: '22px 24px 20px',
+  boxShadow: '0 1px 2px rgba(5,10,68,0.04)',
+  cursor: 'pointer',
+  textAlign: 'left',
+  fontFamily: 'inherit',
+  width: '100%',
+  display: 'flex',
+  flexDirection: 'column',
+  gap: 12,
+  transition: 'transform 150ms ease, box-shadow 150ms ease, border-color 150ms ease',
 };
 
-const sectionSubtitleStyle: CSSProperties = {
-  fontSize: 12,
-  color: NAVY_55,
-  marginTop: 2,
-  lineHeight: 1.5,
-};
-
-const eyebrowStyle: CSSProperties = {
+const heroEyebrowStyle: CSSProperties = {
   fontSize: 11,
   fontWeight: 800,
-  letterSpacing: '0.08em',
+  letterSpacing: '0.07em',
   textTransform: 'uppercase',
-  color: NAVY_55,
-};
-
-// ─── Featured suggestion card ───────────────────────────────────────────────
-
-const featuredGridStyle: CSSProperties = {
-  display: 'grid',
-  gridTemplateColumns: 'repeat(3, minmax(0, 1fr))',
-  gap: 12,
-};
-
-const featuredCardStyle: CSSProperties = {
-  position: 'relative',
-  background: '#ffffff',
-  border: `1px solid ${NAVY_12}`,
-  borderLeft: `3px solid ${BLUE}`,
-  borderRadius: 12,
-  padding: '14px 14px 14px 16px',
-  display: 'flex',
-  alignItems: 'flex-start',
-  gap: 12,
-  cursor: 'pointer',
-  textAlign: 'left',
-  fontFamily: 'inherit',
-  width: '100%',
-  transition: 'transform 150ms ease, box-shadow 150ms ease, border-color 150ms ease',
-};
-
-const iconBadgeStyle: CSSProperties = {
-  width: 30,
-  height: 30,
-  borderRadius: 8,
-  background: LAVENDER,
   color: BLUE,
-  display: 'flex',
-  alignItems: 'center',
-  justifyContent: 'center',
-  flexShrink: 0,
 };
 
-const featuredBodyStyle: CSSProperties = {
-  flex: 1,
-  minWidth: 0,
-  display: 'flex',
-  flexDirection: 'column',
-  gap: 4,
-};
-
-const featuredQuestionStyle: CSSProperties = {
-  fontSize: 13,
-  fontWeight: 700,
-  color: NAVY,
-  lineHeight: 1.4,
-  margin: 0,
-};
-
-const featuredLinkedStyle: CSSProperties = {
-  fontSize: 11,
-  color: NAVY_55,
-  fontWeight: 500,
-  lineHeight: 1.4,
-};
-
-const featuredArrowStyle: CSSProperties = {
-  color: BLUE,
-  flexShrink: 0,
-  marginTop: 2,
-};
-
-// ─── Grouped category column ────────────────────────────────────────────────
-
-const groupedGridStyle: CSSProperties = {
-  display: 'grid',
-  gridTemplateColumns: 'repeat(3, minmax(0, 1fr))',
-  gap: 16,
-  marginTop: 10,
-};
-
-const categoryWrapStyle: CSSProperties = {
-  display: 'flex',
-  flexDirection: 'column',
-  gap: 10,
-};
-
-const categoryHeaderStyle: CSSProperties = {
-  display: 'flex',
-  alignItems: 'center',
-  gap: 8,
-};
-
-const categoryIconBoxStyle: CSSProperties = {
-  width: 28,
-  height: 28,
-  borderRadius: 8,
-  background: NAVY_06,
-  color: NAVY_70,
-  display: 'flex',
-  alignItems: 'center',
-  justifyContent: 'center',
-  flexShrink: 0,
-};
-
-const categoryTitleStyle: CSSProperties = {
-  fontSize: 13,
-  fontWeight: 700,
-  color: NAVY,
-  margin: 0,
-};
-
-const categorySublabelStyle: CSSProperties = {
-  fontSize: 11,
-  color: NAVY_55,
-  fontWeight: 500,
-};
-
-const subCardBaseStyle: CSSProperties = {
-  background: '#ffffff',
-  border: `1px solid ${NAVY_12}`,
-  borderRadius: 10,
-  padding: '12px 12px 10px',
-  display: 'flex',
-  alignItems: 'flex-start',
-  gap: 10,
-  cursor: 'pointer',
-  textAlign: 'left',
-  fontFamily: 'inherit',
-  width: '100%',
-  transition: 'transform 150ms ease, box-shadow 150ms ease, border-color 150ms ease',
-};
-
-const subCardSelectedStyle: CSSProperties = {
-  borderColor: BLUE,
-  boxShadow: `0 0 0 3px rgba(0,85,187,0.08)`,
-};
-
-const subCardIconStyle: CSSProperties = {
-  width: 24,
-  height: 24,
-  borderRadius: 6,
-  background: LAVENDER,
-  color: BLUE,
-  display: 'flex',
-  alignItems: 'center',
-  justifyContent: 'center',
-  flexShrink: 0,
-};
-
-const subCardQuestionStyle: CSSProperties = {
-  fontSize: 12,
+const heroQuestionStyle: CSSProperties = {
+  fontSize: 17,
   fontWeight: 600,
   color: NAVY,
   lineHeight: 1.4,
   margin: 0,
-  flex: 1,
 };
 
-const scaffoldedBadgeStyle: CSSProperties = {
+const heroFooterStyle: CSSProperties = {
+  display: 'flex',
+  justifyContent: 'flex-end',
+};
+
+const heroLinkStyle: CSSProperties = {
   display: 'inline-flex',
   alignItems: 'center',
-  alignSelf: 'flex-start',
-  padding: '2px 8px',
-  borderRadius: 999,
-  background: NAVY_06,
-  color: NAVY_70,
-  fontSize: 10,
+  gap: 4,
+  color: BLUE,
+  fontSize: 13,
   fontWeight: 700,
-  letterSpacing: '0.02em',
-  marginTop: 6,
+  background: 'transparent',
+  border: 'none',
+  cursor: 'pointer',
+  padding: 0,
+  fontFamily: 'inherit',
 };
 
-const subCardBodyStyle: CSSProperties = {
-  flex: 1,
-  minWidth: 0,
+// Follow-ups grid ──────────────────────────────────────────────
+
+const followUpsLabelStyle: CSSProperties = {
+  fontSize: 13,
+  color: NAVY_55,
+  fontWeight: 600,
+  marginBottom: 10,
+};
+
+const followUpsGridStyle: CSSProperties = {
+  display: 'grid',
+  gridTemplateColumns: 'repeat(2, minmax(0, 1fr))',
+  gap: 10,
+};
+
+const followUpCardStyle: CSSProperties = {
+  background: '#ffffff',
+  border: `1px solid ${NAVY_12}`,
+  borderRadius: 10,
+  padding: '12px 14px',
   display: 'flex',
-  flexDirection: 'column',
-  gap: 2,
+  alignItems: 'center',
+  gap: 10,
+  cursor: 'pointer',
+  textAlign: 'left',
+  fontFamily: 'inherit',
+  width: '100%',
+  fontSize: 13,
+  fontWeight: 500,
+  color: NAVY,
+  lineHeight: 1.4,
+  transition: 'transform 150ms ease, box-shadow 150ms ease, border-color 150ms ease',
 };
 
-// ─── Conversation ────────────────────────────────────────────────────────────
+// Conversation surface ─────────────────────────────────────────
 
 const userBubbleWrapStyle: CSSProperties = {
   display: 'flex',
@@ -318,7 +215,7 @@ const fallbackNoteStyle: CSSProperties = {
   fontSize: 13,
   color: NAVY_70,
   fontStyle: 'italic',
-  margin: '4px 0 8px',
+  margin: '4px 0 12px',
 };
 
 const newConvoBtnStyle: CSSProperties = {
@@ -338,65 +235,9 @@ const newConvoBtnStyle: CSSProperties = {
   fontFamily: 'inherit',
 };
 
-// ─── Suggestion catalog (Featured + Grouped) ────────────────────────────────
-// Maps the 6 scripted askAriya entries into the new visual taxonomy. The fields
-// `linkedTo` and `group` are presentation-only metadata for this page.
-
-interface SuggestionMeta {
-  exchangeId: string;
-  linkedTo: string;
-}
-
-const FEATURED_SUGGESTIONS: SuggestionMeta[] = [
-  {
-    exchangeId: 'reallocate-de-it',
-    linkedTo: 'linked to: Italy / Germany Xeomin reallocation (open decision · this week)',
-  },
-  {
-    exchangeId: 'germany-net-impact',
-    linkedTo: 'linked to: Germany hold decision (under review · May 14)',
-  },
-  {
-    exchangeId: 'losing-most-value',
-    linkedTo: 'linked to: Italy follow-up signal (47 HCPs · at risk)',
-  },
-];
-
-interface CategorySpec {
-  id: string;
-  title: string;
-  sublabel: string;
-  icon: ReactNode;
-  questionIds: string[];
-  defaultSelectedId?: string;
-}
-
-const CATEGORIES: CategorySpec[] = [
-  {
-    id: 'open-decisions',
-    title: 'Open decisions awaiting input',
-    sublabel: '1 brief open',
-    icon: <AlertTriangle size={14} strokeWidth={2.2} />,
-    questionIds: ['italy-nsm-30d'],
-    defaultSelectedId: 'italy-nsm-30d',
-  },
-  {
-    id: 'signals',
-    title: "This week's signals",
-    sublabel: '3 new this week',
-    icon: <Radio size={14} strokeWidth={2.2} />,
-    questionIds: ['right-hcps-italy'],
-  },
-  {
-    id: 'strategic',
-    title: 'Stage-relevant strategic questions',
-    sublabel: 'Europe Q2 planning · pre-cycle',
-    icon: <Compass size={14} strokeWidth={2.2} />,
-    questionIds: ['best-incremental'],
-  },
-];
-
-// ─── Question matching for free-text input ──────────────────────────────────
+// ───────────────────────────────────────────────────────────────────────────
+// Free-text matching
+// ───────────────────────────────────────────────────────────────────────────
 
 function matchQuestion(input: string): AriyaExchange | undefined {
   const q = input.trim().toLowerCase();
@@ -404,6 +245,7 @@ function matchQuestion(input: string): AriyaExchange | undefined {
   let hit = askAriya.find((a) => a.question.toLowerCase().includes(q));
   if (hit) return hit;
   const keyPhrases: { id: string; phrases: string[] }[] = [
+    { id: 'black-box-italy', phrases: ['black box', 'training black box', 'italy black', 'xeomin italy'] },
     { id: 'reallocate-de-it', phrases: ['reallocate', 'shift', 'germany budget', 'italy activation', '10%'] },
     { id: 'losing-most-value', phrases: ['losing', 'most value', 'commercial value', 'biggest drag'] },
     { id: 'best-incremental', phrases: ['incremental', 'opportunity', 'invest more'] },
@@ -420,52 +262,9 @@ function matchQuestion(input: string): AriyaExchange | undefined {
   return undefined;
 }
 
-// ─── Chat response ──────────────────────────────────────────────────────────
-
-interface ChatResponseProps {
-  exchange: AriyaExchange;
-  onLogDecision: (exchange: AriyaExchange) => void;
-}
-
-function ChatResponse({ exchange, onLogDecision }: ChatResponseProps) {
-  const navigate = useNavigate();
-  return (
-    <RecommendationCard
-      eyebrow="Ariya recommends"
-      meta={exchange.response.headerMeta}
-      pill={exchange.response.pill}
-      recommendation={exchange.response.recommendedAction}
-      whyBullets={exchange.response.whyBullets}
-      reasoning={exchange.response.whyBullets ? undefined : exchange.response.reasoning}
-      scenarioView={exchange.response.whyBullets ? undefined : exchange.response.scenarioView}
-      confidence={exchange.response.confidence}
-      confidenceRationale={exchange.response.confidenceRationale}
-      conditions={exchange.response.requiredConditions}
-      nextActions={exchange.response.recommendedNextActions}
-      nextActionsMeta={exchange.response.nextActionsMeta}
-      sources={exchange.response.sources}
-      footerMeta={exchange.response.footerMeta}
-      actions={[
-        {
-          label: 'Log this decision →',
-          onClick: () => onLogDecision(exchange),
-          primary: true,
-        },
-        ...(exchange.response.linksTo ?? []).map((l) => ({
-          label: l.label,
-          onClick: () => navigate(l.route),
-        })),
-        {
-          label: 'Trace evidence',
-          onClick: () => navigate('/source-confidence'),
-          tone: 'quiet' as const,
-        },
-      ]}
-    />
-  );
-}
-
-// ─── Page ────────────────────────────────────────────────────────────────────
+// ───────────────────────────────────────────────────────────────────────────
+// Page
+// ───────────────────────────────────────────────────────────────────────────
 
 interface ChatMessage {
   id: string;
@@ -482,12 +281,22 @@ export default function AskAriya() {
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
   const navigate = useNavigate();
 
-  const send = (text: string) => {
+  const heroExchange = useMemo(
+    () => askAriya.find((a) => a.id === HERO_EXCHANGE_ID),
+    [],
+  );
+  const followUps = useMemo(
+    () => askAriya.filter((a) => a.id !== HERO_EXCHANGE_ID),
+    [],
+  );
+
+  const send = (text: string, forcedExchange?: AriyaExchange) => {
     const trimmed = text.trim();
-    if (!trimmed) return;
-    const exchange = matchQuestion(trimmed);
+    if (!trimmed && !forcedExchange) return;
+    const exchange = forcedExchange ?? matchQuestion(trimmed);
     const id = `msg-${Date.now()}`;
-    setMessages((prev) => [...prev, { id, question: trimmed, exchange }]);
+    const question = forcedExchange ? forcedExchange.question : trimmed;
+    setMessages((prev) => [...prev, { id, question, exchange }]);
     setDraft('');
   };
 
@@ -497,15 +306,32 @@ export default function AskAriya() {
     }
   }, [messages.length]);
 
+  // Auto-send via URL params. Supports two shapes:
+  //   ?q={exchangeId}  → renders the matching exchange directly (used by the
+  //                      "Ask Ariya for the full reasoning" links on other
+  //                      pages).
+  //   ?question={text} → free-text submission (legacy entry point).
   useEffect(() => {
-    const q = searchParams.get('question');
-    if (q && messages.length === 0) {
-      send(decodeURIComponent(q));
+    if (messages.length > 0) return;
+    const qId = searchParams.get('q');
+    const qText = searchParams.get('question');
+    if (qId) {
+      const ex = askAriya.find((a) => a.id === qId);
+      if (ex) {
+        send('', ex);
+        const next = new URLSearchParams(searchParams);
+        next.delete('q');
+        setSearchParams(next, { replace: true });
+        return;
+      }
+    }
+    if (qText) {
+      send(decodeURIComponent(qText));
       const next = new URLSearchParams(searchParams);
       next.delete('question');
       setSearchParams(next, { replace: true });
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const openLogModal = (exchange: AriyaExchange) => {
@@ -532,29 +358,11 @@ export default function AskAriya() {
   };
 
   const handleKey = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
-    // ⌘/Ctrl + Enter submits.
     if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) {
       e.preventDefault();
       send(draft);
     }
   };
-
-  // Featured cards data, resolved against askAriya.
-  const featuredCards = useMemo(() => {
-    return FEATURED_SUGGESTIONS.map((s) => {
-      const ex = askAriya.find((a) => a.id === s.exchangeId);
-      return ex ? { ex, linkedTo: s.linkedTo } : null;
-    }).filter(Boolean) as { ex: AriyaExchange; linkedTo: string }[];
-  }, []);
-
-  const categoryCards = useMemo(() => {
-    return CATEGORIES.map((cat) => ({
-      ...cat,
-      items: cat.questionIds
-        .map((id) => askAriya.find((a) => a.id === id))
-        .filter((ex): ex is AriyaExchange => Boolean(ex)),
-    }));
-  }, []);
 
   const showEmptyState = messages.length === 0;
   const canSubmit = draft.trim().length > 0;
@@ -563,7 +371,7 @@ export default function AskAriya() {
     <div style={pageStyle}>
       <PageHeader
         title="Ask Ariya"
-        subtitle="Ask about commercial performance, investment, or scenarios."
+        subtitle="Ariya assembles performance, CRM, training, segmentation, finance, and market context into one decision. Ask what's inside the black box."
       />
 
       {/* Top input card */}
@@ -578,7 +386,7 @@ export default function AskAriya() {
         />
         <div style={inputFooterStyle}>
           <p style={inputHintStyle}>
-            ⌘/Ctrl + Enter to submit · Tip: try one of the suggested questions below for a fully structured answer.
+            ⌘/Ctrl + Enter to submit · Try one of the suggested questions below for a fully assembled answer.
           </p>
           <button
             type="button"
@@ -591,95 +399,56 @@ export default function AskAriya() {
         </div>
       </div>
 
-      {/* Empty state: featured + grouped suggestions */}
-      {showEmptyState && (
+      {/* Empty state: hero card + follow-ups grid */}
+      {showEmptyState && heroExchange && (
         <>
+          <button
+            type="button"
+            onClick={() => send('', heroExchange)}
+            style={heroCardStyle}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.transform = 'translateY(-1px)';
+              e.currentTarget.style.boxShadow = '0 6px 16px rgba(5,10,68,0.08)';
+              e.currentTarget.style.borderColor = 'rgba(0,85,187,0.45)';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.transform = 'translateY(0)';
+              e.currentTarget.style.boxShadow = '0 1px 2px rgba(5,10,68,0.04)';
+              e.currentTarget.style.borderColor = NAVY_12;
+            }}
+          >
+            <span style={heroEyebrowStyle}>Suggested question</span>
+            <h2 style={heroQuestionStyle}>{heroExchange.question}</h2>
+            <div style={heroFooterStyle}>
+              <span style={heroLinkStyle}>
+                Ask this <ArrowRight size={14} strokeWidth={2.5} />
+              </span>
+            </div>
+          </button>
+
           <section>
-            <h2 style={sectionTitleStyle}>
-              Based on this week's open decisions and active signals, you might ask:
-            </h2>
-            <p style={sectionSubtitleStyle}>
-              Suggestions refresh as the launch context changes. Reviewed by phamax expert · May 19, 2026
-            </p>
-            <div style={{ ...featuredGridStyle, marginTop: 14 }}>
-              {featuredCards.map(({ ex, linkedTo }) => (
+            <div style={followUpsLabelStyle}>Or ask</div>
+            <div style={followUpsGridStyle}>
+              {followUps.map((ex) => (
                 <button
                   key={ex.id}
                   type="button"
-                  onClick={() => send(ex.question)}
-                  style={featuredCardStyle}
+                  onClick={() => send('', ex)}
+                  style={followUpCardStyle}
                   onMouseEnter={(e) => {
                     e.currentTarget.style.transform = 'translateY(-1px)';
-                    e.currentTarget.style.boxShadow = '0 6px 16px rgba(5,10,68,0.08)';
+                    e.currentTarget.style.boxShadow = '0 4px 12px rgba(5,10,68,0.06)';
+                    e.currentTarget.style.borderColor = 'rgba(0,85,187,0.35)';
                   }}
                   onMouseLeave={(e) => {
                     e.currentTarget.style.transform = 'translateY(0)';
                     e.currentTarget.style.boxShadow = 'none';
+                    e.currentTarget.style.borderColor = NAVY_12;
                   }}
                 >
-                  <span style={iconBadgeStyle} aria-hidden>
-                    <Sparkles size={14} strokeWidth={2.2} />
-                  </span>
-                  <div style={featuredBodyStyle}>
-                    <p style={featuredQuestionStyle}>{ex.question}</p>
-                    <span style={featuredLinkedStyle}>{linkedTo}</span>
-                  </div>
-                  <ArrowRight size={16} style={featuredArrowStyle} strokeWidth={2.5} />
+                  <span style={{ flex: 1, minWidth: 0 }}>{ex.question}</span>
+                  <ArrowRight size={14} color={BLUE} strokeWidth={2.5} style={{ flexShrink: 0 }} />
                 </button>
-              ))}
-            </div>
-          </section>
-
-          <section>
-            <div style={eyebrowStyle}>More questions · grouped by source</div>
-            <div style={groupedGridStyle}>
-              {categoryCards.map((cat) => (
-                <div key={cat.id} style={categoryWrapStyle}>
-                  <div style={categoryHeaderStyle}>
-                    <span style={categoryIconBoxStyle} aria-hidden>
-                      {cat.icon}
-                    </span>
-                    <div>
-                      <h3 style={categoryTitleStyle}>{cat.title}</h3>
-                      <span style={categorySublabelStyle}>{cat.sublabel}</span>
-                    </div>
-                  </div>
-                  {cat.items.map((ex) => {
-                    const selected = cat.defaultSelectedId === ex.id;
-                    return (
-                      <button
-                        key={ex.id}
-                        type="button"
-                        onClick={() => send(ex.question)}
-                        style={{
-                          ...subCardBaseStyle,
-                          ...(selected ? subCardSelectedStyle : null),
-                        }}
-                        onMouseEnter={(e) => {
-                          if (!selected) {
-                            e.currentTarget.style.transform = 'translateY(-1px)';
-                            e.currentTarget.style.boxShadow = '0 4px 12px rgba(5,10,68,0.06)';
-                          }
-                        }}
-                        onMouseLeave={(e) => {
-                          if (!selected) {
-                            e.currentTarget.style.transform = 'translateY(0)';
-                            e.currentTarget.style.boxShadow = 'none';
-                          }
-                        }}
-                      >
-                        <span style={subCardIconStyle} aria-hidden>
-                          <Sparkles size={12} strokeWidth={2.2} />
-                        </span>
-                        <div style={subCardBodyStyle}>
-                          <p style={subCardQuestionStyle}>{ex.question}</p>
-                          <span style={scaffoldedBadgeStyle}>Scaffolded</span>
-                        </div>
-                        <ArrowRight size={14} style={featuredArrowStyle} strokeWidth={2.5} />
-                      </button>
-                    );
-                  })}
-                </div>
               ))}
             </div>
           </section>
@@ -688,35 +457,33 @@ export default function AskAriya() {
 
       {/* Conversation */}
       {!showEmptyState && (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 22 }}>
           {messages.map((m) => (
             <div key={m.id} style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
               <div style={userBubbleWrapStyle}>
                 <div style={userBubbleStyle}>{m.question}</div>
               </div>
               {m.exchange ? (
-                <ChatResponse exchange={m.exchange} onLogDecision={openLogModal} />
+                <AssemblyAnswer
+                  exchange={m.exchange}
+                  onLogDecision={openLogModal}
+                  onNavigate={navigate}
+                />
               ) : (
                 <div>
                   <p style={fallbackNoteStyle}>
-                    I have prepared answers for these questions today.
+                    Ariya has prepared assembled answers for these questions today. Ask one of them, or rephrase yours to align.
                   </p>
-                  <div style={featuredGridStyle}>
-                    {featuredCards.map(({ ex, linkedTo }) => (
+                  <div style={followUpsGridStyle}>
+                    {(heroExchange ? [heroExchange, ...followUps] : followUps).slice(0, 4).map((ex) => (
                       <button
                         key={ex.id}
                         type="button"
-                        onClick={() => send(ex.question)}
-                        style={featuredCardStyle}
+                        onClick={() => send('', ex)}
+                        style={followUpCardStyle}
                       >
-                        <span style={iconBadgeStyle} aria-hidden>
-                          <Sparkles size={14} strokeWidth={2.2} />
-                        </span>
-                        <div style={featuredBodyStyle}>
-                          <p style={featuredQuestionStyle}>{ex.question}</p>
-                          <span style={featuredLinkedStyle}>{linkedTo}</span>
-                        </div>
-                        <ArrowRight size={16} style={featuredArrowStyle} strokeWidth={2.5} />
+                        <span style={{ flex: 1, minWidth: 0 }}>{ex.question}</span>
+                        <ArrowRight size={14} color={BLUE} strokeWidth={2.5} style={{ flexShrink: 0 }} />
                       </button>
                     ))}
                   </div>

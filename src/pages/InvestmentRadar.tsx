@@ -1,4 +1,6 @@
 import { useMemo, useState, type CSSProperties } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { ArrowRight } from 'lucide-react';
 import {
   Bar,
   BarChart,
@@ -270,6 +272,7 @@ interface Selection {
 }
 
 export default function InvestmentRadar() {
+  const navigate = useNavigate();
   const [showAllMarkets, setShowAllMarkets] = useState(false);
   const [selection, setSelection] = useState<Selection>({
     categoryId: 'hcp-training',
@@ -536,21 +539,44 @@ export default function InvestmentRadar() {
           </div>
 
           {isItalyHcp ? (
-            <RecommendationCard
-              eyebrow={italyHcpTrainingRecommendation.eyebrow}
-              meta={italyHcpTrainingRecommendation.headerMeta}
-              pill={italyHcpTrainingRecommendation.pill}
-              recommendation={italyHcpTrainingRecommendation.recommendation}
-              whyBullets={italyHcpTrainingRecommendation.whyBullets}
-              confidence={italyHcpTrainingRecommendation.confidence}
-              confidenceRationale={italyHcpTrainingRecommendation.confidenceRationale}
-              conditions={italyHcpTrainingRecommendation.conditions}
-              nextActions={italyHcpTrainingRecommendation.nextActions}
-              nextActionsMeta={italyHcpTrainingRecommendation.nextActionsMeta}
-              sources={italyHcpTrainingRecommendation.sources}
-              footerMeta={italyHcpTrainingRecommendation.footerMeta}
-              collapsible
-            />
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+              <RecommendationCard
+                eyebrow={italyHcpTrainingRecommendation.eyebrow}
+                meta={italyHcpTrainingRecommendation.headerMeta}
+                pill={italyHcpTrainingRecommendation.pill}
+                recommendation={italyHcpTrainingRecommendation.recommendation}
+                confidence={italyHcpTrainingRecommendation.confidence}
+                confidenceRationale={italyHcpTrainingRecommendation.confidenceRationale}
+                conditions={italyHcpTrainingRecommendation.conditions}
+                nextActions={italyHcpTrainingRecommendation.nextActions}
+                nextActionsMeta={italyHcpTrainingRecommendation.nextActionsMeta}
+                sources={italyHcpTrainingRecommendation.sources}
+                footerMeta={italyHcpTrainingRecommendation.footerMeta}
+                variant="compact"
+                collapsible
+              />
+              <button
+                type="button"
+                onClick={() => navigate('/ask-ariya?q=black-box-italy')}
+                style={{
+                  alignSelf: 'flex-start',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: 4,
+                  padding: '6px 4px',
+                  background: 'transparent',
+                  border: 'none',
+                  color: '#0055BB',
+                  fontSize: 13,
+                  fontWeight: 700,
+                  cursor: 'pointer',
+                  fontFamily: 'inherit',
+                }}
+              >
+                Ask Ariya for the full reasoning
+                <ArrowRight size={14} strokeWidth={2.5} />
+              </button>
+            </div>
           ) : (
             <div style={placeholderCardStyle}>
               <div

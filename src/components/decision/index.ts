@@ -20,3 +20,6 @@ export type {
   SourceAssemblyItem,
   SourceAssemblyIcon,
 } from './SourceAssemblyStrip';
+
+export { AssemblyAnswer } from './AssemblyAnswer';
+export type { AssemblyAnswerProps } from './AssemblyAnswer';
