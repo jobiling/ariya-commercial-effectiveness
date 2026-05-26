@@ -433,6 +433,9 @@ export default function EuropeOverview() {
       headline: item.headline,
       evidence: item.evidence,
       route: `/market-performance?market=${item.marketId}`,
+      // Pass through the "covered above" flag (currently set on Italy)
+      // so HeroPriorityList renders the muted Jump-to-priority row.
+      coveredAbove: (item as { coveredAbove?: { text: string } }).coveredAbove,
     };
   });
 
@@ -549,7 +552,6 @@ export default function EuropeOverview() {
             the card's header before any expanded details. */}
         <RecommendationCard
           eyebrow={overview.recommendation.eyebrow}
-          pill={overview.recommendation.pill}
           recommendation={overview.recommendation.recommendation}
           summary={overview.recommendation.reasoning}
           whyBullets={overview.recommendation.whyBullets}
@@ -630,9 +632,9 @@ export default function EuropeOverview() {
         <HeroPriorityList
           items={heroItems}
           primaryLabelFor={(item) => `Open ${item.marketName} detail`}
-          secondaryCtaLabel="Add to brief"
+          secondaryCtaLabel="Dig Deeper with Ariya"
           onPrimary={(item) => navigate(item.route)}
-          onSecondary={() => {/* Add-to-brief is a v2 affordance. No-op in v1. */}}
+          onSecondary={() => navigate('/ask-ariya?q=italy-60d-checkpoint')}
         />
       </section>
 

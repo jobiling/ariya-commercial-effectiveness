@@ -626,7 +626,7 @@ export default function ScenarioPlanner() {
   const navigate = useNavigate();
   const [reallocationPct, setReallocationPct] = useState<number>(DEFAULT_REALLOCATION);
   const [modalOpen, setModalOpen] = useState(false);
-  const [condCollapsed, setCondCollapsed] = useState(true);
+  const [condCollapsed, setCondCollapsed] = useState(false);
 
   const bandData = useMemo(
     () => buildBandData(reallocationPct),

@@ -797,14 +797,15 @@ export function RecommendationCard({
 
         <h2 style={headlineStyle}>{recommendationNode ?? recommendation}</h2>
 
-        {summary && (
+        {summary && showBody && (
           <p style={summaryParagraphStyle}>{summary}</p>
         )}
 
-        {/* Dig deeper panel — always visible when present, sits inside the
-            header before the WHY two-col. Carries the primary commit action
-            so it stays reachable even when reasoning details are collapsed. */}
-        {digDeeper && (
+        {/* Dig deeper panel — gated on showBody so it folds away with the
+            rest of the reasoning when the user clicks "Hide details".
+            When the card is expanded, this sits inside the header before
+            the WHY two-col and carries the primary commit action. */}
+        {digDeeper && showBody && (
           <div style={digDeeperBoxStyle} aria-label={digDeeper.eyebrow}>
             <div style={endTopStyle}>
               <span style={endEyebrowRowStyle}>

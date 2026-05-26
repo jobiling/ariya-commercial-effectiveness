@@ -131,7 +131,6 @@ export const overview = {
     'Italy field activity, training spend, and segmentation data were cross-referenced with German benchmarks and Q1 finance signals. No single source contains this conclusion.',
   recommendation: {
     eyebrow: 'Ariya recommends',
-    pill: 'Close the Italy gap first',
     headerMeta: 'Generated for Europe Leadership · 21 May',
     situation:
       'Italy Xeomin share is slipping and the slope is directionally aligned with the post-training follow-up gap. The gap is concentrated in the high-potential dermatologist segment, the cohort that matters most to Xeomin commercial outcomes in Italy.',
@@ -200,9 +199,17 @@ export const overview = {
   // item that competed with the two urgent priorities; it now lives in
   // overview.blindSpot at the bottom of the page with its own amber
   // "Watching quietly" treatment.
+  //
+  // The Italy entry is rendered in "covered above" mode by HeroPriorityList
+  // because the priority callout at the top of the page already names it —
+  // duplicating the full headline + evidence here would make the page feel
+  // redundant. The muted row shows the italic coveredAbove text plus a
+  // "Jump to priority" link, and Germany is automatically promoted to the
+  // dominant slot.
   marketsRequiringAttention: [
     { marketId: 'it', headline: 'Italy follow-up gap is the largest single drag on Xeomin Europe.',
-      evidence: '47 high-potential trained HCPs in Italy not visited within 60 days (out of 84 across Europe).', cta: 'Open Italy detail →' },
+      evidence: '47 high-potential trained HCPs in Italy not visited within 60 days (out of 84 across Europe).', cta: 'Open Italy detail →',
+      coveredAbove: { text: 'Italy follow-up gap · covered in the priority above.' } },
     { marketId: 'de', headline: 'Germany commercial spend is the highest in Europe, growth vs plan is the weakest.',
       evidence: 'Marketing intensity 17.2% vs growth vs plan −2.1%.', cta: 'Open Germany detail →' },
   ],

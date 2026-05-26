@@ -1,5 +1,6 @@
 import type { CSSProperties } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { ArrowUp } from 'lucide-react';
 
 const NAVY = '#050A44';
 const NAVY_55 = 'rgba(5,10,68,0.55)';
@@ -183,6 +184,52 @@ const compactOutlineBtnStyle: CSSProperties = {
   whiteSpace: 'nowrap',
 };
 
+// Muted "covered above" row — used when an item is already named in a
+// callout higher on the page. Italic body line, no CTA buttons, just a
+// quiet "Jump to priority" link on the right.
+const coveredRowStyle: CSSProperties = {
+  display: 'flex',
+  alignItems: 'center',
+  gap: 18,
+  padding: '12px 18px',
+  background: '#ffffff',
+  border: `1px solid ${NAVY_12}`,
+  borderRadius: 12,
+  width: '100%',
+  fontFamily: 'inherit',
+};
+
+const coveredBodyStyle: CSSProperties = {
+  flex: 1,
+  minWidth: 0,
+  display: 'flex',
+  alignItems: 'center',
+  gap: 12,
+  flexWrap: 'wrap',
+};
+
+const coveredTextStyle: CSSProperties = {
+  fontSize: 13,
+  color: NAVY_55,
+  fontStyle: 'italic',
+  lineHeight: 1.45,
+};
+
+const jumpLinkStyle: CSSProperties = {
+  display: 'inline-flex',
+  alignItems: 'center',
+  gap: 4,
+  background: 'transparent',
+  border: 'none',
+  padding: 0,
+  color: BLUE,
+  fontSize: 13,
+  fontWeight: 700,
+  cursor: 'pointer',
+  fontFamily: 'inherit',
+  flexShrink: 0,
+};
+
 export interface HeroPriorityItem {
   id: string;
   flag?: string;
@@ -190,6 +237,17 @@ export interface HeroPriorityItem {
   headline: string;
   evidence: string;
   route: string;
+  // When set, this row renders in the muted "covered above" treatment:
+  // italic body line + a Jump-to-priority link, no CTA buttons. The
+  // first item WITHOUT coveredAbove is promoted to the dominant slot.
+  coveredAbove?: {
+    text: string;
+    // Optional id of an element to scroll to. Defaults to the top of
+    // the page (which is normally where the covering priority lives).
+    scrollToId?: string;
+    // Defaults to "Jump to priority".
+    linkLabel?: string;
+  };
 }
 
 export interface HeroPriorityListProps {
@@ -203,6 +261,18 @@ export interface HeroPriorityListProps {
   primaryLabelFor?: (item: HeroPriorityItem) => string;
 }
 
+function jumpToTarget(scrollToId?: string) {
+  if (typeof document === 'undefined') return;
+  if (scrollToId) {
+    const el = document.getElementById(scrollToId);
+    if (el) {
+      el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      return;
+    }
+  }
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
 export function HeroPriorityList({
   items,
   primaryCtaLabel = 'Open market detail',
@@ -212,8 +282,12 @@ export function HeroPriorityList({
   primaryLabelFor,
 }: HeroPriorityListProps) {
   const navigate = useNavigate();
-  const [first, ...rest] = items;
-  if (!first) return null;
+  if (items.length === 0) return null;
+
+  // The dominant (red-stripe) treatment goes on the first item that is
+  // NOT already covered higher on the page. If everything is covered above,
+  // nothing gets the dominant treatment.
+  const dominantId = items.find((i) => !i.coveredAbove)?.id;
 
   const handlePrimary = (item: HeroPriorityItem) =>
     onPrimary ? onPrimary(item) : navigate(item.route);
@@ -222,57 +296,94 @@ export function HeroPriorityList({
 
   return (
     <div style={containerStyle}>
-      <div style={dominantRowStyle}>
-        <div style={indexBadgeStyle}>01</div>
-        <div style={dominantBodyStyle}>
-          <span style={compactTagStyle}>
-            {first.flag} {first.marketName}
-          </span>
-          <h3 style={dominantHeadlineStyle}>{first.headline}</h3>
-          <p style={evidenceStyle}>{first.evidence}</p>
-          <div style={dominantActionsStyle}>
-            <button type="button" style={primaryBtnStyle} onClick={() => handlePrimary(first)}>
-              {labelFor(first)} →
-            </button>
-            <button
-              type="button"
-              style={outlineBtnStyle}
-              onClick={() => onSecondary?.(first)}
-            >
-              {secondaryCtaLabel}
-            </button>
-          </div>
-        </div>
-      </div>
+      {items.map((item, idx) => {
+        const indexLabel = String(idx + 1).padStart(2, '0');
 
-      {rest.map((item, idx) => (
-        <div key={item.id} style={compactRowStyle}>
-          <div style={indexBadgeStyle}>{String(idx + 2).padStart(2, '0')}</div>
-          <div style={compactBodyStyle}>
-            <span style={compactTagStyle}>
-              {item.flag} {item.marketName}
-            </span>
-            <h3 style={compactHeadlineStyle}>{item.headline}</h3>
-            <p style={compactEvidenceStyle}>{item.evidence}</p>
+        // 1 · Covered above — italic body line + Jump to priority link.
+        if (item.coveredAbove) {
+          return (
+            <div key={item.id} style={coveredRowStyle}>
+              <div style={indexBadgeStyle}>{indexLabel}</div>
+              <div style={coveredBodyStyle}>
+                <span style={compactTagStyle}>
+                  {item.flag} {item.marketName}
+                </span>
+                <span style={coveredTextStyle}>{item.coveredAbove.text}</span>
+              </div>
+              <button
+                type="button"
+                style={jumpLinkStyle}
+                onClick={() => jumpToTarget(item.coveredAbove?.scrollToId)}
+              >
+                {item.coveredAbove.linkLabel ?? 'Jump to priority'}
+                <ArrowUp size={14} strokeWidth={2.5} />
+              </button>
+            </div>
+          );
+        }
+
+        // 2 · Dominant (red stripe).
+        if (item.id === dominantId) {
+          return (
+            <div key={item.id} style={dominantRowStyle}>
+              <div style={indexBadgeStyle}>{indexLabel}</div>
+              <div style={dominantBodyStyle}>
+                <span style={compactTagStyle}>
+                  {item.flag} {item.marketName}
+                </span>
+                <h3 style={dominantHeadlineStyle}>{item.headline}</h3>
+                <p style={evidenceStyle}>{item.evidence}</p>
+                <div style={dominantActionsStyle}>
+                  <button
+                    type="button"
+                    style={primaryBtnStyle}
+                    onClick={() => handlePrimary(item)}
+                  >
+                    {labelFor(item)} →
+                  </button>
+                  <button
+                    type="button"
+                    style={outlineBtnStyle}
+                    onClick={() => onSecondary?.(item)}
+                  >
+                    {secondaryCtaLabel}
+                  </button>
+                </div>
+              </div>
+            </div>
+          );
+        }
+
+        // 3 · Compact (every other uncovered item).
+        return (
+          <div key={item.id} style={compactRowStyle}>
+            <div style={indexBadgeStyle}>{indexLabel}</div>
+            <div style={compactBodyStyle}>
+              <span style={compactTagStyle}>
+                {item.flag} {item.marketName}
+              </span>
+              <h3 style={compactHeadlineStyle}>{item.headline}</h3>
+              <p style={compactEvidenceStyle}>{item.evidence}</p>
+            </div>
+            <div style={compactActionsStyle}>
+              <button
+                type="button"
+                style={compactPrimaryBtnStyle}
+                onClick={() => handlePrimary(item)}
+              >
+                {labelFor(item)} →
+              </button>
+              <button
+                type="button"
+                style={compactOutlineBtnStyle}
+                onClick={() => onSecondary?.(item)}
+              >
+                {secondaryCtaLabel}
+              </button>
+            </div>
           </div>
-          <div style={compactActionsStyle}>
-            <button
-              type="button"
-              style={compactPrimaryBtnStyle}
-              onClick={() => handlePrimary(item)}
-            >
-              {labelFor(item)} →
-            </button>
-            <button
-              type="button"
-              style={compactOutlineBtnStyle}
-              onClick={() => onSecondary?.(item)}
-            >
-              {secondaryCtaLabel}
-            </button>
-          </div>
-        </div>
-      ))}
+        );
+      })}
     </div>
   );
 }
