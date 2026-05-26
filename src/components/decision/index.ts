@@ -29,3 +29,6 @@ export type { PlaceholderAnswerProps } from './PlaceholderAnswer';
 
 export { AriyaNote } from './AriyaNote';
 export type { AriyaNoteProps } from './AriyaNote';
+
+export { BlindSpotCard } from './BlindSpotCard';
+export type { BlindSpotCardProps } from './BlindSpotCard';

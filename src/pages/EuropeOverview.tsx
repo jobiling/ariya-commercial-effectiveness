@@ -22,7 +22,7 @@ import {
 } from 'recharts';
 import { Donut, HeroPriorityList, SourceTag } from '../components/composites';
 import type { HeroPriorityItem } from '../components/composites';
-import { RecommendationCard } from '../components/decision';
+import { BlindSpotCard, RecommendationCard } from '../components/decision';
 import { markets, overview } from '../data/scenario';
 
 const RED = '#E11D48';
@@ -563,6 +563,7 @@ export default function EuropeOverview() {
           digDeeper={overview.recommendation.digDeeper}
           seamless
           collapsible
+          defaultCollapsed
           actions={[
             // Open Scenario Planner and Trace evidence used to live here as
             // secondary footer actions. They now sit inside the digDeeper
@@ -701,6 +702,22 @@ export default function EuropeOverview() {
           ))}
         </div>
       </section>
+
+      {/* Watching quietly · final section. Low-confidence early-pattern
+          observation about Spain, deliberately positioned as the page
+          terminator. Amber treatment so it reads as a watch item without
+          competing with the red urgent priorities or the blue Ariya
+          recommendation above. */}
+      <BlindSpotCard
+        eyebrow={overview.blindSpot.eyebrow}
+        headline={overview.blindSpot.headline}
+        body={overview.blindSpot.body}
+        recommendation={overview.blindSpot.recommendation}
+        confidence={overview.blindSpot.confidence}
+        confidenceRationale={overview.blindSpot.confidenceRationale}
+        sources={overview.blindSpot.sources}
+        watchpointMetrics={overview.blindSpot.watchpointMetrics}
+      />
     </div>
   );
 }

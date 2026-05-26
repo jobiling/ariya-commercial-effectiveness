@@ -196,14 +196,37 @@ export const overview = {
     },
     footerMeta: 'Reversible · revisit at 60 days',
   },
+  // Italy + Germany only. The previous Spain entry was a quiet watch
+  // item that competed with the two urgent priorities; it now lives in
+  // overview.blindSpot at the bottom of the page with its own amber
+  // "Watching quietly" treatment.
   marketsRequiringAttention: [
     { marketId: 'it', headline: 'Italy follow-up gap is the largest single drag on Xeomin Europe.',
-      evidence: '47 high-potential trained HCPs not visited within 60 days.', cta: 'Open Italy detail →' },
+      evidence: '47 high-potential trained HCPs in Italy not visited within 60 days (out of 84 across Europe).', cta: 'Open Italy detail →' },
     { marketId: 'de', headline: 'Germany commercial spend is the highest in Europe, growth vs plan is the weakest.',
       evidence: 'Marketing intensity 17.2% vs growth vs plan −2.1%.', cta: 'Open Germany detail →' },
-    { marketId: 'es', headline: 'Spain is above plan. Watch whether Q1 momentum sustains into Q2.',
-      evidence: 'Q1 growth 6.0% vs LY, investment intensity 11.4%.', cta: 'Open Spain detail →' },
   ],
+  // Quiet watch item rendered at the very bottom of the page as a
+  // BlindSpotCard. Low confidence, no action recommended yet — surfaces
+  // an early pattern before it becomes a problem. The +38% Spain
+  // training growth and 67% Italy historical follow-up rate are new
+  // numbers used only inside this block; they are consistent with the
+  // rest of the data (Italy currently 41% with healthy past trajectory,
+  // Spain currently 72% in a fast-growth phase).
+  blindSpot: {
+    eyebrow: 'Watching quietly',
+    headline: "Spain shows the early shape of Italy's pattern, two quarters ahead.",
+    body: 'Spain Xeomin is above plan and follow-up discipline is healthy today (72% within 60 days). The watchpoint is velocity: training participation has scaled rapidly over the last two quarters, the fastest in Europe. Italy follow-up rate began to slip when its training cohort grew faster than its follow-up capacity. Spain is in that growth zone now.',
+    recommendation: 'No action recommended yet. Reassess at the 60-day Italy checkpoint, when the same data refresh will show whether Spain follow-up rate held steady or started to track the Italy curve.',
+    confidence: 'Low' as Confidence,
+    confidenceRationale: 'Directional pattern recognition only. Confirm at next data refresh.',
+    sources: ['Market performance', 'CRM activity', 'Training & spend'],
+    watchpointMetrics: [
+      { label: 'Spain training participation growth, last 2 quarters', value: '+38%', tone: 'watch' as const },
+      { label: 'Spain post-training 60-day follow-up, current', value: '72%', tone: 'on-track' as const },
+      { label: 'Italy follow-up rate, 2 quarters before slip', value: '67%', tone: 'on-track' as const },
+    ],
+  },
 } as const;
 
 // ---------------------------------------------------------------------------
@@ -1488,7 +1511,7 @@ export const sourceConfidence: DataSource[] = [
 
 export const demoSteps = [
   { route: '/', label: 'Europe Overview',
-    hint: 'Italy and Germany are flagged as priority markets. The Recommendation Card is the anchor. The Dig Deeper bridge at the bottom of the card connects this recommendation to the 60-day checkpoint view in Ask Ariya.' },
+    hint: 'Italy and Germany are flagged as priority markets. The Recommendation Card is the anchor. The Dig Deeper bridge connects this recommendation to the 60-day checkpoint in Ask Ariya. The Watching Quietly block at the bottom shows a Spain pattern the system is monitoring before it becomes a problem.' },
   { route: '/market-performance', label: 'Market Performance',
     hint: 'Italy performance is shown alongside investment, field activity, and post-training follow-up.' },
   { route: '/investment-radar', label: 'Investment Radar',
