@@ -94,25 +94,31 @@ export interface RecommendationCardProps {
 // Styles
 // ---------------------------------------------------------------------------
 
-// Outer container that groups the four sub-cards (header, next actions,
-// conditions, sources) plus the footer into a single visual unit. Light
-// grey surface with subtle frame, inner white tiles read as nested.
+// One continuous white card. Header, Next actions, Conditions+Sources, and
+// the footer all live inside the same bordered surface. Internal sections
+// are separated by 1 px NAVY_06 hairlines (`sectionDividerStyle` added as
+// borderTop on every section after the first). No nested tiles, no inner
+// borders, no inner shadows.
 const wrapperStyle: CSSProperties = {
   display: 'flex',
   flexDirection: 'column',
-  gap: 12,
-  padding: 14,
-  background: '#F4F5FA',
-  border: `1px solid ${NAVY_06}`,
-  borderRadius: 18,
-};
-
-const cardStyle: CSSProperties = {
+  gap: 0,
+  padding: 0,
   background: '#ffffff',
   border: `1px solid ${NAVY_12}`,
-  borderRadius: 12,
-  padding: 24,
+  borderRadius: 14,
   boxShadow: '0 1px 2px rgba(5,10,68,0.04)',
+  overflow: 'hidden',
+};
+
+// Per-section padding. The first section (header) uses this as-is; every
+// section after it adds `sectionTopDividerStyle` for the hairline.
+const cardStyle: CSSProperties = {
+  padding: '22px 24px',
+};
+
+const sectionTopDividerStyle: CSSProperties = {
+  borderTop: `1px solid ${NAVY_06}`,
 };
 
 // --- Header row ------------------------------------------------------------
@@ -377,11 +383,24 @@ const priorityPillStyle: CSSProperties = {
 };
 
 // --- Conditions + sources bottom grid -------------------------------------
+//
+// Two columns inside the same single card, separated by a vertical hairline
+// applied as `borderRight` on the first column.
 
 const bottomGridStyle: CSSProperties = {
   display: 'grid',
   gridTemplateColumns: '1fr 1fr',
-  gap: 12,
+  gap: 0,
+};
+
+// Inner column for the bottom grid. Each column owns its own padding.
+const bottomColStyle: CSSProperties = {
+  padding: '22px 24px',
+};
+
+const bottomColLeftStyle: CSSProperties = {
+  ...bottomColStyle,
+  borderRight: `1px solid ${NAVY_06}`,
 };
 
 const listTwoColStyle: CSSProperties = {
@@ -418,7 +437,7 @@ const footerStyle: CSSProperties = {
   alignItems: 'center',
   justifyContent: 'space-between',
   gap: 12,
-  padding: '4px 8px 2px',
+  padding: '16px 24px',
 };
 
 const footerActionsStyle: CSSProperties = {
@@ -646,9 +665,9 @@ export function RecommendationCard({
         )}
       </article>
 
-      {/* ─── Next actions card ───────────────────────────────────── */}
+      {/* ─── Next actions section ────────────────────────────────── */}
       {showBody && hasNextActions && (
-        <article style={cardStyle}>
+        <article style={{ ...cardStyle, ...sectionTopDividerStyle }}>
           <div style={cardHeaderStyle}>
             <span style={cardHeaderTitleStyle}>{nextActionsLabel}</span>
             {nextActionsMeta && (
@@ -686,9 +705,9 @@ export function RecommendationCard({
 
       {/* ─── Conditions + Sources bottom row ─────────────────────── */}
       {showBody && (hasConditions || hasSources) && (
-        <div style={bottomGridStyle}>
+        <div style={{ ...bottomGridStyle, ...sectionTopDividerStyle }}>
           {hasConditions && (
-            <article style={cardStyle}>
+            <article style={hasSources ? bottomColLeftStyle : bottomColStyle}>
               <div style={cardHeaderStyle}>
                 <span style={cardHeaderTitleStyle}>{conditionsLabel}</span>
                 <span style={cardHeaderMetaStyle}>{resolvedConditionsMeta}</span>
@@ -710,7 +729,7 @@ export function RecommendationCard({
             </article>
           )}
           {hasSources && (
-            <article style={cardStyle}>
+            <article style={bottomColStyle}>
               <div style={cardHeaderStyle}>
                 <span style={cardHeaderTitleStyle}>{sourcesLabel}</span>
                 <span style={cardHeaderMetaStyle}>{sources.length}</span>
@@ -733,9 +752,9 @@ export function RecommendationCard({
         </div>
       )}
 
-      {/* ─── Footer actions (outside cards) ──────────────────────── */}
+      {/* ─── Footer actions (inside the single card) ─────────────── */}
       {showBody && hasFooter && (
-        <div style={footerStyle}>
+        <div style={{ ...footerStyle, ...sectionTopDividerStyle }}>
           <div style={footerActionsStyle}>
             {actions.map((a, i) => {
               const tone = resolveTone(a);

@@ -1,5 +1,6 @@
 import type { CSSProperties } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { ArrowRight, BookOpen, Database } from 'lucide-react';
 import {
   CartesianGrid,
   ResponsiveContainer,
@@ -12,11 +13,17 @@ import {
   ReferenceLine,
 } from 'recharts';
 import { PageHeader } from '../components/layout/PageHeader';
-import { Donut, NewsCallout, HeroPriorityList, SourceTag } from '../components/composites';
+import { Donut, HeroPriorityList, SourceTag } from '../components/composites';
 import type { HeroPriorityItem } from '../components/composites';
-import { RecommendationCard, SourceAssemblyStrip } from '../components/decision';
-import type { SourceAssemblyIcon } from '../components/decision';
+import { RecommendationCard } from '../components/decision';
 import { markets, overview } from '../data/scenario';
+
+const RED = '#E11D48';
+
+// Icon lookup for the inline hero block's "Assembled from" chips. Mirrors the
+// mapping in SourceAssemblyStrip — kept here so the hero block doesn't depend
+// on that component.
+const HERO_ICONS = { Database, BookOpen } as const;
 
 const RECOMMENDATION_ANCHOR_ID = 'recommendation-anchor';
 
@@ -35,6 +42,135 @@ const pageStyle: CSSProperties = {
   flexDirection: 'column',
   gap: 32,
   paddingBottom: 48,
+};
+
+// ─── Hero block (priority + assembly, one card) ───────────────────────────
+// Replaces the previous standalone NewsCallout + SourceAssemblyStrip pair.
+// The "Assembled from" chips now sit visibly attached to the priority claim
+// they support, inside a single bordered surface with a red left stripe.
+const NAVY_06 = 'rgba(5,10,68,0.06)';
+const BLUE = '#0055BB';
+
+const heroBlockStyle: CSSProperties = {
+  background: '#ffffff',
+  border: `1px solid ${NAVY_12}`,
+  borderLeft: `4px solid ${RED}`,
+  borderRadius: 12,
+  boxShadow: '0 1px 2px rgba(5,10,68,0.04)',
+  overflow: 'hidden',
+};
+
+const heroTopStyle: CSSProperties = {
+  display: 'grid',
+  gridTemplateColumns: '1fr auto',
+  alignItems: 'center',
+  gap: 24,
+  padding: '18px 22px',
+};
+
+const heroEyebrowRowStyle: CSSProperties = {
+  display: 'inline-flex',
+  alignItems: 'center',
+  gap: 8,
+  fontSize: 11,
+  fontWeight: 800,
+  letterSpacing: '0.07em',
+  textTransform: 'uppercase',
+  color: RED,
+};
+
+const heroPulseDotStyle: CSSProperties = {
+  display: 'inline-block',
+  width: 7,
+  height: 7,
+  borderRadius: 999,
+  background: RED,
+};
+
+const heroHeadlineStyle: CSSProperties = {
+  fontSize: 17,
+  fontWeight: 700,
+  color: NAVY,
+  lineHeight: 1.4,
+  margin: '6px 0 0',
+  maxWidth: 820,
+};
+
+const heroMetaStyle: CSSProperties = {
+  fontSize: 12,
+  color: 'rgba(5,10,68,0.55)',
+  marginTop: 8,
+};
+
+const heroCtaBtnStyle: CSSProperties = {
+  display: 'inline-flex',
+  alignItems: 'center',
+  gap: 4,
+  padding: '6px 4px',
+  background: 'transparent',
+  border: 'none',
+  color: BLUE,
+  fontSize: 13,
+  fontWeight: 700,
+  cursor: 'pointer',
+  fontFamily: 'inherit',
+  whiteSpace: 'nowrap',
+  alignSelf: 'center',
+};
+
+const heroHairlineStyle: CSSProperties = {
+  height: 1,
+  background: NAVY_06,
+  border: 'none',
+  margin: 0,
+};
+
+const heroBottomStyle: CSSProperties = {
+  padding: '14px 22px 16px',
+  display: 'flex',
+  flexDirection: 'column',
+  gap: 10,
+};
+
+const heroAssembledLabelStyle: CSSProperties = {
+  fontSize: 11,
+  fontWeight: 800,
+  letterSpacing: '0.07em',
+  textTransform: 'uppercase',
+  color: BLUE,
+};
+
+const heroChipRowStyle: CSSProperties = {
+  display: 'flex',
+  flexWrap: 'wrap',
+  gap: 8,
+  listStyle: 'none',
+  padding: 0,
+  margin: 0,
+};
+
+const heroChipStyle: CSSProperties = {
+  display: 'inline-flex',
+  alignItems: 'center',
+  gap: 6,
+  padding: '6px 12px',
+  borderRadius: 999,
+  background: NAVY_06,
+  color: NAVY,
+  fontSize: 12,
+  fontWeight: 600,
+  lineHeight: 1.2,
+  whiteSpace: 'nowrap',
+};
+
+const heroReconcileRowStyle: CSSProperties = {
+  display: 'inline-flex',
+  alignItems: 'center',
+  gap: 8,
+  fontSize: 14,
+  fontWeight: 500,
+  color: NAVY,
+  lineHeight: 1.4,
 };
 
 type DonutTone = 'on-track' | 'watch' | 'at-risk';
@@ -310,22 +446,50 @@ export default function EuropeOverview() {
         subtitle="Where does Europe leadership need to focus this week?"
       />
 
-      {/* Hero: News callout + Source Assembly strip · the dominant block above the fold. */}
-      <NewsCallout
-        tone="red"
-        eyebrow={hero.eyebrow}
-        headline={hero.headline}
-        meta={hero.metaRow}
-        ctaLabel={hero.cta.label}
-        onCta={() => scrollToId(hero.cta.scrollToId)}
-      />
+      {/* Hero block · priority + assembly, fused into one bordered surface
+          so the "Assembled from" chips read as the evidence behind the
+          priority claim above them. */}
+      <section style={heroBlockStyle} aria-label="This week's priority and the sources that assembled it">
+        <div style={heroTopStyle}>
+          <div>
+            <div style={heroEyebrowRowStyle}>
+              <span style={heroPulseDotStyle} aria-hidden />
+              {hero.eyebrow}
+            </div>
+            <h2 style={heroHeadlineStyle}>{hero.headline}</h2>
+            <div style={heroMetaStyle}>{hero.metaRow}</div>
+          </div>
+          <button
+            type="button"
+            onClick={() => scrollToId(hero.cta.scrollToId)}
+            style={heroCtaBtnStyle}
+          >
+            {hero.cta.label}
+            <ArrowRight size={14} strokeWidth={2.5} />
+          </button>
+        </div>
 
-      <SourceAssemblyStrip
-        items={overview.assemblySources.map((s) => ({
-          ...s,
-          icon: s.icon as SourceAssemblyIcon,
-        }))}
-      />
+        <hr style={heroHairlineStyle} aria-hidden />
+
+        <div style={heroBottomStyle}>
+          <div style={heroAssembledLabelStyle}>Assembled from</div>
+          <ul style={heroChipRowStyle}>
+            {overview.assemblySources.map((s) => {
+              const Icon = HERO_ICONS[s.icon as keyof typeof HERO_ICONS] ?? Database;
+              return (
+                <li key={s.id} style={heroChipStyle}>
+                  <Icon size={13} strokeWidth={2} color={NAVY_70} aria-hidden />
+                  {s.label}
+                </li>
+              );
+            })}
+          </ul>
+          <div style={heroReconcileRowStyle}>
+            <ArrowRight size={16} color="rgba(5,10,68,0.55)" strokeWidth={2} aria-hidden />
+            <span>Reconciled into one decision below.</span>
+          </div>
+        </div>
+      </section>
 
       <section style={cockpitCardStyle}>
         <div style={cockpitScoreColStyle}>
