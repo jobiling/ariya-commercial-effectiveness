@@ -1,6 +1,6 @@
 import type { CSSProperties } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowRight, BookOpen, Database } from 'lucide-react';
+import { BookOpen, Database } from 'lucide-react';
 import {
   CartesianGrid,
   ResponsiveContainer,
@@ -24,13 +24,6 @@ const RED = '#E11D48';
 // mapping in SourceAssemblyStrip — kept here so the hero block doesn't depend
 // on that component.
 const HERO_ICONS = { Database, BookOpen } as const;
-
-const RECOMMENDATION_ANCHOR_ID = 'recommendation-anchor';
-
-function scrollToId(id: string) {
-  const el = typeof document !== 'undefined' ? document.getElementById(id) : null;
-  el?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-}
 
 const NAVY = '#050A44';
 const NAVY_55 = 'rgba(5,10,68,0.55)';
@@ -102,22 +95,6 @@ const heroMetaStyle: CSSProperties = {
   marginTop: 8,
 };
 
-const heroCtaBtnStyle: CSSProperties = {
-  display: 'inline-flex',
-  alignItems: 'center',
-  gap: 4,
-  padding: '6px 4px',
-  background: 'transparent',
-  border: 'none',
-  color: BLUE,
-  fontSize: 13,
-  fontWeight: 700,
-  cursor: 'pointer',
-  fontFamily: 'inherit',
-  whiteSpace: 'nowrap',
-  alignSelf: 'center',
-};
-
 const heroHairlineStyle: CSSProperties = {
   height: 1,
   background: NAVY_06,
@@ -161,16 +138,6 @@ const heroChipStyle: CSSProperties = {
   fontWeight: 600,
   lineHeight: 1.2,
   whiteSpace: 'nowrap',
-};
-
-const heroReconcileRowStyle: CSSProperties = {
-  display: 'inline-flex',
-  alignItems: 'center',
-  gap: 8,
-  fontSize: 14,
-  fontWeight: 500,
-  color: NAVY,
-  lineHeight: 1.4,
 };
 
 type DonutTone = 'on-track' | 'watch' | 'at-risk';
@@ -446,10 +413,13 @@ export default function EuropeOverview() {
         subtitle="Where does Europe leadership need to focus this week?"
       />
 
-      {/* Hero block · priority + assembly, fused into one bordered surface
-          so the "Assembled from" chips read as the evidence behind the
-          priority claim above them. */}
-      <section style={heroBlockStyle} aria-label="This week's priority and the sources that assembled it">
+      {/* Hero block · one bordered surface, three sections:
+          1 · Priority headline (the diagnostic claim)
+          2 · Assembled-from chips (the evidence behind it)
+          3 · Ariya recommends (collapsible: headline always visible,
+              details expand on demand)
+          All separated by 1 px NAVY_06 hairlines. */}
+      <section style={heroBlockStyle} aria-label="This week's priority, assembled sources, and Ariya recommendation">
         <div style={heroTopStyle}>
           <div>
             <div style={heroEyebrowRowStyle}>
@@ -459,14 +429,6 @@ export default function EuropeOverview() {
             <h2 style={heroHeadlineStyle}>{hero.headline}</h2>
             <div style={heroMetaStyle}>{hero.metaRow}</div>
           </div>
-          <button
-            type="button"
-            onClick={() => scrollToId(hero.cta.scrollToId)}
-            style={heroCtaBtnStyle}
-          >
-            {hero.cta.label}
-            <ArrowRight size={14} strokeWidth={2.5} />
-          </button>
         </div>
 
         <hr style={heroHairlineStyle} aria-hidden />
@@ -484,11 +446,44 @@ export default function EuropeOverview() {
               );
             })}
           </ul>
-          <div style={heroReconcileRowStyle}>
-            <ArrowRight size={16} color="rgba(5,10,68,0.55)" strokeWidth={2} aria-hidden />
-            <span>Reconciled into one decision below.</span>
-          </div>
         </div>
+
+        <hr style={heroHairlineStyle} aria-hidden />
+
+        {/* Section 3 · embedded recommendation, seamless so it flows inside
+            the hero block instead of looking like a nested card. */}
+        <RecommendationCard
+          eyebrow={overview.recommendation.eyebrow}
+          pill={overview.recommendation.pill}
+          recommendation={overview.recommendation.recommendation}
+          whyBullets={overview.recommendation.whyBullets}
+          confidence={overview.recommendation.confidence}
+          confidenceRationale={overview.recommendation.confidenceRationale}
+          conditions={overview.recommendation.conditions}
+          nextActions={overview.recommendation.nextActions}
+          nextActionsMeta={overview.recommendation.nextActionsMeta}
+          sources={overview.recommendation.sources}
+          footerMeta={overview.recommendation.footerMeta}
+          seamless
+          collapsible
+          defaultCollapsed
+          actions={[
+            {
+              label: 'Log this decision →',
+              onClick: () => navigate('/decision-log?from=europe-overview'),
+              primary: true,
+            },
+            {
+              label: 'Open in Scenario Planner',
+              onClick: () => navigate('/scenario-planner'),
+            },
+            {
+              label: 'Trace evidence',
+              onClick: () => navigate('/source-confidence'),
+              tone: 'quiet',
+            },
+          ]}
+        />
       </section>
 
       <section style={cockpitCardStyle}>
@@ -565,42 +560,6 @@ export default function EuropeOverview() {
         <p style={interpretationStyle}>{overview.scatterInterpretation}</p>
       </section>
 
-      <section
-        id={RECOMMENDATION_ANCHOR_ID}
-        style={{ scrollMarginTop: 24 }}
-      >
-        <RecommendationCard
-          eyebrow={overview.recommendation.eyebrow}
-          meta={overview.recommendation.headerMeta}
-          pill={overview.recommendation.pill}
-          recommendation={overview.recommendation.recommendation}
-          whyBullets={overview.recommendation.whyBullets}
-          confidence={overview.recommendation.confidence}
-          confidenceRationale={overview.recommendation.confidenceRationale}
-          conditions={overview.recommendation.conditions}
-          nextActions={overview.recommendation.nextActions}
-          nextActionsMeta={overview.recommendation.nextActionsMeta}
-          sources={overview.recommendation.sources}
-          footerMeta={overview.recommendation.footerMeta}
-          collapsible
-          actions={[
-            {
-              label: 'Open in Scenario Planner →',
-              onClick: () => navigate('/scenario-planner'),
-              primary: true,
-            },
-            {
-              label: 'Log this decision',
-              onClick: () => navigate('/decision-log?from=europe-overview'),
-            },
-            {
-              label: 'Trace evidence',
-              onClick: () => navigate('/source-confidence'),
-              tone: 'quiet',
-            },
-          ]}
-        />
-      </section>
 
       <section>
         <div style={sectionLabelStyle}>Markets requiring leadership attention</div>

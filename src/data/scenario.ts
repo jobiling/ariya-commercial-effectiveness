@@ -136,16 +136,16 @@ export const overview = {
       'Selection of trained HCPs in Italy is defensible. The break point is post-training execution: 38% 60-day follow-up among Italian high-potential dermatologists vs 72% for the equivalent German cohort. Reducing Germany spend without first protecting Italy execution risks compounding the pressure on net European impact.',
     whyBullets: [
       {
-        lead: 'Selection is defensible.',
-        body: 'Italian high-potential dermatologists are well known to the business and present in training participation. The cohort itself is not the issue.',
+        lead: 'Italy has the runway.',
+        body: '€1.24M in Xeomin training is already invested in Italy and the right HCPs were selected (64% of high-potential dermatologists trained, in line with European benchmarks). The break point is post-training execution: 38% receive a 60-day follow-up vs 72% for the equivalent German cohort. Additional resource here funds follow-through on training already delivered, not new programs.',
       },
       {
-        lead: 'The break point is post-training execution.',
-        body: '38% 60-day follow-up on the Italian high-potential dermatologist cohort, vs 72% on the equivalent German cohort. The slope of Italy Xeomin share is directionally aligned with that gap.',
+        lead: 'Germany is the candidate pool.',
+        body: 'Germany carries the highest commercial spend in Europe (17.2% of sales) with the weakest growth vs plan (−2.1%). Spend is not converting to outcome. Field force and priority account coverage are working (78% coverage, activity above expected) and stay protected. Marketing campaigns would be the first category to investigate if reallocation is needed.',
       },
       {
-        lead: 'Sequence Italy before Germany.',
-        body: 'Reducing Germany spend without first protecting Italy execution risks compounding pressure on net European impact. Fix follow-up cadence first, then evaluate a targeted German reallocation.',
+        lead: 'Sequence matters.',
+        body: 'Italy first, Germany second. Fixing Italy execution is operationally bounded and works within the existing investment. Germany reduction is a 60-days-later question, conditional on Italy follow-up improving and on identifying the right activities to scale back.',
       },
     ],
     confidence: 'Medium' as Confidence,
@@ -158,11 +158,11 @@ export const overview = {
       'Review at 60 days using CRM follow-up and performance signals',
     ],
     nextActions: [
-      { action: 'Open Scenario Planner for Italy / Germany reallocation', owner: 'Europe Leadership', timeframe: 'This week', priority: true },
-      { action: 'Confirm Italy high-potential trained HCP list', owner: 'Italy NSM', timeframe: 'Within 5 days', priority: true },
-      { action: 'Define Italy follow-up sprint plan', owner: 'Italy NSM, first-line managers', timeframe: 'Within 10 days' },
+      { action: 'Confirm the Italy high-potential trained HCP list', owner: 'Italy NSM', timeframe: 'Within 5 days', priority: true },
+      { action: 'Define the Italy follow-up sprint plan', owner: 'Italy NSM, first-line managers', timeframe: 'Within 10 days', priority: true },
+      { action: 'Open Scenario Planner to test the directional impact of Italy / Germany reallocation. The Germany pool is not committed at this point.', owner: 'Europe Leadership', timeframe: 'This week' },
     ],
-    nextActionsMeta: '3 steps · 10-day horizon',
+    nextActionsMeta: '3 steps · this week',
     sources: [
       'Market performance',
       'CRM activity',

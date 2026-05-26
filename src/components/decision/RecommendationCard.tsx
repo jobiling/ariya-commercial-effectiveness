@@ -88,6 +88,11 @@ export interface RecommendationCardProps {
   accent?: 'teal';
   collapsible?: boolean;
   defaultCollapsed?: boolean;
+  // When true, strips the outer wrapper's border / background / shadow /
+  // radius so the card can be embedded inside a parent container without
+  // looking like a nested card-in-card. Internal section hairlines and
+  // padding stay intact.
+  seamless?: boolean;
 }
 
 // ---------------------------------------------------------------------------
@@ -573,10 +578,24 @@ export function RecommendationCard({
   variant = 'full',
   collapsible = false,
   defaultCollapsed = false,
+  seamless = false,
 }: RecommendationCardProps) {
   const [collapsed, setCollapsed] = useState(defaultCollapsed);
   const showBody = !collapsed;
   const isFull = variant === 'full';
+
+  // When `seamless`, drop the outer card chrome so the component sits
+  // flush inside its parent container.
+  const resolvedWrapperStyle: CSSProperties = seamless
+    ? {
+        ...wrapperStyle,
+        background: 'transparent',
+        border: 'none',
+        borderRadius: 0,
+        boxShadow: 'none',
+        overflow: 'visible',
+      }
+    : wrapperStyle;
 
   const hasWhyBullets = !!(whyBullets && whyBullets.length > 0);
   const hasWhyText = !!(situation || reasoning || scenarioView);
@@ -592,7 +611,7 @@ export function RecommendationCard({
     conditionsMeta ?? `${conditions.length} required`;
 
   return (
-    <div style={wrapperStyle}>
+    <div style={resolvedWrapperStyle}>
       {/* ─── Header card ──────────────────────────────────────────── */}
       <article style={cardStyle}>
         <div style={eyebrowRowStyle}>
