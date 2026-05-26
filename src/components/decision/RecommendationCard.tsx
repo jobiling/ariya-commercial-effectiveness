@@ -1,5 +1,6 @@
 import { useState, type CSSProperties, type ReactNode } from 'react';
-import { Check, ChevronDown, ChevronUp, Clock, Database, Shield } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { ArrowRight, Check, ChevronDown, ChevronUp, Clock, Database, Shield, Sparkles } from 'lucide-react';
 
 const NAVY = '#050A44';
 const NAVY_70 = 'rgba(5,10,68,0.70)';
@@ -76,6 +77,17 @@ export interface RecommendationCardProps {
   // --- Sources card --------------------------------------------------------
   sources: readonly string[];
   sourcesLabel?: string;        // default: 'Sources used'
+
+  // --- Dig deeper bridge ---------------------------------------------------
+  // Optional bridge block sitting inside the card between Next actions and
+  // the Conditions+Sources row. Invites the user to pressure-test the
+  // recommendation in Ask Ariya before committing. Hidden when absent.
+  digDeeper?: {
+    eyebrow: string;       // default "Dig deeper"
+    copy: string;
+    ctaLabel: string;      // default "Open in Ask Ariya"
+    to: string;            // route, including any query params
+  };
 
   // --- Footer --------------------------------------------------------------
   actions?: readonly RecommendationAction[];
@@ -387,6 +399,77 @@ const priorityPillStyle: CSSProperties = {
   textTransform: 'uppercase',
 };
 
+// --- Dig deeper bridge ----------------------------------------------------
+//
+// Teal-tinted container sitting inside its own section padding. 60/40 flex
+// inside; wraps to a stack when the section narrows below ~540 px so the
+// CTA never collides with the copy.
+
+const BRIDGE_BG = '#F0FDFA';   // teal-50
+const BRIDGE_BORDER = '#99F6E4'; // teal-200
+
+const bridgeBoxStyle: CSSProperties = {
+  background: BRIDGE_BG,
+  border: `1px solid ${BRIDGE_BORDER}`,
+  borderRadius: 12,
+  padding: '18px 20px',
+  display: 'flex',
+  alignItems: 'center',
+  gap: 24,
+  flexWrap: 'wrap',
+};
+
+const bridgeLeftStyle: CSSProperties = {
+  flex: '1 1 60%',
+  minWidth: 320,
+  display: 'flex',
+  flexDirection: 'column',
+  gap: 6,
+};
+
+const bridgeRightStyle: CSSProperties = {
+  flex: '0 1 40%',
+  minWidth: 180,
+  display: 'flex',
+  justifyContent: 'flex-end',
+};
+
+const bridgeEyebrowRowStyle: CSSProperties = {
+  display: 'inline-flex',
+  alignItems: 'center',
+  gap: 6,
+  fontSize: 11,
+  fontWeight: 800,
+  letterSpacing: '0.07em',
+  textTransform: 'uppercase',
+  color: BLUE,
+};
+
+const bridgeCopyStyle: CSSProperties = {
+  fontSize: 14,
+  fontWeight: 500,
+  color: NAVY,
+  lineHeight: 1.5,
+  margin: 0,
+};
+
+const bridgePrimaryBtnStyle: CSSProperties = {
+  display: 'inline-flex',
+  alignItems: 'center',
+  gap: 6,
+  height: 38,
+  padding: '0 16px',
+  borderRadius: 10,
+  background: BLUE,
+  border: `1px solid ${BLUE}`,
+  color: '#ffffff',
+  fontSize: 13,
+  fontWeight: 700,
+  cursor: 'pointer',
+  fontFamily: 'inherit',
+  whiteSpace: 'nowrap',
+};
+
 // --- Conditions + sources bottom grid -------------------------------------
 //
 // Two columns inside the same single card, separated by a vertical hairline
@@ -571,6 +654,8 @@ export function RecommendationCard({
   // sources
   sources,
   sourcesLabel = 'Sources used',
+  // dig deeper bridge
+  digDeeper,
   // footer
   actions = [],
   footerMeta,
@@ -583,6 +668,7 @@ export function RecommendationCard({
   const [collapsed, setCollapsed] = useState(defaultCollapsed);
   const showBody = !collapsed;
   const isFull = variant === 'full';
+  const navigate = useNavigate();
 
   // When `seamless`, drop the outer card chrome so the component sits
   // flush inside its parent container.
@@ -720,6 +806,31 @@ export function RecommendationCard({
             ))}
           </ol>
         </article>
+      )}
+
+      {/* ─── Dig deeper bridge ───────────────────────────────────── */}
+      {showBody && digDeeper && (
+        <section style={{ ...cardStyle, ...sectionTopDividerStyle }} aria-label={digDeeper.eyebrow}>
+          <div style={bridgeBoxStyle}>
+            <div style={bridgeLeftStyle}>
+              <span style={bridgeEyebrowRowStyle}>
+                <Sparkles size={14} strokeWidth={2} color={BLUE} aria-hidden />
+                {digDeeper.eyebrow}
+              </span>
+              <p style={bridgeCopyStyle}>{digDeeper.copy}</p>
+            </div>
+            <div style={bridgeRightStyle}>
+              <button
+                type="button"
+                onClick={() => navigate(digDeeper.to)}
+                style={bridgePrimaryBtnStyle}
+              >
+                {digDeeper.ctaLabel}
+                <ArrowRight size={14} strokeWidth={2.5} aria-hidden />
+              </button>
+            </div>
+          </div>
+        </section>
       )}
 
       {/* ─── Conditions + Sources bottom row ─────────────────────── */}

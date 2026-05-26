@@ -278,6 +278,11 @@ export default function AskAriya() {
   const [draft, setDraft] = useState('');
   const [modalOpen, setModalOpen] = useState(false);
   const [logDraft, setLogDraft] = useState<LogDecisionDraft | null>(null);
+  // Surfaced when the user arrives via ?q={id} but the id has no matching
+  // exchange yet — typically because the matching exchange is scheduled to
+  // land in a later stage. We clear the URL param and leave the empty state
+  // visible with a small note above the suggestions.
+  const [interimNote, setInterimNote] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
   const navigate = useNavigate();
 
@@ -317,13 +322,17 @@ export default function AskAriya() {
     const qText = searchParams.get('question');
     if (qId) {
       const ex = askAriya.find((a) => a.id === qId);
+      const next = new URLSearchParams(searchParams);
+      next.delete('q');
+      setSearchParams(next, { replace: true });
       if (ex) {
         send('', ex);
-        const next = new URLSearchParams(searchParams);
-        next.delete('q');
-        setSearchParams(next, { replace: true });
-        return;
+      } else {
+        // Unmatched id — surface the interim note and let the user pick
+        // from the suggestions below.
+        setInterimNote(true);
       }
+      return;
     }
     if (qText) {
       send(decodeURIComponent(qText));
@@ -402,6 +411,19 @@ export default function AskAriya() {
       {/* Empty state: hero card + follow-ups grid */}
       {showEmptyState && heroExchange && (
         <>
+          {interimNote && (
+            <p
+              style={{
+                fontSize: 13,
+                color: NAVY_70,
+                fontStyle: 'italic',
+                margin: 0,
+              }}
+              role="status"
+            >
+              The question you came from is not yet available. Pick one below to continue.
+            </p>
+          )}
           <button
             type="button"
             onClick={() => send('', heroExchange)}

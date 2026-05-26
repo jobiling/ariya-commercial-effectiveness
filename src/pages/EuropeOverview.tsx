@@ -464,6 +464,7 @@ export default function EuropeOverview() {
           nextActionsMeta={overview.recommendation.nextActionsMeta}
           sources={overview.recommendation.sources}
           footerMeta={overview.recommendation.footerMeta}
+          digDeeper={overview.recommendation.digDeeper}
           seamless
           collapsible
           defaultCollapsed

@@ -171,6 +171,14 @@ export const overview = {
       'Finance',
       'Market context',
     ],
+    // Hinge into Ask Ariya. The exchange id is wired now so the bridge works
+    // the moment the matching 60-day-checkpoint exchange ships.
+    digDeeper: {
+      eyebrow: 'Dig deeper',
+      copy: 'Before you commit: see the 60-day checkpoint, the success and failure paths, and the next decision waiting at the other end.',
+      ctaLabel: 'Open in Ask Ariya',
+      to: '/ask-ariya?q=italy-60d-checkpoint',
+    },
     footerMeta: 'Reversible · revisit at 60 days',
   },
   marketsRequiringAttention: [
@@ -1480,7 +1488,7 @@ export const sourceConfidence: DataSource[] = [
 
 export const demoSteps = [
   { route: '/', label: 'Europe Overview',
-    hint: 'Italy and Germany are flagged as priority markets. The Recommendation Card is the anchor, not the scatter.' },
+    hint: 'Italy and Germany are flagged as priority markets. The Recommendation Card is the anchor. The Dig Deeper bridge at the bottom of the card connects this recommendation to the 60-day checkpoint view in Ask Ariya.' },
   { route: '/market-performance', label: 'Market Performance',
     hint: 'Italy performance is shown alongside investment, field activity, and post-training follow-up.' },
   { route: '/investment-radar', label: 'Investment Radar',
