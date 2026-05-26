@@ -986,8 +986,22 @@ export const scenarioPlanner = {
 export interface AriyaExchange {
   id: string;
   question: string;
-  // Structured response, rendered via the RecommendationCard variant in the chat surface.
+  // Visual weight of the answer once it is drafted. `full` renders the rich
+  // AssemblyAnswer; `compact` is the lighter variant. Hero defaults to `full`.
+  weight?: 'full' | 'compact';
+  // Used by Tier 3 ("More questions, by source") rows. The id matches one of
+  // overview.assemblySources (e.g. 'market-perf', 'crm', 'training',
+  // 'segmentation', 'finance', 'market-context'). The empty state renders
+  // the source name on the left of the row.
+  boundSource?: string;
+  // Structured response, rendered via AssemblyAnswer or PlaceholderAnswer in
+  // the chat surface depending on the `placeholder` flag.
   response: {
+    // When true, the chat surface renders the PlaceholderAnswer component
+    // (recognised-question copy + "Ask the hero question" link) instead of
+    // the full AssemblyAnswer. Used for non-hero exchanges whose copy has
+    // not been drafted yet.
+    placeholder?: boolean;
     recommendedAction: string;
     reasoning: string;
     scenarioView: string;
@@ -1014,14 +1028,31 @@ export interface AriyaExchange {
   };
 }
 
+// Boilerplate response for not-yet-drafted exchanges. The AskAriya page
+// detects `response.placeholder === true` and renders the PlaceholderAnswer
+// component instead of fabricating an answer. Individual exchanges flip the
+// flag off as their copy gets drafted in subsequent passes.
+const PLACEHOLDER_RESPONSE: AriyaExchange['response'] = {
+  placeholder: true,
+  recommendedAction: '',
+  reasoning: '',
+  scenarioView: '',
+  requiredConditions: [],
+  recommendedNextActions: [],
+  sources: [],
+  confidence: 'Medium',
+  confidenceRationale: '',
+};
+
 export const askAriya: AriyaExchange[] = [
   {
     // Hero exchange — the one place where the full assembly chain plays out
     // on screen, source by source, reasoning row by reasoning row. Other
-    // pages link here via /ask-ariya?q=black-box-italy when their compact
-    // recommendation card lacks the room to unpack the full chain.
-    id: 'black-box-italy',
-    question: 'What does the training black box look like for Xeomin in Italy right now?',
+    // pages link here via /ask-ariya?q=italy-60d-checkpoint, and the Dig
+    // Deeper bridge on Europe Overview routes to the same id.
+    id: 'italy-60d-checkpoint',
+    question: "If we run the Italy sprint, what does the 60-day checkpoint look like and what's the next decision?",
+    weight: 'full',
     response: {
       recommendedAction:
         'Fix follow-up cadence on the Italy high-potential dermatologist cohort before reducing Germany spend.',
@@ -1068,183 +1099,96 @@ export const askAriya: AriyaExchange[] = [
       ],
     },
   },
+  // ─────────────────────────────────────────────────────────────────────
+  // Non-hero exchanges (Tier 1, Tier 2, Tier 3). Response copy for these
+  // is intentionally left as placeholder in v1: the AskAriya page detects
+  // `response.placeholder === true` and renders the PlaceholderAnswer
+  // component instead of a fake assembled answer. Copy is drafted one
+  // exchange at a time in subsequent passes.
+  // ─────────────────────────────────────────────────────────────────────
+
+  // Tier 1 · Pressure-test the recommendation: Italy follow-up sprint
   {
-    id: 'reallocate-de-it',
-    question:
-      "If we shift 10% of Germany's marketing budget to Italy post-training activation for Xeomin, what is the directional impact?",
-    response: {
-      recommendedAction:
-        'Sequence Italy follow-up before any Germany reduction. The reallocation itself is a 60-days-later question, not a now question.',
-      reasoning:
-        'Italy shows evidence of higher potential response among trained HCPs when follow-up occurs, but follow-up discipline is inconsistent. Investment Radar points to lower-response marketing activities in Germany as the candidate pool for any future reallocation, not field force or priority account coverage.',
-      scenarioView:
-        'Directional net impact appears positive under the assumption that Italy improves follow-up coverage among high-potential trained HCPs within 60 days. Confidence is medium because account-level linkage and market-level confounders require validation.',
-      requiredConditions: [
-        'High-potential trained HCP list confirmed',
-        'Follow-up cadence defined',
-        'National sales manager owns execution',
-        'First-line managers track post-training engagement',
-        'Germany reduction limited to lower-response activities',
-        'Review after 60 days',
-      ],
-      recommendedNextActions: [
-        { action: 'Run Italy high-potential HCP follow-up sprint', owner: 'Italy NSM', timeframe: '60 days', priority: true },
-        { action: 'Protect Germany priority account coverage', owner: 'Germany NSM', timeframe: 'Immediate', priority: true },
-        { action: 'Reassess after 60 days', owner: 'Europe Leadership', timeframe: '60 days' },
-        { action: 'Decide whether to expand reallocation', owner: 'Europe Leadership', timeframe: 'Q3 planning' },
-      ],
-      sources: ['Market performance', 'CRM activity', 'Training participation and spend', 'HCP segmentation', 'Brand plan assumptions', 'Finance · spend'],
-      confidence: 'Medium',
-      confidenceRationale: 'Data completeness is moderate. Account-level linkage and market-level confounders require validation. Treat as directional, not deterministic.',
-      linksTo: [
-        { label: 'Open in Scenario Planner', route: '/scenario-planner' },
-        { label: 'Log this decision', route: '/decision-log?from=ask-ariya' },
-      ],
-      pill: "Reallocate, don't shift",
-      whyBullets: [
-        {
-          lead: 'Italy upside is conditional.',
-          body: 'Trained HCPs show higher potential response, but only where follow-up actually occurs. Follow-up discipline today is inconsistent.',
-        },
-        {
-          lead: 'Germany downside is real.',
-          body: 'Net impact is already under pressure. Cutting spend without ring-fencing priority accounts creates downside risk.',
-        },
-        {
-          lead: 'Net direction is positive',
-          body: 'under the assumption Italy lifts follow-up coverage on high-potential trained HCPs within 60 days.',
-        },
-      ],
-      headerMeta: 'Generated for Europe Leadership · 21 May',
-      nextActionsMeta: '4 steps · spans to Q3 planning',
-      footerMeta: 'Reversible · revisit at 60 days',
-    },
+    id: 'italy-downside-60d',
+    question: "What's the downside if Italy follow-up doesn't improve at 60 days?",
+    weight: 'full',
+    response: PLACEHOLDER_RESPONSE,
   },
   {
-    id: 'losing-most-value',
-    question: 'Where are we losing the most commercial value across Europe?',
-    response: {
-      recommendedAction:
-        'Focus first on the Italy follow-up gap. It is the single largest correctable drag on Xeomin Europe.',
-      reasoning:
-        'Italy 60-day follow-up sits at 41% vs the 65% European benchmark. The gap maps to ~47 high-potential trained HCPs with no recent field contact.',
-      scenarioView:
-        'Closing this gap is operationally bounded and within the existing investment envelope. Directional impact is contained to Italy in the short term.',
-      requiredConditions: [
-        'High-potential trained HCP list confirmed',
-        '60-day follow-up cadence committed',
-        'First-line manager weekly tracking',
-      ],
-      recommendedNextActions: [
-        { action: 'Launch Italy follow-up sprint', owner: 'Italy NSM', timeframe: 'Within 10 days' },
-        { action: 'Confirm trained HCP list', owner: 'Italy commercial ops', timeframe: 'Within 5 days' },
-      ],
-      sources: ['CRM activity', 'Training participation and spend', 'HCP segmentation'],
-      confidence: 'Medium',
-      confidenceRationale: 'Diagnosis is well-supported. Magnitude of recovered revenue is directional.',
-      linksTo: [
-        { label: 'Open Execution Signals', route: '/execution-signals' },
-      ],
-    },
+    id: 'germany-pool-sizing',
+    question: 'How much could we reallocate from Germany without hurting performance?',
+    weight: 'full',
+    response: PLACEHOLDER_RESPONSE,
   },
   {
-    id: 'best-incremental',
-    question: 'Which markets show the best incremental investment opportunity?',
-    response: {
-      recommendedAction:
-        'Spain and Italy are the two strongest incremental candidates, for opposite reasons. Spain on momentum, Italy on closing the execution gap.',
-      reasoning:
-        'Spain delivers growth above plan at moderate investment intensity, suggesting a higher marginal yield on additional spend. Italy carries weak execution discipline against existing spend, so the highest-yield move is operational, not financial.',
-      scenarioView:
-        'A targeted Spain incremental is likely additive. An Italy operational fix is likely the higher-leverage move within the current envelope.',
-      requiredConditions: [
-        'Spain Q2 momentum confirmed before incremental',
-        'Italy execution baseline established before expansion',
-      ],
-      recommendedNextActions: [
-        { action: 'Confirm Spain Q1 to Q2 momentum', owner: 'Spain NSM', timeframe: '4 weeks' },
-        { action: 'Italy follow-up sprint as zero-cost incremental', owner: 'Italy NSM', timeframe: '60 days' },
-      ],
-      sources: ['Market performance', 'Investment Radar', 'CRM activity'],
-      confidence: 'Medium',
-      confidenceRationale: 'Cross-market comparisons are directional given different brand and segment mixes.',
-    },
+    id: 'italy-selection-alternative',
+    question: 'Why focus on follow-up instead of revisiting which Italian HCPs we trained?',
+    weight: 'full',
+    response: PLACEHOLDER_RESPONSE,
+  },
+
+  // Tier 2 · Other open decisions
+  {
+    id: 'spain-incremental',
+    question: "Is Spain's momentum sustainable, and when should we consider an incremental there?",
+    weight: 'compact',
+    response: PLACEHOLDER_RESPONSE,
   },
   {
-    id: 'right-hcps-italy',
-    question: 'Are we selecting the right HCPs for Xeomin injection training in Italy?',
-    response: {
-      recommendedAction:
-        'Selection is broadly defensible. The break point is post-training execution, not the selection criteria.',
-      reasoning:
-        '64% of Italian high-potential dermatologists are trained, which is in line with the European benchmark. The drop happens after training: 38% follow-up within 60 days vs 72% in Germany for the equivalent segment.',
-      scenarioView:
-        'Improving selection at the margin is a smaller lever than improving follow-up. Address execution first, revisit selection criteria after the sprint.',
-      requiredConditions: [
-        'Italy follow-up sprint runs as planned',
-        'Selection criteria reviewed at the next planning cycle',
-      ],
-      recommendedNextActions: [
-        { action: 'Run Italy follow-up sprint', owner: 'Italy NSM', timeframe: '60 days' },
-        { action: 'Plan selection criteria review for Q3', owner: 'Italy commercial ops, BU head', timeframe: 'Q3 planning' },
-      ],
-      sources: ['Training participation', 'HCP segmentation', 'CRM activity'],
-      confidence: 'Medium',
-      confidenceRationale: 'Segment-level data is reliable. Individual selection edge cases not validated here.',
-      linksTo: [
-        { label: 'Open Customer and Account Focus', route: '/customer-account-focus' },
-      ],
-    },
+    id: 'germany-may14-update',
+    question: "What's changed on the Germany picture since the May 14 decision to hold?",
+    weight: 'compact',
+    response: PLACEHOLDER_RESPONSE,
   },
   {
-    id: 'italy-nsm-30d',
-    question: 'What should the Italy national sales manager do in the next 30 days?',
-    response: {
-      recommendedAction:
-        'Three actions, in order: confirm the high-potential trained HCP list, launch the follow-up sprint, install a weekly first-line manager rhythm.',
-      reasoning:
-        'These three actions are the operational chain that turns existing training investment into commercial impact within the current envelope.',
-      scenarioView:
-        'A 30-day window is enough to demonstrate change in CRM follow-up signal. Commercial impact signal requires the full 60-day window.',
-      requiredConditions: [
-        'Italy commercial ops confirms HCP list within 5 days',
-        'First-line managers have territory ownership',
-      ],
-      recommendedNextActions: [
-        { action: 'Confirm high-potential trained HCP list', owner: 'Italy commercial ops', timeframe: 'Within 5 days' },
-        { action: 'Launch follow-up sprint', owner: 'Italy NSM', timeframe: 'Within 10 days' },
-        { action: 'Install weekly tracking', owner: 'Italy NSM', timeframe: 'Within 14 days' },
-      ],
-      sources: ['CRM activity', 'Training participation', 'Country plan'],
-      confidence: 'High',
-      confidenceRationale: 'Operational actions are within existing accountability and timeframes.',
-    },
+    id: 'kol-italy-germany',
+    question: 'Are the KOL engagement plans for Italy and Germany still on track?',
+    weight: 'compact',
+    response: PLACEHOLDER_RESPONSE,
+  },
+
+  // Tier 3 · More questions, by source
+  {
+    id: 'src-market-slipping',
+    question: 'Which Xeomin markets are slipping fastest right now?',
+    boundSource: 'market-perf',
+    weight: 'compact',
+    response: PLACEHOLDER_RESPONSE,
   },
   {
-    id: 'germany-net-impact',
-    question: "Why is Germany's net commercial impact under pressure despite the highest spend in Europe?",
-    response: {
-      recommendedAction:
-        'Treat Germany as a yield problem, not a coverage problem. The candidate reallocation pool is in lower-response marketing activities, not in field force or priority account coverage.',
-      reasoning:
-        'Germany field activity is above expected and priority account target coverage sits at 78%. The signal pointing to weakness is marketing-campaign target overlap at 49%, well below the European average.',
-      scenarioView:
-        'A targeted reduction in lower-response marketing activities is the safest source for any reallocation. Reducing field force or coverage on priority accounts is not advisable.',
-      requiredConditions: [
-        'Lower-response marketing activities identified by Investment Radar proxy KPI',
-        'Priority account coverage explicitly protected',
-      ],
-      recommendedNextActions: [
-        { action: 'List lower-response marketing activities for Germany', owner: 'Germany BU lead', timeframe: 'Within 10 days' },
-        { action: 'Define protected priority account list', owner: 'Germany NSM', timeframe: 'Within 10 days' },
-      ],
-      sources: ['Investment Radar', 'CRM activity', 'Finance · spend'],
-      confidence: 'Medium',
-      confidenceRationale: 'Diagnosis is well-supported. Magnitude of reallocation effect is directional.',
-      linksTo: [
-        { label: 'Open Investment Radar', route: '/investment-radar' },
-      ],
-    },
+    id: 'src-crm-followup',
+    question: 'Where is post-training follow-up discipline weakest across Europe?',
+    boundSource: 'crm',
+    weight: 'compact',
+    response: PLACEHOLDER_RESPONSE,
+  },
+  {
+    id: 'src-training-misfit',
+    question: 'Are we training the right HCPs everywhere we run programs?',
+    boundSource: 'training',
+    weight: 'compact',
+    response: PLACEHOLDER_RESPONSE,
+  },
+  {
+    id: 'src-segmentation-coverage',
+    question: 'Which high-potential segments are most under-covered today?',
+    boundSource: 'segmentation',
+    weight: 'compact',
+    response: PLACEHOLDER_RESPONSE,
+  },
+  {
+    id: 'src-finance-misalignment',
+    question: 'Where is commercial investment intensity most out of line with growth?',
+    boundSource: 'finance',
+    weight: 'compact',
+    response: PLACEHOLDER_RESPONSE,
+  },
+  {
+    id: 'src-context-signals',
+    question: 'Are any external signals likely to shift the Italy or Germany picture in the next quarter?',
+    boundSource: 'market-context',
+    weight: 'compact',
+    response: PLACEHOLDER_RESPONSE,
   },
 ];
 

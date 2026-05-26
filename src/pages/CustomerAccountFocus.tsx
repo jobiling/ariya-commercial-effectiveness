@@ -735,7 +735,7 @@ export default function CustomerAccountFocus() {
                   />
                   <button
                     type="button"
-                    onClick={() => navigate('/ask-ariya?q=black-box-italy')}
+                    onClick={() => navigate('/ask-ariya?q=italy-60d-checkpoint')}
                     style={{
                       alignSelf: 'flex-start',
                       display: 'inline-flex',

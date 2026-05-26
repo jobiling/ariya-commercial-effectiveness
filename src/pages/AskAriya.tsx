@@ -5,6 +5,7 @@ import { PageHeader } from '../components/layout/PageHeader';
 import {
   AssemblyAnswer,
   LogDecisionModal,
+  PlaceholderAnswer,
   dateFromToday,
 } from '../components/decision';
 import type { LogDecisionDraft } from '../components/decision';
@@ -23,7 +24,48 @@ const NAVY_06 = 'rgba(5,10,68,0.06)';
 const CANVAS = '#F7F8FC';
 const BLUE = '#0055BB';
 
-const HERO_EXCHANGE_ID = 'black-box-italy';
+const HERO_EXCHANGE_ID = 'italy-60d-checkpoint';
+
+// Tier 1, Tier 2, Tier 3 — the empty state layout
+// ───────────────────────────────────────────────────────────────────────────
+
+const TIER_1_IDS = [
+  'italy-downside-60d',
+  'germany-pool-sizing',
+  'italy-selection-alternative',
+] as const;
+const TIER_1_LABEL = 'Pressure-test the recommendation: Italy follow-up sprint';
+const TIER_1_SUBTITLE = 'Before you commit, push on the assumptions.';
+
+const TIER_2_IDS = [
+  'spain-incremental',
+  'germany-may14-update',
+  'kol-italy-germany',
+] as const;
+const TIER_2_LABEL = 'Other open decisions';
+const TIER_2_SUBTITLE = 'Three decisions currently live in the Decision Log.';
+
+const TIER_3_IDS = [
+  'src-market-slipping',
+  'src-crm-followup',
+  'src-training-misfit',
+  'src-segmentation-coverage',
+  'src-finance-misalignment',
+  'src-context-signals',
+] as const;
+const TIER_3_LABEL = 'More questions, by source';
+const TIER_3_SUBTITLE = 'Each of the six sources can be interrogated on its own.';
+
+// Maps boundSource id (matches overview.assemblySources) to the source label
+// rendered on the left side of each Tier 3 row.
+const SOURCE_LABELS: Record<string, string> = {
+  'market-perf': 'Market performance',
+  'crm': 'CRM activity',
+  'training': 'Training participation and spend',
+  'segmentation': 'HCP segmentation',
+  'finance': 'Finance',
+  'market-context': 'Market context',
+};
 
 // ───────────────────────────────────────────────────────────────────────────
 // Layout
@@ -160,13 +202,6 @@ const heroLinkStyle: CSSProperties = {
 
 // Follow-ups grid ──────────────────────────────────────────────
 
-const followUpsLabelStyle: CSSProperties = {
-  fontSize: 13,
-  color: NAVY_55,
-  fontWeight: 600,
-  marginBottom: 10,
-};
-
 const followUpsGridStyle: CSSProperties = {
   display: 'grid',
   gridTemplateColumns: 'repeat(2, minmax(0, 1fr))',
@@ -190,6 +225,75 @@ const followUpCardStyle: CSSProperties = {
   color: NAVY,
   lineHeight: 1.4,
   transition: 'transform 150ms ease, box-shadow 150ms ease, border-color 150ms ease',
+};
+
+// Tier sections ────────────────────────────────────────────────
+
+const tierSectionStyle: CSSProperties = {
+  display: 'flex',
+  flexDirection: 'column',
+  gap: 12,
+};
+
+const tierHeaderStyle: CSSProperties = {
+  display: 'flex',
+  flexDirection: 'column',
+  gap: 2,
+};
+
+const tierTitleStyle: CSSProperties = {
+  fontSize: 15,
+  fontWeight: 700,
+  color: NAVY,
+  margin: 0,
+  lineHeight: 1.35,
+};
+
+const tierSubtitleStyle: CSSProperties = {
+  fontSize: 12,
+  color: NAVY_55,
+  margin: 0,
+  lineHeight: 1.4,
+};
+
+// Tier 3 rows — source label on the left, question on the right
+const tier3ListStyle: CSSProperties = {
+  display: 'flex',
+  flexDirection: 'column',
+  gap: 8,
+  listStyle: 'none',
+  margin: 0,
+  padding: 0,
+};
+
+const tier3RowStyle: CSSProperties = {
+  display: 'grid',
+  gridTemplateColumns: '220px 1fr auto',
+  alignItems: 'center',
+  gap: 16,
+  background: '#ffffff',
+  border: `1px solid ${NAVY_12}`,
+  borderRadius: 10,
+  padding: '12px 14px',
+  cursor: 'pointer',
+  textAlign: 'left',
+  fontFamily: 'inherit',
+  width: '100%',
+  transition: 'transform 150ms ease, box-shadow 150ms ease, border-color 150ms ease',
+};
+
+const tier3SourceStyle: CSSProperties = {
+  fontSize: 12,
+  fontWeight: 700,
+  color: NAVY,
+  lineHeight: 1.35,
+};
+
+const tier3QuestionStyle: CSSProperties = {
+  fontSize: 13,
+  fontWeight: 500,
+  color: NAVY,
+  lineHeight: 1.4,
 };
 
 // Conversation surface ─────────────────────────────────────────
@@ -244,14 +348,18 @@ function matchQuestion(input: string): AriyaExchange | undefined {
   if (!q) return undefined;
   let hit = askAriya.find((a) => a.question.toLowerCase().includes(q));
   if (hit) return hit;
+  // Hero only — broad-match anything that smells like the Italy 60-day
+  // checkpoint question. Tier 1-3 exchanges are placeholders in v1; we
+  // don't bother free-text matching them.
   const keyPhrases: { id: string; phrases: string[] }[] = [
-    { id: 'black-box-italy', phrases: ['black box', 'training black box', 'italy black', 'xeomin italy'] },
-    { id: 'reallocate-de-it', phrases: ['reallocate', 'shift', 'germany budget', 'italy activation', '10%'] },
-    { id: 'losing-most-value', phrases: ['losing', 'most value', 'commercial value', 'biggest drag'] },
-    { id: 'best-incremental', phrases: ['incremental', 'opportunity', 'invest more'] },
-    { id: 'right-hcps-italy', phrases: ['right hcp', 'selection', 'italian', 'training'] },
-    { id: 'italy-nsm-30d', phrases: ['italy nsm', '30 days', 'next 30'] },
-    { id: 'germany-net-impact', phrases: ['germany net', 'pressure', 'highest spend'] },
+    {
+      id: 'italy-60d-checkpoint',
+      phrases: [
+        '60-day', '60 day', 'sixty day', 'checkpoint',
+        'italy sprint', 'follow-up sprint', 'follow up sprint',
+        'black box', 'training black box',
+      ],
+    },
   ];
   for (const { id, phrases } of keyPhrases) {
     if (phrases.some((p) => q.includes(p))) {
@@ -265,6 +373,36 @@ function matchQuestion(input: string): AriyaExchange | undefined {
 // ───────────────────────────────────────────────────────────────────────────
 // Page
 // ───────────────────────────────────────────────────────────────────────────
+
+// Shared chip used by Tier 1 / Tier 2 grids and by the free-text fallback.
+function FollowUpChip({
+  exchange,
+  onSend,
+}: {
+  exchange: AriyaExchange;
+  onSend: (ex: AriyaExchange) => void;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={() => onSend(exchange)}
+      style={followUpCardStyle}
+      onMouseEnter={(e) => {
+        e.currentTarget.style.transform = 'translateY(-1px)';
+        e.currentTarget.style.boxShadow = '0 4px 12px rgba(5,10,68,0.06)';
+        e.currentTarget.style.borderColor = 'rgba(0,85,187,0.35)';
+      }}
+      onMouseLeave={(e) => {
+        e.currentTarget.style.transform = 'translateY(0)';
+        e.currentTarget.style.boxShadow = 'none';
+        e.currentTarget.style.borderColor = NAVY_12;
+      }}
+    >
+      <span style={{ flex: 1, minWidth: 0 }}>{exchange.question}</span>
+      <ArrowRight size={14} color={BLUE} strokeWidth={2.5} style={{ flexShrink: 0 }} />
+    </button>
+  );
+}
 
 interface ChatMessage {
   id: string;
@@ -290,8 +428,25 @@ export default function AskAriya() {
     () => askAriya.find((a) => a.id === HERO_EXCHANGE_ID),
     [],
   );
-  const followUps = useMemo(
-    () => askAriya.filter((a) => a.id !== HERO_EXCHANGE_ID),
+  const tier1 = useMemo(
+    () =>
+      TIER_1_IDS.map((id) => askAriya.find((a) => a.id === id)).filter(
+        (a): a is AriyaExchange => Boolean(a),
+      ),
+    [],
+  );
+  const tier2 = useMemo(
+    () =>
+      TIER_2_IDS.map((id) => askAriya.find((a) => a.id === id)).filter(
+        (a): a is AriyaExchange => Boolean(a),
+      ),
+    [],
+  );
+  const tier3 = useMemo(
+    () =>
+      TIER_3_IDS.map((id) => askAriya.find((a) => a.id === id)).filter(
+        (a): a is AriyaExchange => Boolean(a),
+      ),
     [],
   );
 
@@ -448,31 +603,69 @@ export default function AskAriya() {
             </div>
           </button>
 
-          <section>
-            <div style={followUpsLabelStyle}>Or ask</div>
+          {/* Tier 1 · Pressure-test */}
+          <section style={tierSectionStyle}>
+            <div style={tierHeaderStyle}>
+              <h3 style={tierTitleStyle}>{TIER_1_LABEL}</h3>
+              <p style={tierSubtitleStyle}>{TIER_1_SUBTITLE}</p>
+            </div>
             <div style={followUpsGridStyle}>
-              {followUps.map((ex) => (
-                <button
-                  key={ex.id}
-                  type="button"
-                  onClick={() => send('', ex)}
-                  style={followUpCardStyle}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.transform = 'translateY(-1px)';
-                    e.currentTarget.style.boxShadow = '0 4px 12px rgba(5,10,68,0.06)';
-                    e.currentTarget.style.borderColor = 'rgba(0,85,187,0.35)';
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.transform = 'translateY(0)';
-                    e.currentTarget.style.boxShadow = 'none';
-                    e.currentTarget.style.borderColor = NAVY_12;
-                  }}
-                >
-                  <span style={{ flex: 1, minWidth: 0 }}>{ex.question}</span>
-                  <ArrowRight size={14} color={BLUE} strokeWidth={2.5} style={{ flexShrink: 0 }} />
-                </button>
+              {tier1.map((ex) => (
+                <FollowUpChip key={ex.id} exchange={ex} onSend={(e) => send('', e)} />
               ))}
             </div>
+          </section>
+
+          {/* Tier 2 · Other open decisions */}
+          <section style={tierSectionStyle}>
+            <div style={tierHeaderStyle}>
+              <h3 style={tierTitleStyle}>{TIER_2_LABEL}</h3>
+              <p style={tierSubtitleStyle}>{TIER_2_SUBTITLE}</p>
+            </div>
+            <div style={followUpsGridStyle}>
+              {tier2.map((ex) => (
+                <FollowUpChip key={ex.id} exchange={ex} onSend={(e) => send('', e)} />
+              ))}
+            </div>
+          </section>
+
+          {/* Tier 3 · More questions, by source */}
+          <section style={tierSectionStyle}>
+            <div style={tierHeaderStyle}>
+              <h3 style={tierTitleStyle}>{TIER_3_LABEL}</h3>
+              <p style={tierSubtitleStyle}>{TIER_3_SUBTITLE}</p>
+            </div>
+            <ul style={tier3ListStyle}>
+              {tier3.map((ex) => {
+                const sourceLabel =
+                  ex.boundSource && SOURCE_LABELS[ex.boundSource]
+                    ? SOURCE_LABELS[ex.boundSource]
+                    : 'Source';
+                return (
+                  <li key={ex.id}>
+                    <button
+                      type="button"
+                      onClick={() => send('', ex)}
+                      style={tier3RowStyle}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.transform = 'translateY(-1px)';
+                        e.currentTarget.style.boxShadow = '0 4px 12px rgba(5,10,68,0.06)';
+                        e.currentTarget.style.borderColor = 'rgba(0,85,187,0.35)';
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.transform = 'translateY(0)';
+                        e.currentTarget.style.boxShadow = 'none';
+                        e.currentTarget.style.borderColor = NAVY_12;
+                      }}
+                    >
+                      <span style={tier3SourceStyle}>{sourceLabel}</span>
+                      <span style={tier3QuestionStyle}>{ex.question}</span>
+                      <ArrowRight size={14} color={BLUE} strokeWidth={2.5} style={{ flexShrink: 0 }} />
+                    </button>
+                  </li>
+                );
+              })}
+            </ul>
           </section>
         </>
       )}
@@ -486,27 +679,28 @@ export default function AskAriya() {
                 <div style={userBubbleStyle}>{m.question}</div>
               </div>
               {m.exchange ? (
-                <AssemblyAnswer
-                  exchange={m.exchange}
-                  onLogDecision={openLogModal}
-                  onNavigate={navigate}
-                />
+                m.exchange.response.placeholder ? (
+                  // Non-hero exchange in v1: copy not yet drafted, render the
+                  // recognised-question placeholder with a hook back to the
+                  // hero so the demo stays on its rails.
+                  <PlaceholderAnswer
+                    onAskHero={() => heroExchange && send('', heroExchange)}
+                  />
+                ) : (
+                  <AssemblyAnswer
+                    exchange={m.exchange}
+                    onLogDecision={openLogModal}
+                    onNavigate={navigate}
+                  />
+                )
               ) : (
                 <div>
                   <p style={fallbackNoteStyle}>
                     Ariya has prepared assembled answers for these questions today. Ask one of them, or rephrase yours to align.
                   </p>
                   <div style={followUpsGridStyle}>
-                    {(heroExchange ? [heroExchange, ...followUps] : followUps).slice(0, 4).map((ex) => (
-                      <button
-                        key={ex.id}
-                        type="button"
-                        onClick={() => send('', ex)}
-                        style={followUpCardStyle}
-                      >
-                        <span style={{ flex: 1, minWidth: 0 }}>{ex.question}</span>
-                        <ArrowRight size={14} color={BLUE} strokeWidth={2.5} style={{ flexShrink: 0 }} />
-                      </button>
+                    {(heroExchange ? [heroExchange, ...tier1] : tier1).slice(0, 4).map((ex) => (
+                      <FollowUpChip key={ex.id} exchange={ex} onSend={(e) => send('', e)} />
                     ))}
                   </div>
                 </div>

@@ -23,3 +23,6 @@ export type {
 
 export { AssemblyAnswer } from './AssemblyAnswer';
 export type { AssemblyAnswerProps } from './AssemblyAnswer';
+
+export { PlaceholderAnswer } from './PlaceholderAnswer';
+export type { PlaceholderAnswerProps } from './PlaceholderAnswer';
