@@ -167,32 +167,40 @@ const cardStyle: CSSProperties = {
   boxShadow: `0 1px 2px ${NAVY_04}`,
 };
 
-// Canonical header hierarchy (matches Market Performance):
-//   Level 1: page title (gradient, handled by PageHeader)
-//   Level 2: section grouping label — 11px / 800 / uppercase / NAVY_55
-//            (optional, sits OUTSIDE cards above a cluster of cards)
-//   Level 3: card title — 14px / 600 / navy / sentence case (this style)
-//   Level 4: sub-label inside a card — 10-11px / 800 / uppercase / NAVY_55
-//   Special: "Ariya recommends · Scenario answer" stays as a blue eyebrow
-//            because it marks the AI's voice, not a section title.
-const sectionTitleRowStyle: CSSProperties = {
+// Header hierarchy — matches Market Performance's outer-section pattern.
+// Each Scenario Planner block (Scenario, Chart, Conditions & assumptions,
+// Dependency) renders its title OUTSIDE the card body:
+//
+//   ┌── sectionHeaderRowStyle (flex baseline · justify space-between) ──┐
+//   │  17 / 600 navy title                       optional right-aligned │
+//   │  13 / NAVY_55 subtitle                     context (legend, etc.) │
+//   └────────────────────────────────────────────────────────────────────┘
+//   ┌── cardStyle (white, NAVY_12 border, padded) ──────────────────────┐
+//   │  ... section content only ...                                     │
+//   └────────────────────────────────────────────────────────────────────┘
+//
+// Same look-and-feel as MP section headers ("Brand · Italy",
+// "Performance in context"). The 14 / 600 inside-card title pattern is
+// gone — sections of this page are page-level, not card-internal.
+const sectionHeaderRowStyle: CSSProperties = {
   display: 'flex',
-  alignItems: 'center',
+  alignItems: 'baseline',
   justifyContent: 'space-between',
-  gap: 12,
+  gap: 16,
   marginBottom: 14,
+  flexWrap: 'wrap',
 };
 
 const sectionTitleStyle: CSSProperties = {
-  fontSize: 14,
+  fontSize: 17,
   fontWeight: 600,
   color: NAVY,
-  lineHeight: 1.35,
+  lineHeight: 1.3,
   margin: 0,
 };
 
 const sectionSubtitleStyle: CSSProperties = {
-  fontSize: 12,
+  fontSize: 13,
   color: NAVY_55,
   lineHeight: 1.4,
   margin: '2px 0 0',
@@ -709,11 +717,14 @@ export default function ScenarioPlanner() {
         </span>
       </div>
 
-      {/* ─── Scenario card ────────────────────────────────────────── */}
-      <section style={cardStyle}>
-        <div style={sectionTitleRowStyle}>
-          <h2 style={sectionTitleStyle}>Scenario</h2>
+      {/* ─── Scenario ─────────────────────────────────────────────── */}
+      <section>
+        <div style={sectionHeaderRowStyle}>
+          <div>
+            <h2 style={sectionTitleStyle}>Scenario</h2>
+          </div>
         </div>
+        <div style={cardStyle}>
 
         <div style={selectorRowStyle}>
           <span style={selectorRowLabelStyle}>From</span>
@@ -822,97 +833,15 @@ export default function ScenarioPlanner() {
             </div>
           </div>
         </div>
-      </section>
-
-      {/* ─── Conditions & Assumptions (collapsible) ──────────────── */}
-      <section style={cardStyle}>
-        <div style={sectionTitleRowStyle}>
-          <h2 style={sectionTitleStyle}>Conditions &amp; assumptions</h2>
-          <button
-            type="button"
-            onClick={() => setCondCollapsed((v) => !v)}
-            aria-expanded={!condCollapsed}
-            aria-label={condCollapsed ? 'Show conditions and assumptions' : 'Hide conditions and assumptions'}
-            style={collapseBtnStyle}
-          >
-            {condCollapsed ? <ChevronDown size={16} /> : <ChevronUp size={16} />}
-          </button>
-        </div>
-
-        {!condCollapsed && (
-          <div style={condAssumpGridStyle}>
-            <div>
-              <div style={subLabelStyle}>Assumptions</div>
-              <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
-                {scenarioPlanner.scenarioAssumptions.map((a) => (
-                  <li key={a} style={bulletRowStyle}>
-                    <span style={bulletDotStyle} aria-hidden />
-                    <span>{a}</span>
-                  </li>
-                ))}
-              </ul>
-            </div>
-
-            <div>
-              <div style={subLabelStyle}>Data inputs</div>
-              <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
-                {scenarioPlanner.dataInputs.map((d) => (
-                  <li key={d.source} style={bulletRowStyle}>
-                    <span style={bulletDotStyle} aria-hidden />
-                    <span>
-                      <span style={dataSourceLabelStyle}>{d.source}</span>
-                      {' · '}
-                      {d.description}
-                    </span>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          </div>
-        )}
-      </section>
-
-      {/* ─── Dependency: 3-step chain ───────────────────────────── */}
-      <section style={cardStyle}>
-        <div style={sectionTitleRowStyle}>
-          <div>
-            <h2 style={sectionTitleStyle}>Dependency</h2>
-            <p style={sectionSubtitleStyle}>Where the impact comes from.</p>
-          </div>
-        </div>
-        <div style={chainRowStyle}>
-          {scenarioPlanner.operationalChain.map((node, idx) => {
-            const isFocus = !!node.focus;
-            return (
-              <div key={node.node} style={{ display: 'contents' }}>
-                <article style={isFocus ? chainNodeFocusStyle : chainNodeBase}>
-                  {isFocus && (
-                    <span style={chainFocusPillStyle}>
-                      <Flag size={10} strokeWidth={2.5} /> Focus of this scenario
-                    </span>
-                  )}
-                  <span style={isFocus ? chainStepEyebrowFocusStyle : chainStepEyebrowStyle}>
-                    Step {idx + 1}
-                  </span>
-                  <div style={chainStepTitleStyle}>{node.node}</div>
-                  {isFocus && node.focusNote && (
-                    <div style={chainFocusNoteStyle}>{node.focusNote}</div>
-                  )}
-                </article>
-                {idx < scenarioPlanner.operationalChain.length - 1 && (
-                  <div style={chainArrowStyle}>
-                    <ChevronRight size={20} />
-                  </div>
-                )}
-              </div>
-            );
-          })}
         </div>
       </section>
 
-      {/* ─── Chart (full width) ─────────────────────────────────── */}
-      <section style={cardStyle}>
-        <div style={sectionTitleRowStyle}>
+      {/* ─── Directional net commercial impact (chart) ────────────
+          Moved up to sit immediately under the Scenario inputs. The
+          slider above directly drives this curve, so visual proximity
+          matters more than the old order. */}
+      <section>
+        <div style={sectionHeaderRowStyle}>
           <div>
             <h2 style={sectionTitleStyle}>Directional net commercial impact · 6-month window</h2>
             <p style={sectionSubtitleStyle}>Directional. Not a forecast.</p>
@@ -928,8 +857,9 @@ export default function ScenarioPlanner() {
             </span>
           </div>
         </div>
+        <div style={cardStyle}>
 
-        <div style={{ width: '100%', height: 360, marginTop: 14 }}>
+        <div style={{ width: '100%', height: 360, marginTop: 0 }}>
           <ResponsiveContainer>
             <ComposedChart data={bandData} margin={{ top: 12, right: 24, bottom: 36, left: 36 }}>
               <defs>
@@ -1023,6 +953,100 @@ export default function ScenarioPlanner() {
           100 = no change. 103 = a 3% lift versus today. 99 = a 1% decline. The shaded band is
           the directional best–conservative range under the modelled inputs.
         </p>
+        </div>
+      </section>
+
+      {/* ─── Conditions & assumptions (collapsible) ──────────────────
+          Outer-section header; the collapse toggle lives on the right
+          of the header row. When collapsed, the card body disappears
+          entirely so only the header + toggle remain. */}
+      <section>
+        <div style={sectionHeaderRowStyle}>
+          <div>
+            <h2 style={sectionTitleStyle}>Conditions &amp; assumptions</h2>
+          </div>
+          <button
+            type="button"
+            onClick={() => setCondCollapsed((v) => !v)}
+            aria-expanded={!condCollapsed}
+            aria-label={condCollapsed ? 'Show conditions and assumptions' : 'Hide conditions and assumptions'}
+            style={collapseBtnStyle}
+          >
+            {condCollapsed ? <ChevronDown size={16} /> : <ChevronUp size={16} />}
+          </button>
+        </div>
+        {!condCollapsed && (
+          <div style={cardStyle}>
+            <div style={condAssumpGridStyle}>
+              <div>
+                <div style={subLabelStyle}>Assumptions</div>
+                <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
+                  {scenarioPlanner.scenarioAssumptions.map((a) => (
+                    <li key={a} style={bulletRowStyle}>
+                      <span style={bulletDotStyle} aria-hidden />
+                      <span>{a}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+              <div>
+                <div style={subLabelStyle}>Data inputs</div>
+                <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
+                  {scenarioPlanner.dataInputs.map((d) => (
+                    <li key={d.source} style={bulletRowStyle}>
+                      <span style={bulletDotStyle} aria-hidden />
+                      <span>
+                        <span style={dataSourceLabelStyle}>{d.source}</span>
+                        {' · '}
+                        {d.description}
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </div>
+          </div>
+        )}
+      </section>
+
+      {/* ─── Dependency: 3-step chain ────────────────────────────── */}
+      <section>
+        <div style={sectionHeaderRowStyle}>
+          <div>
+            <h2 style={sectionTitleStyle}>Dependency</h2>
+            <p style={sectionSubtitleStyle}>Where the impact comes from.</p>
+          </div>
+        </div>
+        <div style={cardStyle}>
+          <div style={chainRowStyle}>
+            {scenarioPlanner.operationalChain.map((node, idx) => {
+              const isFocus = !!node.focus;
+              return (
+                <div key={node.node} style={{ display: 'contents' }}>
+                  <article style={isFocus ? chainNodeFocusStyle : chainNodeBase}>
+                    {isFocus && (
+                      <span style={chainFocusPillStyle}>
+                        <Flag size={10} strokeWidth={2.5} /> Focus of this scenario
+                      </span>
+                    )}
+                    <span style={isFocus ? chainStepEyebrowFocusStyle : chainStepEyebrowStyle}>
+                      Step {idx + 1}
+                    </span>
+                    <div style={chainStepTitleStyle}>{node.node}</div>
+                    {isFocus && node.focusNote && (
+                      <div style={chainFocusNoteStyle}>{node.focusNote}</div>
+                    )}
+                  </article>
+                  {idx < scenarioPlanner.operationalChain.length - 1 && (
+                    <div style={chainArrowStyle}>
+                      <ChevronRight size={20} />
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        </div>
       </section>
 
       {/* ─── Ariya recommends ───────────────────────────────────── */}

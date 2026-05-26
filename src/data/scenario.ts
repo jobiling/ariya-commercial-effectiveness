@@ -286,7 +286,7 @@ export interface MarketContext {
 // BI dashboard. Page-level (not tied to any specific market) so it lives
 // next to marketPerformanceContext rather than inside it.
 export const marketPerformanceAriyaNote = {
-  eyebrow: 'Ariya note',
+  eyebrow: 'Note',
   body: 'Performance alone does not justify reallocation. The Italy share slope is directionally aligned with the post-training follow-up gap, concentrated in the high-potential dermatologist segment. The decision depends on execution follow-through.',
 } as const;
 
