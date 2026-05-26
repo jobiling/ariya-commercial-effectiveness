@@ -119,7 +119,7 @@ export const overview = {
   // out at the top of the page.
   assemblySources: [
     { id: 'market-perf', label: 'Market performance', icon: 'TrendingUp', meta: 'Xeomin EU · 6 quarters' },
-    { id: 'crm', label: 'CRM activity', icon: 'Activity', meta: '84 HCPs · 60d window' },
+    { id: 'crm', label: 'CRM activity', icon: 'Activity', meta: '84 trained HCPs EU · 47 in Italy' },
     { id: 'training', label: 'Training & spend', icon: 'GraduationCap', meta: '€1.24M · 18 months' },
     { id: 'segmentation', label: 'HCP segmentation', icon: 'Users', meta: 'High-potential · IT, DE' },
     { id: 'finance', label: 'Finance', icon: 'DollarSign', meta: 'Q1 actuals · €42.8M' },
@@ -265,6 +265,15 @@ export interface MarketContext {
 export const marketPerformanceAriyaNote = {
   eyebrow: 'Ariya note',
   body: 'Performance alone does not justify reallocation. The Italy share slope is directionally aligned with the post-training follow-up gap, concentrated in the high-potential dermatologist segment. The decision depends on execution follow-through.',
+} as const;
+
+// Shared "how to read this page" framing used on Investment Radar and
+// Execution Signals. Three short beats — names the data type, names what
+// it does and does not show, names how to read it. Held in one place so
+// the wording cannot drift between the two pages.
+export const proxyFramingNote = {
+  eyebrow: 'How to read this page',
+  body: 'Proxy KPIs only. These signals indicate execution discipline, not commercial causality. Read them as directional, not deterministic.',
 } as const;
 
 export const marketPerformanceContext: MarketContext[] = [
@@ -658,7 +667,7 @@ export const executionSignals: ExecutionSignal[] = [
     id: 'trained-not-visited',
     title: 'High-potential trained HCPs not visited within 60 days',
     description:
-      'HCPs who completed Xeomin injection training but did not receive a field follow-up within the 60-day window.',
+      'HCPs who completed Xeomin injection training but did not receive a field follow-up within the 60-day window. 84 across Europe; 47 sit in Italy, the largest single concentration.',
     count: 84,
     unit: 'HCPs',
     marketBreakdown: [
@@ -951,22 +960,28 @@ export const scenarioPlanner = {
     headerMeta: 'Generated for Europe Leadership · 21 May',
     situation:
       'A 10% reallocation of Germany marketing spend to Italy post-training activation produces a directional net positive of ~2.5 index points over 6 months in the base case, conditional on Italy follow-up improvement.',
+    // Headline aligned to the hero recommendation on Europe Overview / Ask
+    // Ariya so the whole flow tells one story.
     recommendation:
-      'Reallocate only toward high-potential trained HCPs in Italy, with a defined follow-up plan and field manager accountability.',
+      'Fix follow-up cadence on the Italy high-potential dermatologist cohort before reducing Germany spend.',
     reasoning:
-      'Italy shows evidence of higher potential response among trained HCPs when follow-up occurs, but follow-up discipline is inconsistent. Germany shows pressure on net impact, but reducing spend without protecting priority accounts may create downside risk.',
+      'Italy already has the trained HCPs and the budget. The gap is execution, not investment. Germany reduction is a 60-days-later question, conditional on Italy follow-up improving first.',
+    // Why bullets mirror the hero pattern (Italy has the runway / Germany
+    // is the candidate pool / Sequence matters), tightened to the scenario
+    // context (the reallocation slider) without inventing a different
+    // narrative.
     whyBullets: [
       {
-        lead: 'Italy upside is conditional.',
-        body: 'Trained HCPs show higher potential response, but only where follow-up actually occurs. Follow-up discipline today is inconsistent.',
+        lead: 'Italy has the runway.',
+        body: '€1.24M in Xeomin training is already invested in Italy and the right HCPs were selected. The reallocated budget funds follow-through on training already delivered, not new programs.',
       },
       {
-        lead: 'Germany downside is real.',
-        body: 'Net impact is already under pressure. Cutting spend without ring-fencing priority accounts creates downside risk.',
+        lead: 'Germany is the candidate pool.',
+        body: 'Germany carries the highest commercial spend in Europe with the weakest growth vs plan. Field force and priority account coverage stay protected. Marketing campaigns are the first category to investigate.',
       },
       {
-        lead: 'Net direction is positive',
-        body: 'under the assumption Italy lifts follow-up coverage on high-potential trained HCPs within 60 days.',
+        lead: 'Sequence matters.',
+        body: 'Italy first, Germany second. This scenario shows the directional impact of reallocating up to 25% of Germany marketing toward Italy follow-up activation. The actual Germany pool is not committed at the slider position.',
       },
     ],
     confidence: 'Medium' as Confidence,
@@ -987,13 +1002,16 @@ export const scenarioPlanner = {
       { action: 'Decide whether to expand reallocation', owner: 'Europe Leadership', timeframe: 'Q3 planning' },
     ],
     nextActionsMeta: '4 steps · spans to Q3 planning',
+    // Same six sources the hero block calls out on Europe Overview, so
+    // "sources used" reads as the same list everywhere the recommendation
+    // surfaces.
     sources: [
       'Market performance',
       'CRM activity',
-      'Training participation and spend',
+      'Training & spend',
       'HCP segmentation',
-      'Brand plan assumptions',
-      'Finance · spend',
+      'Finance',
+      'Market context',
     ],
     footerMeta: 'Reversible · revisit at 60 days',
   },
@@ -1243,11 +1261,25 @@ export const decisionLog: DecisionLogEntry[] = [
   {
     id: 'd-001',
     date: 'May 12, 2026',
-    decision: 'Launch Italy high-potential HCP follow-up sprint for trained Xeomin injectors.',
+    // Aligned to the hero recommendation wording from Europe Overview / Ask
+    // Ariya (italy-60d-checkpoint) so the log entry visibly ties back to
+    // the recommendation that produced it.
+    decision: 'Fix follow-up cadence on the Italy high-potential dermatologist cohort before reducing Germany spend.',
     owner: 'Europe Leadership',
     marketAndBrand: 'Italy · Xeomin',
-    evidenceUsed: ['Italy 41% follow-up vs 65% benchmark', '47 high-potential trained HCPs without 60-day contact'],
-    assumptions: ['Italy commercial ops confirms HCP list within 5 days', 'First-line managers track weekly'],
+    // Evidence row mirrors the hero's anchor numbers: the 38 vs 72 cohort
+    // comparison (not 41 vs 65) and the Italy-specific 47-of-84 cohort.
+    evidenceUsed: [
+      'Italy 38% follow-up vs 72% in the equivalent German cohort',
+      '47 high-potential trained HCPs in Italy without 60-day contact (out of 84 across Europe)',
+      '€1.24M Italy HCP training already invested · 18 months',
+      'Six sources synthesised: Market performance, CRM activity, Training & spend, HCP segmentation, Finance, Market context',
+    ],
+    assumptions: [
+      'High-potential trained HCP list confirmed by Italy commercial operations',
+      'Italy NSM owns the 60-day follow-up cadence',
+      'Germany reduction sequenced after Italy execution improves',
+    ],
     expectedImpact: 'Directional commercial recovery within 60 days, measured via CRM follow-up rate and Xeomin Italy run-rate.',
     actionsAssigned: [
       { action: 'Confirm high-potential trained HCP list', owner: 'Italy commercial ops', due: 'May 17, 2026' },

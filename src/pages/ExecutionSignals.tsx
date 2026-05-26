@@ -4,8 +4,8 @@ import { ChevronRight } from 'lucide-react';
 import { PageHeader } from '../components/layout/PageHeader';
 import { FilterDropdown, SignalChip, SourceTag } from '../components/composites';
 import type { FilterOption } from '../components/composites';
-import { WhatThisSuggests } from '../components/decision';
-import { executionSignals, markets } from '../data/scenario';
+import { AriyaNote, WhatThisSuggests } from '../components/decision';
+import { executionSignals, markets, proxyFramingNote } from '../data/scenario';
 import type { SignalTone } from '../data/scenario';
 
 const NAVY = '#050A44';
@@ -212,6 +212,14 @@ export default function ExecutionSignals() {
       <PageHeader
         title="Execution Signals"
         subtitle="Are teams doing the follow-through required to make investments work?"
+      />
+
+      {/* Page-level "How to read this page" framing. Same component and
+          copy as Investment Radar so the discipline reads consistently
+          across both proxy-KPI surfaces. */}
+      <AriyaNote
+        eyebrow={proxyFramingNote.eyebrow}
+        body={proxyFramingNote.body}
       />
 
       <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10, alignItems: 'center' }}>

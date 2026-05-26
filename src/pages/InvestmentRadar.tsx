@@ -11,10 +11,11 @@ import {
   YAxis,
 } from 'recharts';
 import { PageHeader } from '../components/layout/PageHeader';
-import { RecommendationCard } from '../components/decision';
+import { AriyaNote, RecommendationCard } from '../components/decision';
 import {
   investmentRadar,
   italyHcpTrainingRecommendation,
+  proxyFramingNote,
   markets,
 } from '../data/scenario';
 import type { InvestmentCategoryId, InvestmentCell } from '../data/scenario';
@@ -48,13 +49,6 @@ const pageStyle: CSSProperties = {
   flexDirection: 'column',
   gap: 28,
   paddingBottom: 48,
-};
-
-const positioningRowStyle: CSSProperties = {
-  fontSize: 11,
-  fontWeight: 600,
-  letterSpacing: '0.01em',
-  color: NAVY_55,
 };
 
 const matrixCardStyle: CSSProperties = {
@@ -233,15 +227,6 @@ const proxyDefStyle: CSSProperties = {
   lineHeight: 1.55,
 };
 
-const howWeReadStyle: CSSProperties = {
-  fontSize: 12,
-  fontStyle: 'italic',
-  color: NAVY_55,
-  lineHeight: 1.5,
-  padding: '10px 12px',
-  background: NAVY_06,
-  borderRadius: 8,
-};
 
 const tooltipBoxStyle: CSSProperties = {
   background: NAVY,
@@ -318,10 +303,14 @@ export default function InvestmentRadar() {
           title="Investment Radar"
           subtitle="Where are we investing, and where does the investment appear to be associated with follow-through?"
         />
-        <div style={{ ...positioningRowStyle, marginTop: 6 }}>
-          Proxy KPIs only. We do not claim promotional responsiveness data.
-        </div>
       </div>
+
+      {/* Page-level "How to read this page" framing. Stays visible
+          regardless of which cell is selected. */}
+      <AriyaNote
+        eyebrow={proxyFramingNote.eyebrow}
+        body={proxyFramingNote.body}
+      />
 
       <div style={radarGridStyle}>
         {/* LEFT: matrix */}
@@ -492,10 +481,6 @@ export default function InvestmentRadar() {
               </div>
               <p style={proxyDefStyle}>{selectedCategory.proxyKpiDefinition}</p>
             </div>
-
-            <p style={howWeReadStyle}>
-              Proxy KPI indicates execution discipline, not commercial outcome.
-            </p>
 
             <div>
               <div
