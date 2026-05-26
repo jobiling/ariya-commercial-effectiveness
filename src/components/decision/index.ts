@@ -13,3 +13,10 @@ export type { WhatThisSuggestsProps } from './WhatThisSuggests';
 
 export { LogDecisionModal, dateFromToday } from './LogDecisionModal';
 export type { LogDecisionModalProps, LogDecisionDraft } from './LogDecisionModal';
+
+export { SourceAssemblyStrip } from './SourceAssemblyStrip';
+export type {
+  SourceAssemblyStripProps,
+  SourceAssemblyItem,
+  SourceAssemblyIcon,
+} from './SourceAssemblyStrip';

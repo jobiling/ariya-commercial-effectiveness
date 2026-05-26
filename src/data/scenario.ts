@@ -103,39 +103,59 @@ export const overview = {
   },
   scatterInterpretation:
     'Higher investment intensity does not translate cleanly into growth above plan. Germany and Italy carry the highest investment but the weakest growth vs plan. Spain and Switzerland deliver growth at lower intensity. The question is not whether to invest, it is where the investment is associated with follow-through.',
+  // The dominant block above the fold. Drives the News callout and the
+  // "Open Recommendation" smooth-scroll target.
+  heroCallout: {
+    eyebrow: "This Week's Priority",
+    headline:
+      'Italy Xeomin share is slipping, directionally aligned with the post-training follow-up gap in the high-potential dermatologist segment.',
+    metaRow: 'Italy · Germany · Xeomin · May 19, 2026',
+    cta: { label: 'Open Recommendation', scrollToId: 'recommendation-anchor' },
+  },
+  // Six fragmented sources visibly compressed into one decision. Drives the
+  // SourceAssemblyStrip below the News callout. The labels are echoed in the
+  // RecommendationCard's Sources row further down the page — that repetition
+  // is intentional: the strip names them, the card grounds them.
+  assemblySources: [
+    { id: 'market-perf', label: 'Market performance', icon: 'Database' },
+    { id: 'crm', label: 'CRM activity', icon: 'Database' },
+    { id: 'training', label: 'Training participation and spend', icon: 'Database' },
+    { id: 'segmentation', label: 'HCP segmentation', icon: 'Database' },
+    { id: 'finance', label: 'Finance', icon: 'Database' },
+    { id: 'market-context', label: 'Market context', icon: 'BookOpen' },
+  ],
   recommendation: {
     eyebrow: 'Ariya recommends',
     pill: 'Close the Italy gap first',
     headerMeta: 'Generated for Europe Leadership · 21 May',
     situation:
-      'Italy and Germany together represent 47% of Europe Xeomin sales and 52% of Xeomin commercial investment, yet both are below plan. The pattern points to execution discipline, not investment size.',
+      'Italy Xeomin share is slipping and the slope is directionally aligned with the post-training follow-up gap. The gap is concentrated in the high-potential dermatologist segment, the cohort that matters most to Xeomin commercial outcomes in Italy.',
     recommendation:
-      'Prioritise an Italy follow-up sprint for high-potential trained HCPs before considering a broad German spend reduction.',
+      'Fix follow-up cadence on the Italy high-potential dermatologist cohort before reducing Germany spend.',
     reasoning:
-      'Italy shows the largest gap between training investment and post-training field follow-up. Germany shows pressure on net impact but cutting spend without protecting priority accounts risks downside. The most defensible first move is to close the Italian follow-up gap, then evaluate a targeted German reallocation.',
+      'Selection of trained HCPs in Italy is defensible. The break point is post-training execution: 38% 60-day follow-up among Italian high-potential dermatologists vs 72% for the equivalent German cohort. Reducing Germany spend without first protecting Italy execution risks compounding the pressure on net European impact.',
     whyBullets: [
       {
-        lead: 'Italy is the largest single drag.',
-        body: 'Investment is concentrated in high-potential trained HCPs, but 60-day post-training follow-up sits at 41% vs a 65% European benchmark.',
+        lead: 'Selection is defensible.',
+        body: 'Italian high-potential dermatologists are well known to the business and present in training participation. The cohort itself is not the issue.',
       },
       {
-        lead: 'Germany is a yield problem, not a coverage problem.',
-        body: 'Highest investment intensity and field activity above expected, yet growth vs plan is negative. The candidates for reallocation are lower-response activities.',
+        lead: 'The break point is post-training execution.',
+        body: '38% 60-day follow-up on the Italian high-potential dermatologist cohort, vs 72% on the equivalent German cohort. The slope of Italy Xeomin share is directionally aligned with that gap.',
       },
       {
-        lead: 'The defensible first move is operational.',
-        body: 'Close the Italy follow-up gap inside the existing envelope, then evaluate a targeted German reallocation in the next cycle.',
+        lead: 'Sequence Italy before Germany.',
+        body: 'Reducing Germany spend without first protecting Italy execution risks compounding pressure on net European impact. Fix follow-up cadence first, then evaluate a targeted German reallocation.',
       },
     ],
     confidence: 'Medium' as Confidence,
     confidenceRationale:
-      'Account-level linkage between training and revenue is partial. Proxy KPIs are defensible at segment level. Treat as directional, not deterministic.',
+      'Account-level linkage between follow-up and revenue is directional. Segment-level proxy KPIs are reliable.',
     conditions: [
       'High-potential trained HCP list confirmed in Italy',
-      'Italy NSM owns the 60-day follow-up cadence',
-      'Germany reduction limited to lower-response activities',
-      'Priority accounts ring-fenced in Germany',
-      'Review at 60 days using CRM and performance signals',
+      'Italy National Sales Manager owns the 60-day follow-up cadence',
+      'Germany reduction, if any, is sequenced after Italy execution improves and limited to lower-response activities',
+      'Review at 60 days using CRM follow-up and performance signals',
     ],
     nextActions: [
       { action: 'Open Scenario Planner for Italy / Germany reallocation', owner: 'Europe Leadership', timeframe: 'This week', priority: true },
@@ -143,7 +163,14 @@ export const overview = {
       { action: 'Define Italy follow-up sprint plan', owner: 'Italy NSM, first-line managers', timeframe: 'Within 10 days' },
     ],
     nextActionsMeta: '3 steps · 10-day horizon',
-    sources: ['Market performance', 'CRM activity', 'Training participation and spend', 'Finance'],
+    sources: [
+      'Market performance',
+      'CRM activity',
+      'Training participation and spend',
+      'HCP segmentation',
+      'Finance',
+      'Market context',
+    ],
     footerMeta: 'Reversible · revisit at 60 days',
   },
   marketsRequiringAttention: [

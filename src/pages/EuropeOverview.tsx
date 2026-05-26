@@ -1,4 +1,4 @@
-import { useRef, type CSSProperties } from 'react';
+import type { CSSProperties } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   CartesianGrid,
@@ -14,8 +14,16 @@ import {
 import { PageHeader } from '../components/layout/PageHeader';
 import { Donut, NewsCallout, HeroPriorityList, SourceTag } from '../components/composites';
 import type { HeroPriorityItem } from '../components/composites';
-import { RecommendationCard } from '../components/decision';
+import { RecommendationCard, SourceAssemblyStrip } from '../components/decision';
+import type { SourceAssemblyIcon } from '../components/decision';
 import { markets, overview } from '../data/scenario';
+
+const RECOMMENDATION_ANCHOR_ID = 'recommendation-anchor';
+
+function scrollToId(id: string) {
+  const el = typeof document !== 'undefined' ? document.getElementById(id) : null;
+  el?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
 
 const NAVY = '#050A44';
 const NAVY_55 = 'rgba(5,10,68,0.55)';
@@ -239,11 +247,7 @@ function ScatterTooltip(props: any) {
 
 export default function EuropeOverview() {
   const navigate = useNavigate();
-  const recommendationRef = useRef<HTMLDivElement | null>(null);
-
-  const scrollToRecommendation = () => {
-    recommendationRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-  };
+  const hero = overview.heroCallout;
 
   const scatterData: ScatterPoint[] = markets.map((m) => ({
     marketId: m.id,
@@ -272,9 +276,6 @@ export default function EuropeOverview() {
       route: `/market-performance?market=${item.marketId}`,
     };
   });
-
-  // Shorten the headline to one line for the news callout. Use the first sentence only.
-  const calloutHeadline = overview.recommendation.situation.split('. ')[0] + '.';
 
   // Top opportunity areas: markets above plan, sorted by growth vs plan descending.
   // Cap at 3 to mirror the "Markets requiring attention" hero list cardinality.
@@ -309,6 +310,23 @@ export default function EuropeOverview() {
         subtitle="Where does Europe leadership need to focus this week?"
       />
 
+      {/* Hero: News callout + Source Assembly strip · the dominant block above the fold. */}
+      <NewsCallout
+        tone="red"
+        eyebrow={hero.eyebrow}
+        headline={hero.headline}
+        meta={hero.metaRow}
+        ctaLabel={hero.cta.label}
+        onCta={() => scrollToId(hero.cta.scrollToId)}
+      />
+
+      <SourceAssemblyStrip
+        items={overview.assemblySources.map((s) => ({
+          ...s,
+          icon: s.icon as SourceAssemblyIcon,
+        }))}
+      />
+
       <section style={cockpitCardStyle}>
         <div style={cockpitScoreColStyle}>
           <Donut
@@ -337,15 +355,6 @@ export default function EuropeOverview() {
           ))}
         </div>
       </section>
-
-      <NewsCallout
-        tone="red"
-        eyebrow="This Week's Priority"
-        headline={calloutHeadline}
-        meta="Italy · Germany · Xeomin · May 19, 2026"
-        ctaLabel="Open Recommendation"
-        onCta={scrollToRecommendation}
-      />
 
       <section style={chartCardStyle}>
         <h2 style={chartTitleStyle}>Performance vs Investment Intensity</h2>
@@ -392,7 +401,10 @@ export default function EuropeOverview() {
         <p style={interpretationStyle}>{overview.scatterInterpretation}</p>
       </section>
 
-      <div ref={recommendationRef}>
+      <section
+        id={RECOMMENDATION_ANCHOR_ID}
+        style={{ scrollMarginTop: 24 }}
+      >
         <RecommendationCard
           eyebrow={overview.recommendation.eyebrow}
           meta={overview.recommendation.headerMeta}
@@ -424,7 +436,7 @@ export default function EuropeOverview() {
             },
           ]}
         />
-      </div>
+      </section>
 
       <section>
         <div style={sectionLabelStyle}>Markets requiring leadership attention</div>
