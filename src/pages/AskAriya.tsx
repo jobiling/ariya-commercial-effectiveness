@@ -28,8 +28,14 @@ const HERO_EXCHANGE_ID = 'italy-60d-checkpoint';
 
 // Tier 1, Tier 2, Tier 3 — the empty state layout
 // ───────────────────────────────────────────────────────────────────────────
+// The previous hero question (italy-60d-checkpoint) now lives in Tier 1 as
+// its first entry, rather than as a standalone above-the-fold card. The
+// "hero" framing only matters when other pages link in (Europe Overview's
+// Dig deeper still routes to /ask-ariya?q=italy-60d-checkpoint, see the
+// useEffect below).
 
 const TIER_1_IDS = [
+  'italy-60d-checkpoint',
   'italy-downside-60d',
   'germany-pool-sizing',
   'italy-selection-alternative',
@@ -145,59 +151,6 @@ const submitBtnDisabledStyle: CSSProperties = {
   background: NAVY_06,
   color: NAVY_55,
   cursor: 'not-allowed',
-};
-
-// Hero suggestion card ─────────────────────────────────────────
-
-const heroCardStyle: CSSProperties = {
-  background: '#ffffff',
-  border: `1px solid ${NAVY_12}`,
-  borderRadius: 14,
-  padding: '22px 24px 20px',
-  boxShadow: '0 1px 2px rgba(5,10,68,0.04)',
-  cursor: 'pointer',
-  textAlign: 'left',
-  fontFamily: 'inherit',
-  width: '100%',
-  display: 'flex',
-  flexDirection: 'column',
-  gap: 12,
-  transition: 'transform 150ms ease, box-shadow 150ms ease, border-color 150ms ease',
-};
-
-const heroEyebrowStyle: CSSProperties = {
-  fontSize: 11,
-  fontWeight: 800,
-  letterSpacing: '0.07em',
-  textTransform: 'uppercase',
-  color: BLUE,
-};
-
-const heroQuestionStyle: CSSProperties = {
-  fontSize: 17,
-  fontWeight: 600,
-  color: NAVY,
-  lineHeight: 1.4,
-  margin: 0,
-};
-
-const heroFooterStyle: CSSProperties = {
-  display: 'flex',
-  justifyContent: 'flex-end',
-};
-
-const heroLinkStyle: CSSProperties = {
-  display: 'inline-flex',
-  alignItems: 'center',
-  gap: 4,
-  color: BLUE,
-  fontSize: 13,
-  fontWeight: 700,
-  background: 'transparent',
-  border: 'none',
-  cursor: 'pointer',
-  padding: 0,
-  fontFamily: 'inherit',
 };
 
 // Follow-ups grid ──────────────────────────────────────────────
@@ -462,7 +415,10 @@ export default function AskAriya() {
 
   useEffect(() => {
     if (messages.length > 0) {
-      messagesEndRef.current?.scrollIntoView({ behavior: 'smooth', block: 'end' });
+      // Scroll to the top of the page so the user sees the conversation
+      // from its start (input box + user bubble + answer flowing down)
+      // instead of being dropped at the bottom of a long answer.
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     }
   }, [messages.length]);
 
@@ -475,20 +431,22 @@ export default function AskAriya() {
     if (messages.length > 0) return;
     const qId = searchParams.get('q');
     const qText = searchParams.get('question');
+    // ?q={id} — we used to auto-send the matching exchange and skip the
+    // empty state. That hijacked the page and put the user at the bottom
+    // of a long answer they hadn't asked to see yet. Now we just clear the
+    // URL param, leave the empty state visible, and let the user choose
+    // when to expand the answer by clicking the question chip themselves.
+    // If the id has no match we still surface the interim note so the
+    // user knows the system recognised the request.
     if (qId) {
-      const ex = askAriya.find((a) => a.id === qId);
       const next = new URLSearchParams(searchParams);
       next.delete('q');
       setSearchParams(next, { replace: true });
-      if (ex) {
-        send('', ex);
-      } else {
-        // Unmatched id — surface the interim note and let the user pick
-        // from the suggestions below.
-        setInterimNote(true);
-      }
+      const ex = askAriya.find((a) => a.id === qId);
+      if (!ex) setInterimNote(true);
       return;
     }
+    // ?question={text} — legacy free-text entry point still auto-sends.
     if (qText) {
       send(decodeURIComponent(qText));
       const next = new URLSearchParams(searchParams);
@@ -563,8 +521,10 @@ export default function AskAriya() {
         </div>
       </div>
 
-      {/* Empty state: hero card + follow-ups grid */}
-      {showEmptyState && heroExchange && (
+      {/* Empty state: three labelled tiers. The previous standalone hero
+          card is gone — italy-60d-checkpoint is now the first entry in
+          Tier 1. */}
+      {showEmptyState && (
         <>
           {interimNote && (
             <p
@@ -579,29 +539,6 @@ export default function AskAriya() {
               The question you came from is not yet available. Pick one below to continue.
             </p>
           )}
-          <button
-            type="button"
-            onClick={() => send('', heroExchange)}
-            style={heroCardStyle}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.transform = 'translateY(-1px)';
-              e.currentTarget.style.boxShadow = '0 6px 16px rgba(5,10,68,0.08)';
-              e.currentTarget.style.borderColor = 'rgba(0,85,187,0.45)';
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.transform = 'translateY(0)';
-              e.currentTarget.style.boxShadow = '0 1px 2px rgba(5,10,68,0.04)';
-              e.currentTarget.style.borderColor = NAVY_12;
-            }}
-          >
-            <span style={heroEyebrowStyle}>Suggested question</span>
-            <h2 style={heroQuestionStyle}>{heroExchange.question}</h2>
-            <div style={heroFooterStyle}>
-              <span style={heroLinkStyle}>
-                Ask this <ArrowRight size={14} strokeWidth={2.5} />
-              </span>
-            </div>
-          </button>
 
           {/* Tier 1 · Pressure-test */}
           <section style={tierSectionStyle}>

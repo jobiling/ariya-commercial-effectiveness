@@ -1099,7 +1099,7 @@ export const askAriya: AriyaExchange[] = [
       reasoningChain: [
         { source: 'Market performance', text: 'Italy Xeomin share is slipping into Q2, while German share holds under spend pressure.' },
         { source: 'Training participation and spend', text: 'Italy carries €1.24M in HCP injection training over 18 months, concentrated in dermatology.' },
-        { source: 'CRM activity', text: 'Italy 60-day post-training follow-up sits at 41% overall, 38% in the high-potential dermatologist segment, vs 65% European benchmark.' },
+        { source: 'CRM activity', text: 'Italy 60-day post-training follow-up sits at 38% in the high-potential dermatologist segment, vs 72% in the equivalent German cohort.' },
         { source: 'HCP segmentation', text: 'Italian high-potential dermatologists are the largest single cohort by potential weight in market.' },
         { source: 'Finance', text: 'Italy investment intensity is 14.8%, Germany 17.2%. The Italy gap is execution, not spend.' },
         { source: 'Market context', text: 'No competitive event or supply disruption explains the Italy slope over the window.' },

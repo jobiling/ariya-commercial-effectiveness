@@ -1,5 +1,4 @@
 import type { CSSProperties } from 'react';
-import { useEffect, useMemo, useState } from 'react';
 import {
   ArrowRight,
   BookOpen,
@@ -9,8 +8,6 @@ import {
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { ConfidenceBadge } from './ConfidenceBadge';
-import { useTypewriter } from '../../hooks/useTypewriter';
-import { sourceConfidence } from '../../data/scenario';
 import type { AriyaExchange } from '../../data/scenario';
 
 // ───────────────────────────────────────────────────────────────────────────
@@ -24,8 +21,8 @@ const NAVY_12 = 'rgba(5,10,68,0.12)';
 const NAVY_06 = 'rgba(5,10,68,0.06)';
 const BLUE = '#0055BB';
 
-// Sources that show the BookOpen icon (editorial / qualitative) instead of the
-// default Database icon (quantitative data layer).
+// Sources that show the BookOpen icon (editorial / qualitative) instead of
+// the default Database icon (quantitative data layer).
 const EDITORIAL_SOURCE_NAMES = new Set(['Market context', 'Market research and brand materials']);
 
 function iconForSource(name: string) {
@@ -33,46 +30,31 @@ function iconForSource(name: string) {
 }
 
 // ───────────────────────────────────────────────────────────────────────────
-// Source → refresh date lookup
-// ───────────────────────────────────────────────────────────────────────────
-//
-// The labels used in AriyaExchange.response.sources are slightly different
-// from the full DataSource names in sourceConfidence (e.g. "Finance" vs
-// "Finance and spend", "HCP segmentation" vs "Segmentation and targeting",
-// "Market context" vs "Market research and brand materials"). This map
-// keeps the two surfaces in sync without forcing the names to match.
-
-const SOURCE_NAME_ALIASES: Record<string, string> = {
-  'Finance': 'Finance and spend',
-  'HCP segmentation': 'Segmentation and targeting',
-  'Market context': 'Market research and brand materials',
-};
-
-function refreshDateFor(sourceLabel: string): string | undefined {
-  const aliased = SOURCE_NAME_ALIASES[sourceLabel] ?? sourceLabel;
-  const hit = sourceConfidence.find(
-    (s) => s.name === aliased || s.name === sourceLabel,
-  );
-  return hit?.lastRefresh;
-}
-
-// ───────────────────────────────────────────────────────────────────────────
 // Styles
 // ───────────────────────────────────────────────────────────────────────────
+//
+// One continuous white card with a 4 px BLUE left stripe (mirrors the
+// red-stripe pattern on Europe Overview's hero block). Inner sections
+// are padded blocks separated by NAVY_06 hairlines — no nested card
+// borders or shadows. Future follow-up answers in the same conversation
+// can reuse the same wrapper, so a multi-turn thread reads as a single
+// growing block instead of a stack of disconnected cards.
 
 const wrapStyle: CSSProperties = {
-  display: 'flex',
-  flexDirection: 'column',
-  gap: 18,
-  padding: '4px 2px',
-};
-
-const cardStyle: CSSProperties = {
   background: '#ffffff',
   border: `1px solid ${NAVY_12}`,
-  borderRadius: 14,
-  padding: '18px 20px',
+  borderLeft: `4px solid ${BLUE}`,
+  borderRadius: 12,
   boxShadow: '0 1px 2px rgba(5,10,68,0.04)',
+  overflow: 'hidden',
+};
+
+const sectionStyle: CSSProperties = {
+  padding: '20px 22px',
+};
+
+const sectionTopDividerStyle: CSSProperties = {
+  borderTop: `1px solid ${NAVY_06}`,
 };
 
 const blueEyebrowStyle: CSSProperties = {
@@ -90,31 +72,27 @@ const greyEyebrowStyle: CSSProperties = {
   letterSpacing: '0.07em',
   textTransform: 'uppercase',
   color: NAVY_55,
-  marginBottom: 10,
+  marginBottom: 12,
 };
 
-const sourceChipStyle: CSSProperties = {
-  display: 'inline-flex',
-  alignItems: 'center',
-  gap: 6,
-  padding: '6px 12px',
-  borderRadius: 999,
-  background: NAVY_06,
+// Recommended action ─────────────────────────────────────────────
+
+const recommendedActionStyle: CSSProperties = {
+  fontSize: 19,
+  fontWeight: 700,
   color: NAVY,
-  fontSize: 12,
-  fontWeight: 600,
-  lineHeight: 1.2,
-  whiteSpace: 'nowrap',
+  lineHeight: 1.35,
+  margin: 0,
 };
 
-const sourceChipsRowStyle: CSSProperties = {
-  display: 'flex',
-  flexWrap: 'wrap',
-  gap: 8,
-  listStyle: 'none',
-  margin: 0,
-  padding: 0,
+const scenarioParagraphStyle: CSSProperties = {
+  fontSize: 14,
+  color: NAVY_70,
+  lineHeight: 1.6,
+  margin: '12px 0 0',
 };
+
+// Source by source (reasoning chain) ─────────────────────────────
 
 const chainListStyle: CSSProperties = {
   display: 'flex',
@@ -133,9 +111,17 @@ const chainRowStyle: CSSProperties = {
 };
 
 const chainSourcePillStyle: CSSProperties = {
-  ...sourceChipStyle,
-  fontSize: 11,
+  display: 'inline-flex',
+  alignItems: 'center',
+  gap: 6,
   padding: '5px 10px',
+  borderRadius: 999,
+  background: NAVY_06,
+  color: NAVY,
+  fontSize: 11,
+  fontWeight: 600,
+  lineHeight: 1.2,
+  whiteSpace: 'nowrap',
   justifySelf: 'start',
 };
 
@@ -161,21 +147,7 @@ const chainSentenceStyle: CSSProperties = {
   margin: 0,
 };
 
-const recommendedActionStyle: CSSProperties = {
-  fontSize: 19,
-  fontWeight: 700,
-  color: NAVY,
-  lineHeight: 1.35,
-  margin: 0,
-  minHeight: '1.35em',
-};
-
-const scenarioParagraphStyle: CSSProperties = {
-  fontSize: 14,
-  color: NAVY_70,
-  lineHeight: 1.6,
-  margin: '12px 0 0',
-};
+// Confidence ─────────────────────────────────────────────────────
 
 const confidenceRowStyle: CSSProperties = {
   display: 'flex',
@@ -190,6 +162,8 @@ const confidenceRationaleStyle: CSSProperties = {
   lineHeight: 1.5,
 };
 
+// Conditions ─────────────────────────────────────────────────────
+
 const conditionRowStyle: CSSProperties = {
   display: 'flex',
   alignItems: 'flex-start',
@@ -199,6 +173,8 @@ const conditionRowStyle: CSSProperties = {
   color: NAVY_70,
   lineHeight: 1.5,
 };
+
+// Next actions ───────────────────────────────────────────────────
 
 const nextActionRowStyle: CSSProperties = {
   display: 'grid',
@@ -238,39 +214,13 @@ const nextActionMetaStyle: CSSProperties = {
   gap: 6,
 };
 
-const citationListStyle: CSSProperties = {
-  display: 'grid',
-  gridTemplateColumns: '1fr 1fr',
-  gap: '10px 16px',
-  listStyle: 'none',
-  margin: 0,
-  padding: 0,
-};
-
-const citationRowStyle: CSSProperties = {
-  display: 'flex',
-  flexDirection: 'column',
-  gap: 4,
-};
-
-const citationLabelStyle: CSSProperties = {
-  ...sourceChipStyle,
-  fontSize: 12,
-  alignSelf: 'flex-start',
-};
-
-const citationDateStyle: CSSProperties = {
-  fontSize: 12,
-  color: NAVY_55,
-  paddingLeft: 6,
-};
+// Footer ─────────────────────────────────────────────────────────
 
 const footerStyle: CSSProperties = {
   display: 'flex',
   alignItems: 'center',
   gap: 12,
   flexWrap: 'wrap',
-  marginTop: 4,
 };
 
 const primaryBtnStyle: CSSProperties = {
@@ -314,14 +264,10 @@ export interface AssemblyAnswerProps {
   onNavigate: (route: string) => void;
 }
 
-// ───────────────────────────────────────────────────────────────────────────
-// Stagger / reveal timing
-// ───────────────────────────────────────────────────────────────────────────
-
-const SOURCE_STAGGER_S = 0.08;                  // 80ms between source chips
-const CHAIN_STAGGER_S = 0.20;                   // 200ms between reasoning rows
-const STEP_FADE_DURATION_S = 0.28;
-const STEP_GAP_S = 0.10;                        // small pause between steps
+// Stagger / reveal timing ────────────────────────────────────────
+const CHAIN_STAGGER_S = 0.12;             // 120 ms between source-by-source rows
+const STEP_FADE_DURATION_S = 0.24;        // single fade-in duration
+const STEP_GAP_S = 0.10;                  // small pause between sections
 
 // ───────────────────────────────────────────────────────────────────────────
 // Component
@@ -332,85 +278,56 @@ export function AssemblyAnswer({ exchange, onLogDecision, onNavigate }: Assembly
   const chain = r.reasoningChain ?? [];
   const hasChain = chain.length > 0;
 
-  // Cascading "step delay" — each step waits for the previous to land before
-  // fading in. Computed so the total reveal sits around 2.5-3.5s end to end.
-  const tSources = 0;
-  const tSourcesDone = tSources + r.sources.length * SOURCE_STAGGER_S + STEP_FADE_DURATION_S;
-  const tChain = hasChain ? tSourcesDone + STEP_GAP_S : tSourcesDone;
-  const tChainDone = hasChain
-    ? tChain + chain.length * CHAIN_STAGGER_S + STEP_FADE_DURATION_S
-    : tChain;
-  const tAction = tChainDone + STEP_GAP_S;
-  // After the action headline finishes its typewriter, the remaining sections
-  // can begin. We approximate the typewriter duration as 25ms per char.
-  const typewriterMs = Math.max(400, r.recommendedAction.length * 25);
-  const tActionDone = tAction + typewriterMs / 1000;
-  const tScenario = tActionDone + STEP_GAP_S;
-  const tConfidence = tScenario + STEP_FADE_DURATION_S;
+  // Cascading delays. Each section waits for the previous to land. Total
+  // reveal ~1.5-2 s — long enough to read as "the answer is assembling",
+  // short enough to never feel slow.
+  const tAction = 0;
+  const tScenario = tAction + STEP_FADE_DURATION_S;
+  const tChain = tScenario + (r.scenarioView ? STEP_FADE_DURATION_S : 0) + STEP_GAP_S;
+  const chainDuration = hasChain
+    ? chain.length * CHAIN_STAGGER_S + STEP_FADE_DURATION_S
+    : STEP_FADE_DURATION_S;
+  const tConfidence = tChain + chainDuration + STEP_GAP_S;
   const tConditions = tConfidence + STEP_FADE_DURATION_S;
   const tNextActions = tConditions + STEP_FADE_DURATION_S;
-  const tCitations = tNextActions + STEP_FADE_DURATION_S;
-  const tFooter = tCitations + STEP_FADE_DURATION_S;
-
-  // Only kick off the typewriter once the chain has finished revealing.
-  const [actionTypewriterEnabled, setActionTypewriterEnabled] = useState(false);
-  useEffect(() => {
-    const id = window.setTimeout(() => setActionTypewriterEnabled(true), tAction * 1000);
-    return () => window.clearTimeout(id);
-  }, [tAction]);
-  const { text: actionText } = useTypewriter(r.recommendedAction, {
-    enabled: actionTypewriterEnabled,
-    speed: 25,
-  });
-
-  // Map source-name → DataSource refresh date once.
-  const citations = useMemo(
-    () =>
-      r.sources.map((name) => ({
-        name,
-        refresh: refreshDateFor(name),
-      })),
-    [r.sources],
-  );
+  const tFooter = tNextActions + STEP_FADE_DURATION_S;
 
   return (
-    <div style={wrapStyle}>
-      {/* 1 · Sources strip ────────────────────────────────────────── */}
-      <section style={cardStyle} aria-label="Sources Ariya pulled from">
-        <div style={blueEyebrowStyle}>Pulling from</div>
-        <ul style={sourceChipsRowStyle}>
-          {r.sources.map((name, idx) => {
-            const Icon = iconForSource(name);
-            return (
-              <motion.li
-                key={name}
-                initial={{ opacity: 0, y: 4 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{
-                  duration: STEP_FADE_DURATION_S,
-                  ease: 'easeOut',
-                  delay: tSources + idx * SOURCE_STAGGER_S,
-                }}
-                style={sourceChipStyle}
-              >
-                <Icon size={13} strokeWidth={2} color={NAVY_70} aria-hidden />
-                {name}
-              </motion.li>
-            );
-          })}
-        </ul>
-      </section>
+    <article style={wrapStyle} aria-label="Ariya's assembled answer">
+      {/* 1 · Recommended action ──────────────────────────────────── */}
+      <motion.section
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: STEP_FADE_DURATION_S, ease: 'easeOut', delay: tAction }}
+        style={sectionStyle}
+        aria-label="Ariya recommends"
+      >
+        <div style={blueEyebrowStyle}>Ariya recommends</div>
+        <h2 style={recommendedActionStyle}>{r.recommendedAction}</h2>
 
-      {/* 2 · Reasoning chain ─────────────────────────────────────── */}
+        {r.scenarioView && (
+          <motion.p
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: STEP_FADE_DURATION_S, ease: 'easeOut', delay: tScenario }}
+            style={scenarioParagraphStyle}
+          >
+            <strong style={{ color: NAVY, fontWeight: 700 }}>Scenario view: </strong>
+            {r.scenarioView}
+          </motion.p>
+        )}
+      </motion.section>
+
+      {/* 2 · Source by source ────────────────────────────────────── */}
       {hasChain ? (
         <motion.section
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: STEP_FADE_DURATION_S, ease: 'easeOut', delay: tChain }}
-          style={cardStyle}
-          aria-label="Reasoning chain"
+          style={{ ...sectionStyle, ...sectionTopDividerStyle }}
+          aria-label="Source by source"
         >
-          <div style={greyEyebrowStyle}>Inside the black box</div>
+          <div style={greyEyebrowStyle}>Source by source</div>
           <ul style={chainListStyle}>
             {chain.map((row, idx) => {
               const Icon = iconForSource(row.source);
@@ -440,48 +357,25 @@ export function AssemblyAnswer({ exchange, onLogDecision, onNavigate }: Assembly
           </ul>
         </motion.section>
       ) : (
-        // Fallback: render the existing reasoning paragraph when no chain.
+        // Fallback: when no reasoningChain, render the prose reasoning under
+        // the same Source by source eyebrow so the surface stays consistent.
         <motion.section
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: STEP_FADE_DURATION_S, ease: 'easeOut', delay: tChain }}
-          style={cardStyle}
+          style={{ ...sectionStyle, ...sectionTopDividerStyle }}
         >
-          <div style={greyEyebrowStyle}>Reasoning</div>
+          <div style={greyEyebrowStyle}>Source by source</div>
           <p style={{ ...chainSentenceStyle, fontSize: 14 }}>{r.reasoning}</p>
         </motion.section>
       )}
 
-      {/* 3 · Recommended action (typewriter) ─────────────────────── */}
-      <motion.section
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: STEP_FADE_DURATION_S, ease: 'easeOut', delay: tAction }}
-        style={cardStyle}
-        aria-label="Ariya recommends"
-      >
-        <div style={blueEyebrowStyle}>Ariya recommends</div>
-        <h2 style={recommendedActionStyle}>{actionTypewriterEnabled ? actionText : ''}</h2>
-
-        {r.scenarioView && (
-          <motion.p
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: STEP_FADE_DURATION_S, ease: 'easeOut', delay: tScenario }}
-            style={scenarioParagraphStyle}
-          >
-            <strong style={{ color: NAVY, fontWeight: 700 }}>Scenario view: </strong>
-            {r.scenarioView}
-          </motion.p>
-        )}
-      </motion.section>
-
-      {/* 4 · Confidence ──────────────────────────────────────────── */}
+      {/* 3 · Confidence ──────────────────────────────────────────── */}
       <motion.section
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: STEP_FADE_DURATION_S, ease: 'easeOut', delay: tConfidence }}
-        style={cardStyle}
+        style={{ ...sectionStyle, ...sectionTopDividerStyle }}
       >
         <div style={greyEyebrowStyle}>Confidence</div>
         <div style={confidenceRowStyle}>
@@ -490,13 +384,13 @@ export function AssemblyAnswer({ exchange, onLogDecision, onNavigate }: Assembly
         </div>
       </motion.section>
 
-      {/* 5 · Required conditions ─────────────────────────────────── */}
+      {/* 4 · Required conditions ─────────────────────────────────── */}
       {r.requiredConditions.length > 0 && (
         <motion.section
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: STEP_FADE_DURATION_S, ease: 'easeOut', delay: tConditions }}
-          style={cardStyle}
+          style={{ ...sectionStyle, ...sectionTopDividerStyle }}
         >
           <div style={greyEyebrowStyle}>Required conditions</div>
           <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
@@ -516,13 +410,13 @@ export function AssemblyAnswer({ exchange, onLogDecision, onNavigate }: Assembly
         </motion.section>
       )}
 
-      {/* 6 · Recommended next actions ────────────────────────────── */}
+      {/* 5 · Recommended next actions ────────────────────────────── */}
       {r.recommendedNextActions.length > 0 && (
         <motion.section
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: STEP_FADE_DURATION_S, ease: 'easeOut', delay: tNextActions }}
-          style={cardStyle}
+          style={{ ...sectionStyle, ...sectionTopDividerStyle }}
         >
           <div style={greyEyebrowStyle}>Recommended next actions</div>
           <ol style={{ listStyle: 'none', padding: 0, margin: 0 }}>
@@ -547,37 +441,12 @@ export function AssemblyAnswer({ exchange, onLogDecision, onNavigate }: Assembly
         </motion.section>
       )}
 
-      {/* 7 · Sources, restated as citations ──────────────────────── */}
-      <motion.section
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: STEP_FADE_DURATION_S, ease: 'easeOut', delay: tCitations }}
-        style={cardStyle}
-        aria-label="Source citations"
-      >
-        <div style={greyEyebrowStyle}>Sources, with last refresh</div>
-        <ul style={citationListStyle}>
-          {citations.map(({ name, refresh }) => {
-            const Icon = iconForSource(name);
-            return (
-              <li key={name} style={citationRowStyle}>
-                <span style={citationLabelStyle}>
-                  <Icon size={13} strokeWidth={2} color={NAVY_70} aria-hidden />
-                  {name}
-                </span>
-                <span style={citationDateStyle}>{refresh ?? 'Refresh cadence not yet logged'}</span>
-              </li>
-            );
-          })}
-        </ul>
-      </motion.section>
-
-      {/* 8 · Footer actions ──────────────────────────────────────── */}
+      {/* 6 · Footer actions ──────────────────────────────────────── */}
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: STEP_FADE_DURATION_S, ease: 'easeOut', delay: tFooter }}
-        style={footerStyle}
+        style={{ ...sectionStyle, ...sectionTopDividerStyle, ...footerStyle }}
       >
         <button type="button" onClick={() => onLogDecision(exchange)} style={primaryBtnStyle}>
           Log this decision <ArrowRight size={14} strokeWidth={2.5} />
@@ -603,6 +472,6 @@ export function AssemblyAnswer({ exchange, onLogDecision, onNavigate }: Assembly
           </button>
         )}
       </motion.div>
-    </div>
+    </article>
   );
 }
