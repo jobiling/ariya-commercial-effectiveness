@@ -16,6 +16,7 @@ import {
   investmentRadar,
   italyHcpTrainingRecommendation,
   proxyFramingNote,
+  strategicChainLink,
   markets,
 } from '../data/scenario';
 import type { InvestmentCategoryId, InvestmentCell } from '../data/scenario';
@@ -528,8 +529,10 @@ export default function InvestmentRadar() {
               <RecommendationCard
                 eyebrow={italyHcpTrainingRecommendation.eyebrow}
                 meta={italyHcpTrainingRecommendation.headerMeta}
-                pill={italyHcpTrainingRecommendation.pill}
+                contextLabel="Selected · Italy · HCP training and education"
+                chainLink={strategicChainLink}
                 recommendation={italyHcpTrainingRecommendation.recommendation}
+                whyBullets={italyHcpTrainingRecommendation.whyBullets}
                 confidence={italyHcpTrainingRecommendation.confidence}
                 confidenceRationale={italyHcpTrainingRecommendation.confidenceRationale}
                 conditions={italyHcpTrainingRecommendation.conditions}
@@ -540,9 +543,13 @@ export default function InvestmentRadar() {
                 variant="compact"
                 collapsible
               />
+              {/* Investment Radar bridges to the question that pressure-tests
+                  THIS surface's specific argument ("execution, not selection"),
+                  not the hero recommendation. Each diagnostic surface gets its
+                  own challenge-question route. */}
               <button
                 type="button"
-                onClick={() => navigate('/ask-ariya?q=italy-60d-checkpoint')}
+                onClick={() => navigate('/ask-ariya?q=italy-selection-alternative')}
                 style={{
                   alignSelf: 'flex-start',
                   display: 'inline-flex',
@@ -558,7 +565,7 @@ export default function InvestmentRadar() {
                   fontFamily: 'inherit',
                 }}
               >
-                Ask Ariya for the full reasoning
+                Ask Ariya: why follow-up and not selection?
                 <ArrowRight size={14} strokeWidth={2.5} />
               </button>
             </div>

@@ -677,6 +677,21 @@ export const italyHcpTrainingRecommendation = {
 } as const;
 
 // ---------------------------------------------------------------------------
+// STRATEGIC CHAIN LINK
+// ---------------------------------------------------------------------------
+//
+// Reusable "Part of: …" link that wires diagnostic-altitude recommendations
+// (Investment Radar, Customer & Account Focus, etc.) back to the strategic
+// recommendation that lives on Europe Overview. The link target is the
+// `recommendation-anchor` element on Europe Overview, so the user lands on
+// the right section without needing to scroll.
+
+export const strategicChainLink = {
+  label: 'Part of: Fix Italy follow-up before reducing Germany spend',
+  to: '/#recommendation-anchor',
+} as const;
+
+// ---------------------------------------------------------------------------
 // EXECUTION SIGNALS
 // ---------------------------------------------------------------------------
 

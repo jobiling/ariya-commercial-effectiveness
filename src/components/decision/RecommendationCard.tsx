@@ -47,6 +47,17 @@ export interface RecommendationCardProps {
   eyebrow?: string;             // default: 'Ariya recommends'
   meta?: string;                // optional right-side text in the eyebrow row
   pill?: string;                // optional navy badge under the eyebrow
+  // Optional alternative to `pill`. Renders a quiet 11px/800 uppercase
+  // NAVY_55 context label in the same slot (e.g. "Selected · Italy · HCP
+  // training and education"). Names what is selected, not what to do.
+  // Use this on diagnostic surfaces where a verdict-style pill would
+  // pre-empt a debate the page deliberately keeps open.
+  contextLabel?: string;
+  // Optional italic chain-link line rendered directly under contextLabel
+  // (or under pill, if pill is set). Links a diagnostic-altitude card to
+  // the strategic recommendation it descends from. The chevron is BLUE,
+  // the rest of the line is 11px/500 NAVY_55 italic.
+  chainLink?: { label: string; to: string };
   recommendation: string;
   recommendationNode?: ReactNode;
   // Optional brief paragraph rendered between the headline and the Dig
@@ -205,6 +216,36 @@ const pillStyle: CSSProperties = {
   fontWeight: 800,
   letterSpacing: '0.06em',
   textTransform: 'uppercase',
+};
+
+// Quiet context label that names what's selected (not what to do). Sits
+// in the pill's former position on diagnostic surfaces.
+const contextLabelStyle: CSSProperties = {
+  display: 'block',
+  fontSize: 11,
+  fontWeight: 800,
+  letterSpacing: '0.06em',
+  textTransform: 'uppercase',
+  color: NAVY_55,
+};
+
+// Italic chain-link line. Renders directly below the pill / contextLabel
+// and points back to the strategic recommendation this card descends from.
+const chainLinkRowStyle: CSSProperties = {
+  display: 'inline-flex',
+  alignItems: 'center',
+  gap: 6,
+  marginTop: 6,
+  fontSize: 11,
+  fontWeight: 500,
+  fontStyle: 'italic',
+  color: NAVY_55,
+  background: 'transparent',
+  border: 'none',
+  padding: 0,
+  cursor: 'pointer',
+  fontFamily: 'inherit',
+  textAlign: 'left',
 };
 
 // --- Headline & divider ----------------------------------------------------
@@ -701,6 +742,8 @@ export function RecommendationCard({
   eyebrow = 'Ariya recommends',
   meta,
   pill,
+  contextLabel,
+  chainLink,
   recommendation,
   recommendationNode,
   summary,
@@ -755,7 +798,10 @@ export function RecommendationCard({
 
   const hasWhyBullets = !!(whyBullets && whyBullets.length > 0);
   const hasWhyText = !!(situation || reasoning || scenarioView);
-  const showWhy = isFull && (hasWhyBullets || hasWhyText);
+  // Compact variant deliberately drops the legacy paragraph-style situation
+  // and reasoning text but keeps structured whyBullets + the Confidence box
+  // so the operational headline still earns the right to be acted on.
+  const showWhy = (isFull && (hasWhyBullets || hasWhyText)) || (!isFull && hasWhyBullets);
 
   const hasNextActions = nextActions.length > 0;
   const hasConditions = conditions.length > 0;
@@ -793,6 +839,25 @@ export function RecommendationCard({
             <Shield size={13} aria-hidden />
             {pill}
           </span>
+        )}
+
+        {/* Quiet context label + optional chain link. These take the pill's
+            slot on diagnostic surfaces where naming the selection is more
+            honest than asserting a verdict. */}
+        {(contextLabel || chainLink) && (
+          <div>
+            {contextLabel && <span style={contextLabelStyle}>{contextLabel}</span>}
+            {chainLink && (
+              <button
+                type="button"
+                onClick={() => navigate(chainLink.to)}
+                style={chainLinkRowStyle}
+              >
+                {chainLink.label}
+                <ArrowRight size={12} strokeWidth={2.5} color={BLUE} aria-hidden />
+              </button>
+            )}
+          </div>
         )}
 
         <h2 style={headlineStyle}>{recommendationNode ?? recommendation}</h2>
@@ -867,7 +932,7 @@ export function RecommendationCard({
                       </li>
                     ))}
                   </ul>
-                ) : (
+                ) : isFull ? (
                   <div>
                     {situation && <p style={whyParagraphStyle}>{situation}</p>}
                     {reasoning && <p style={whyParagraphStyle}>{reasoning}</p>}
@@ -878,7 +943,7 @@ export function RecommendationCard({
                       </p>
                     )}
                   </div>
-                )}
+                ) : null}
               </div>
 
               <div style={confidenceBoxStyle}>

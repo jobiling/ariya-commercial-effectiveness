@@ -1,5 +1,5 @@
-import type { CSSProperties } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useEffect, type CSSProperties } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 import {
   Activity,
   BookOpen,
@@ -406,7 +406,25 @@ function ScatterTooltip(props: any) {
 
 export default function EuropeOverview() {
   const navigate = useNavigate();
+  const location = useLocation();
   const hero = overview.heroCallout;
+
+  // Hash-based scroll. React Router doesn't auto-scroll to anchor on
+  // hash-only navigation, so we listen and call scrollIntoView ourselves.
+  // This is how `strategicChainLink` from Investment Radar lands on the
+  // recommendation block.
+  useEffect(() => {
+    if (!location.hash) return;
+    const id = location.hash.slice(1);
+    const el = document.getElementById(id);
+    if (el) {
+      // Defer one tick so layout has settled after route change.
+      const handle = window.requestAnimationFrame(() => {
+        el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      });
+      return () => window.cancelAnimationFrame(handle);
+    }
+  }, [location.hash]);
 
   const scatterData: ScatterPoint[] = markets.map((m) => ({
     marketId: m.id,
@@ -549,7 +567,12 @@ export default function EuropeOverview() {
         {/* Section 3 · embedded recommendation, seamless so it flows inside
             the hero block instead of looking like a nested card. The brief
             intro paragraph (`summary`) and the Dig deeper panel render in
-            the card's header before any expanded details. */}
+            the card's header before any expanded details. The wrapper
+            carries the `recommendation-anchor` id so chain links from
+            diagnostic surfaces (Investment Radar's strategicChainLink)
+            land here. scrollMarginTop keeps the headline below any fixed
+            chrome after scrollIntoView fires. */}
+        <div id="recommendation-anchor" style={{ scrollMarginTop: 80 }}>
         <RecommendationCard
           eyebrow={overview.recommendation.eyebrow}
           recommendation={overview.recommendation.recommendation}
@@ -579,6 +602,7 @@ export default function EuropeOverview() {
             },
           ]}
         />
+        </div>
       </section>
 
       <section style={chartCardStyle}>
