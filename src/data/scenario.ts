@@ -112,18 +112,23 @@ export const overview = {
     metaRow: 'Italy · Germany · Xeomin · May 19, 2026',
     cta: { label: 'Open Recommendation', scrollToId: 'recommendation-anchor' },
   },
-  // Six fragmented sources visibly compressed into one decision. Drives the
-  // SourceAssemblyStrip below the News callout. The labels are echoed in the
-  // RecommendationCard's Sources row further down the page — that repetition
-  // is intentional: the strip names them, the card grounds them.
+  // Six fragmented sources visibly compressed into one decision. Each chip
+  // shows an icon, a bold label, and a one-line meta below the label. Labels
+  // are mirrored exactly in recommendation.sources so the "Sources used" row
+  // in the card reads as the same list of inputs the synthesised block calls
+  // out at the top of the page.
   assemblySources: [
-    { id: 'market-perf', label: 'Market performance', icon: 'Database' },
-    { id: 'crm', label: 'CRM activity', icon: 'Database' },
-    { id: 'training', label: 'Training participation and spend', icon: 'Database' },
-    { id: 'segmentation', label: 'HCP segmentation', icon: 'Database' },
-    { id: 'finance', label: 'Finance', icon: 'Database' },
-    { id: 'market-context', label: 'Market context', icon: 'BookOpen' },
+    { id: 'market-perf', label: 'Market performance', icon: 'TrendingUp', meta: 'Xeomin EU · 6 quarters' },
+    { id: 'crm', label: 'CRM activity', icon: 'Activity', meta: '84 HCPs · 60d window' },
+    { id: 'training', label: 'Training & spend', icon: 'GraduationCap', meta: '€1.24M · 18 months' },
+    { id: 'segmentation', label: 'HCP segmentation', icon: 'Users', meta: 'High-potential · IT, DE' },
+    { id: 'finance', label: 'Finance', icon: 'DollarSign', meta: 'Q1 actuals · €42.8M' },
+    { id: 'market-context', label: 'Market context', icon: 'BookOpen', meta: 'Apr 2026 tracker' },
   ],
+  // Body sentence rendered inside the synthesised block, between the eyebrow
+  // and the chips. Names the specific datasets that were cross-referenced.
+  synthesisedNote:
+    'Italy field activity, training spend, and segmentation data were cross-referenced with German benchmarks and Q1 finance signals. No single source contains this conclusion.',
   recommendation: {
     eyebrow: 'Ariya recommends',
     pill: 'Close the Italy gap first',
@@ -132,8 +137,11 @@ export const overview = {
       'Italy Xeomin share is slipping and the slope is directionally aligned with the post-training follow-up gap. The gap is concentrated in the high-potential dermatologist segment, the cohort that matters most to Xeomin commercial outcomes in Italy.',
     recommendation:
       'Fix follow-up cadence on the Italy high-potential dermatologist cohort before reducing Germany spend.',
+    // Brief intro paragraph rendered right under the recommendation headline
+    // (above the Dig deeper panel). The detailed Why bullets render further
+    // down in the expanded section.
     reasoning:
-      'Selection of trained HCPs in Italy is defensible. The break point is post-training execution: 38% 60-day follow-up among Italian high-potential dermatologists vs 72% for the equivalent German cohort. Reducing Germany spend without first protecting Italy execution risks compounding the pressure on net European impact.',
+      'Italy already has the trained HCPs and the budget. The gap is execution, not investment. Germany reduction is a 60-days-later question, conditional on Italy follow-up improving first.',
     whyBullets: [
       {
         lead: 'Italy has the runway.',
@@ -166,7 +174,7 @@ export const overview = {
     sources: [
       'Market performance',
       'CRM activity',
-      'Training participation and spend',
+      'Training & spend',
       'HCP segmentation',
       'Finance',
       'Market context',

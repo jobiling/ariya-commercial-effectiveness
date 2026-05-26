@@ -1,6 +1,14 @@
 import type { CSSProperties } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { BookOpen, Database } from 'lucide-react';
+import {
+  Activity,
+  BookOpen,
+  Database,
+  DollarSign,
+  GraduationCap,
+  TrendingUp,
+  Users,
+} from 'lucide-react';
 import {
   CartesianGrid,
   ResponsiveContainer,
@@ -12,7 +20,6 @@ import {
   ZAxis,
   ReferenceLine,
 } from 'recharts';
-import { PageHeader } from '../components/layout/PageHeader';
 import { Donut, HeroPriorityList, SourceTag } from '../components/composites';
 import type { HeroPriorityItem } from '../components/composites';
 import { RecommendationCard } from '../components/decision';
@@ -20,10 +27,17 @@ import { markets, overview } from '../data/scenario';
 
 const RED = '#E11D48';
 
-// Icon lookup for the inline hero block's "Assembled from" chips. Mirrors the
-// mapping in SourceAssemblyStrip — kept here so the hero block doesn't depend
-// on that component.
-const HERO_ICONS = { Database, BookOpen } as const;
+// Icon lookup for the inline synthesised block's rich chips. Each
+// assemblySources entry names its icon by string key, resolved here.
+const HERO_ICONS = {
+  TrendingUp,
+  Activity,
+  GraduationCap,
+  Users,
+  DollarSign,
+  BookOpen,
+  Database,
+} as const;
 
 const NAVY = '#050A44';
 const NAVY_55 = 'rgba(5,10,68,0.55)';
@@ -102,14 +116,17 @@ const heroHairlineStyle: CSSProperties = {
   margin: 0,
 };
 
-const heroBottomStyle: CSSProperties = {
-  padding: '14px 22px 16px',
-  display: 'flex',
-  flexDirection: 'column',
-  gap: 10,
+// Synthesised block: tinted bg, blue eyebrow, body sentence, then six rich
+// chips. Each chip is a small white card with icon + bold label + grey meta.
+const synthesisedBlockStyle: CSSProperties = {
+  background: '#EAF1FB',
+  padding: '18px 22px 20px',
 };
 
-const heroAssembledLabelStyle: CSSProperties = {
+const synthesisedEyebrowStyle: CSSProperties = {
+  display: 'inline-flex',
+  alignItems: 'center',
+  gap: 6,
   fontSize: 11,
   fontWeight: 800,
   letterSpacing: '0.07em',
@@ -117,27 +134,66 @@ const heroAssembledLabelStyle: CSSProperties = {
   color: BLUE,
 };
 
-const heroChipRowStyle: CSSProperties = {
-  display: 'flex',
-  flexWrap: 'wrap',
-  gap: 8,
+const synthesisedBodyStyle: CSSProperties = {
+  fontSize: 14,
+  color: NAVY,
+  lineHeight: 1.55,
+  margin: '8px 0 14px',
+  maxWidth: 860,
+};
+
+const synthesisedChipRowStyle: CSSProperties = {
+  display: 'grid',
+  gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))',
+  gap: 10,
   listStyle: 'none',
   padding: 0,
   margin: 0,
 };
 
-const heroChipStyle: CSSProperties = {
+const synthesisedChipStyle: CSSProperties = {
+  background: '#ffffff',
+  border: `1px solid ${NAVY_12}`,
+  borderRadius: 10,
+  padding: '10px 12px',
+  display: 'flex',
+  alignItems: 'center',
+  gap: 10,
+};
+
+const synthesisedChipIconStyle: CSSProperties = {
+  width: 28,
+  height: 28,
+  borderRadius: 8,
+  background: '#EAF1FB',
+  color: BLUE,
   display: 'inline-flex',
   alignItems: 'center',
-  gap: 6,
-  padding: '6px 12px',
-  borderRadius: 999,
-  background: NAVY_06,
+  justifyContent: 'center',
+  flexShrink: 0,
+};
+
+const synthesisedChipBodyStyle: CSSProperties = {
+  display: 'flex',
+  flexDirection: 'column',
+  gap: 2,
+  minWidth: 0,
+};
+
+const synthesisedChipLabelStyle: CSSProperties = {
+  fontSize: 13,
+  fontWeight: 700,
   color: NAVY,
-  fontSize: 12,
-  fontWeight: 600,
-  lineHeight: 1.2,
+  lineHeight: 1.25,
+};
+
+const synthesisedChipMetaStyle: CSSProperties = {
+  fontSize: 11,
+  color: 'rgba(5,10,68,0.55)',
+  lineHeight: 1.3,
   whiteSpace: 'nowrap',
+  overflow: 'hidden',
+  textOverflow: 'ellipsis',
 };
 
 type DonutTone = 'on-track' | 'watch' | 'at-risk';
@@ -408,18 +464,44 @@ export default function EuropeOverview() {
 
   return (
     <div style={pageStyle}>
-      <PageHeader
-        title="Europe Overview"
-        subtitle="Where does Europe leadership need to focus this week?"
-      />
+      {/* Cockpit · risk score donut + 4 summary tiles. Sits at the very top
+          of the page so the leadership snapshot is the first thing visible. */}
+      <section style={cockpitCardStyle}>
+        <div style={cockpitScoreColStyle}>
+          <Donut
+            value={riskScore}
+            size={72}
+            stroke={8}
+            tone={riskPalette.donutTone}
+            showPct={false}
+            label="/ 100"
+          />
+          <div style={cockpitScoreMetaStyle}>
+            <span style={cockpitEyebrowStyle}>Composite risk</span>
+            <span style={cockpitStatusPillStyle(riskPalette.pillBg, riskPalette.pillFg)}>
+              {riskLabel}
+            </span>
+            <span style={cockpitCaptionStyle}>updated May 19, 2026</span>
+          </div>
+        </div>
+        <div style={cockpitStatsRowStyle}>
+          {tiles.map((t) => (
+            <div key={t.label} style={cockpitStatStyle}>
+              <span style={cockpitStatEyebrowStyle}>{t.label}</span>
+              <span style={cockpitStatValueStyle}>{t.value}</span>
+              <SourceTag label={t.source} />
+            </div>
+          ))}
+        </div>
+      </section>
 
-      {/* Hero block · one bordered surface, three sections:
-          1 · Priority headline (the diagnostic claim)
-          2 · Assembled-from chips (the evidence behind it)
-          3 · Ariya recommends (collapsible: headline always visible,
-              details expand on demand)
-          All separated by 1 px NAVY_06 hairlines. */}
-      <section style={heroBlockStyle} aria-label="This week's priority, assembled sources, and Ariya recommendation">
+      {/* Hero block · one bordered surface, three sections separated by
+          1 px NAVY_06 hairlines:
+            1 · Priority headline + meta
+            2 · Ariya synthesised 6 sources to surface this · body sentence + 6 rich chips
+            3 · Ariya recommends (smaller headline + summary + Dig deeper
+                + collapsible details) */}
+      <section style={heroBlockStyle} aria-label="This week's priority, synthesised sources, and Ariya recommendation">
         <div style={heroTopStyle}>
           <div>
             <div style={heroEyebrowRowStyle}>
@@ -433,15 +515,26 @@ export default function EuropeOverview() {
 
         <hr style={heroHairlineStyle} aria-hidden />
 
-        <div style={heroBottomStyle}>
-          <div style={heroAssembledLabelStyle}>Assembled from</div>
-          <ul style={heroChipRowStyle}>
+        {/* Rich synthesised block: tinted bg, body sentence, 6 chips that
+            each pair an icon with a labelled data dimension. */}
+        <div style={synthesisedBlockStyle}>
+          <div style={synthesisedEyebrowStyle}>
+            <Database size={12} strokeWidth={2.25} color={BLUE} aria-hidden />
+            Ariya synthesised {overview.assemblySources.length} sources to surface this
+          </div>
+          <p style={synthesisedBodyStyle}>{overview.synthesisedNote}</p>
+          <ul style={synthesisedChipRowStyle}>
             {overview.assemblySources.map((s) => {
               const Icon = HERO_ICONS[s.icon as keyof typeof HERO_ICONS] ?? Database;
               return (
-                <li key={s.id} style={heroChipStyle}>
-                  <Icon size={13} strokeWidth={2} color={NAVY_70} aria-hidden />
-                  {s.label}
+                <li key={s.id} style={synthesisedChipStyle}>
+                  <span style={synthesisedChipIconStyle}>
+                    <Icon size={14} strokeWidth={2} aria-hidden />
+                  </span>
+                  <div style={synthesisedChipBodyStyle}>
+                    <span style={synthesisedChipLabelStyle}>{s.label}</span>
+                    <span style={synthesisedChipMetaStyle}>{s.meta}</span>
+                  </div>
                 </li>
               );
             })}
@@ -451,11 +544,14 @@ export default function EuropeOverview() {
         <hr style={heroHairlineStyle} aria-hidden />
 
         {/* Section 3 · embedded recommendation, seamless so it flows inside
-            the hero block instead of looking like a nested card. */}
+            the hero block instead of looking like a nested card. The brief
+            intro paragraph (`summary`) and the Dig deeper panel render in
+            the card's header before any expanded details. */}
         <RecommendationCard
           eyebrow={overview.recommendation.eyebrow}
           pill={overview.recommendation.pill}
           recommendation={overview.recommendation.recommendation}
+          summary={overview.recommendation.reasoning}
           whyBullets={overview.recommendation.whyBullets}
           confidence={overview.recommendation.confidence}
           confidenceRationale={overview.recommendation.confidenceRationale}
@@ -467,7 +563,6 @@ export default function EuropeOverview() {
           digDeeper={overview.recommendation.digDeeper}
           seamless
           collapsible
-          defaultCollapsed
           actions={[
             // Open Scenario Planner and Trace evidence used to live here as
             // secondary footer actions. They now sit inside the digDeeper
@@ -481,35 +576,6 @@ export default function EuropeOverview() {
             },
           ]}
         />
-      </section>
-
-      <section style={cockpitCardStyle}>
-        <div style={cockpitScoreColStyle}>
-          <Donut
-            value={riskScore}
-            size={72}
-            stroke={8}
-            tone={riskPalette.donutTone}
-            showPct={false}
-            label="/ 100"
-          />
-          <div style={cockpitScoreMetaStyle}>
-            <span style={cockpitEyebrowStyle}>Commercial effectiveness · Europe</span>
-            <span style={cockpitStatusPillStyle(riskPalette.pillBg, riskPalette.pillFg)}>
-              {riskLabel}
-            </span>
-            <span style={cockpitCaptionStyle}>Composite risk score · updated May 19, 2026</span>
-          </div>
-        </div>
-        <div style={cockpitStatsRowStyle}>
-          {tiles.map((t) => (
-            <div key={t.label} style={cockpitStatStyle}>
-              <span style={cockpitStatEyebrowStyle}>{t.label}</span>
-              <span style={cockpitStatValueStyle}>{t.value}</span>
-              <SourceTag label={t.source} />
-            </div>
-          ))}
-        </div>
       </section>
 
       <section style={chartCardStyle}>

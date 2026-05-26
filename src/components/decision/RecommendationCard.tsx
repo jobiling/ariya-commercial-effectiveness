@@ -49,6 +49,10 @@ export interface RecommendationCardProps {
   pill?: string;                // optional navy badge under the eyebrow
   recommendation: string;
   recommendationNode?: ReactNode;
+  // Optional brief paragraph rendered between the headline and the Dig
+  // deeper panel. Distinct from the longer detail surfaced by whyBullets
+  // further down in the body.
+  summary?: string;
 
   // --- WHY column ----------------------------------------------------------
   // Preferred structured form. If omitted, the legacy `situation`, `reasoning`
@@ -206,12 +210,26 @@ const pillStyle: CSSProperties = {
 // --- Headline & divider ----------------------------------------------------
 
 const headlineStyle: CSSProperties = {
-  fontSize: 24,
-  fontWeight: 800,
+  // Sized to match the priority headline ("Italy Xeomin share is slipping…")
+  // that sits in the same hero block. The recommendation is no louder than
+  // the issue it answers.
+  fontSize: 17,
+  fontWeight: 700,
   color: NAVY,
-  lineHeight: 1.25,
-  margin: '14px 0 0 0',
-  letterSpacing: '-0.005em',
+  lineHeight: 1.4,
+  margin: '12px 0 0 0',
+};
+
+// New optional `summary` paragraph — a brief intro that sits between the
+// headline and the Dig deeper panel. Distinct from the longer reasoning
+// surfaced via whyBullets further down.
+const summaryParagraphStyle: CSSProperties = {
+  fontSize: 14,
+  fontWeight: 400,
+  color: NAVY_70,
+  lineHeight: 1.6,
+  margin: '8px 0 0 0',
+  maxWidth: 820,
 };
 
 const dividerStyle: CSSProperties = {
@@ -402,14 +420,26 @@ const priorityPillStyle: CSSProperties = {
   textTransform: 'uppercase',
 };
 
-// --- Dig deeper end section -----------------------------------------------
+// --- Dig deeper panel -----------------------------------------------------
 //
-// One unified panel at the very bottom of the card. Top: "Dig deeper" blue
-// eyebrow + a one-line copy. Below: two columns separated by a vertical
-// hairline. Left column = three (or more) outline CTAs (explore paths).
-// Right column = the primary action ("Log this decision") with the footer
-// meta (e.g. "Reversible · revisit at 60 days") underneath. The two columns
-// stack on narrow widths.
+// Light-blue-tinted box rendered INSIDE the header section, between the
+// summary paragraph and the WHY/Confidence row. Always visible (regardless
+// of the collapsible toggle) — it carries the primary commit action plus
+// the explore CTAs, so the user must be able to reach Log this decision
+// without expanding the reasoning details.
+//
+// Top of the panel: "Dig deeper" blue eyebrow + one-line copy.
+// Below: two columns separated by a vertical hairline. Left = three or
+// more outline CTAs (explore paths). Right = primary action + footer meta.
+// The two columns stack on narrow widths.
+
+const digDeeperBoxStyle: CSSProperties = {
+  background: '#EAF1FB',
+  border: `1px solid #C7D2FE`,
+  borderRadius: 12,
+  padding: '18px 20px',
+  marginTop: 16,
+};
 
 const endTopStyle: CSSProperties = {
   display: 'flex',
@@ -673,6 +703,7 @@ export function RecommendationCard({
   pill,
   recommendation,
   recommendationNode,
+  summary,
   // why
   whyBullets,
   situation,
@@ -765,6 +796,57 @@ export function RecommendationCard({
         )}
 
         <h2 style={headlineStyle}>{recommendationNode ?? recommendation}</h2>
+
+        {summary && (
+          <p style={summaryParagraphStyle}>{summary}</p>
+        )}
+
+        {/* Dig deeper panel — always visible when present, sits inside the
+            header before the WHY two-col. Carries the primary commit action
+            so it stays reachable even when reasoning details are collapsed. */}
+        {digDeeper && (
+          <div style={digDeeperBoxStyle} aria-label={digDeeper.eyebrow}>
+            <div style={endTopStyle}>
+              <span style={endEyebrowRowStyle}>
+                <Sparkles size={14} strokeWidth={2} color={BLUE} aria-hidden />
+                {digDeeper.eyebrow}
+              </span>
+              <p style={endCopyStyle}>{digDeeper.copy}</p>
+            </div>
+            <div style={endActionsRowStyle}>
+              <div style={endExploreColStyle}>
+                <div style={endExploreCtasStyle}>
+                  {digDeeper.ctas.map((cta, i) => (
+                    <button
+                      key={i}
+                      type="button"
+                      onClick={() => navigate(cta.to)}
+                      style={endExploreOutlineBtnStyle}
+                    >
+                      {cta.label}
+                      <ArrowRight size={14} strokeWidth={2.5} aria-hidden />
+                    </button>
+                  ))}
+                </div>
+              </div>
+              {(actions.length > 0 || footerMeta) && (
+                <div style={endCommitColStyle}>
+                  {actions.map((a, i) => (
+                    <button
+                      key={i}
+                      type="button"
+                      onClick={a.onClick}
+                      style={endCommitPrimaryBtnStyle}
+                    >
+                      {a.label}
+                    </button>
+                  ))}
+                  {footerMeta && <span style={endMetaStyle}>{footerMeta}</span>}
+                </div>
+              )}
+            </div>
+          </div>
+        )}
 
         {showWhy && showBody && (
           <>
@@ -896,56 +978,10 @@ export function RecommendationCard({
         </div>
       )}
 
-      {/* ─── End section ─────────────────────────────────────────── */}
-      {/* When digDeeper is set, the dig-deeper CTAs (explore) and the
-          primary action (commit) live in one fused end section. When it
-          is absent, the legacy footer renders alone for back-compat
-          with consumers that haven't moved to digDeeper. */}
-      {showBody && digDeeper && (
-        <section style={{ ...cardStyle, ...sectionTopDividerStyle }} aria-label={digDeeper.eyebrow}>
-          <div style={endTopStyle}>
-            <span style={endEyebrowRowStyle}>
-              <Sparkles size={14} strokeWidth={2} color={BLUE} aria-hidden />
-              {digDeeper.eyebrow}
-            </span>
-            <p style={endCopyStyle}>{digDeeper.copy}</p>
-          </div>
-          <div style={endActionsRowStyle}>
-            <div style={endExploreColStyle}>
-              <div style={endExploreCtasStyle}>
-                {digDeeper.ctas.map((cta, i) => (
-                  <button
-                    key={i}
-                    type="button"
-                    onClick={() => navigate(cta.to)}
-                    style={endExploreOutlineBtnStyle}
-                  >
-                    {cta.label}
-                    <ArrowRight size={14} strokeWidth={2.5} aria-hidden />
-                  </button>
-                ))}
-              </div>
-            </div>
-            {(actions.length > 0 || footerMeta) && (
-              <div style={endCommitColStyle}>
-                {actions.map((a, i) => (
-                  <button
-                    key={i}
-                    type="button"
-                    onClick={a.onClick}
-                    style={endCommitPrimaryBtnStyle}
-                  >
-                    {a.label}
-                  </button>
-                ))}
-                {footerMeta && <span style={endMetaStyle}>{footerMeta}</span>}
-              </div>
-            )}
-          </div>
-        </section>
-      )}
-
       {/* ─── Legacy footer (only when no digDeeper) ──────────────── */}
+      {/* When digDeeper is present, the dig deeper panel inside the header
+          section already carries the primary commit action + footer meta —
+          no separate footer renders here. */}
       {showBody && !digDeeper && hasFooter && (
         <div style={{ ...footerStyle, ...sectionTopDividerStyle }}>
           <div style={footerActionsStyle}>
