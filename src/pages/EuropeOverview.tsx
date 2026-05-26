@@ -469,19 +469,15 @@ export default function EuropeOverview() {
           collapsible
           defaultCollapsed
           actions={[
+            // Open Scenario Planner and Trace evidence used to live here as
+            // secondary footer actions. They now sit inside the digDeeper
+            // panel (overview.recommendation.digDeeper.ctas) as peer
+            // explore paths alongside Open in Ask Ariya. Only the primary
+            // commit action remains in `actions`.
             {
               label: 'Log this decision →',
               onClick: () => navigate('/decision-log?from=europe-overview'),
               primary: true,
-            },
-            {
-              label: 'Open in Scenario Planner',
-              onClick: () => navigate('/scenario-planner'),
-            },
-            {
-              label: 'Trace evidence',
-              onClick: () => navigate('/source-confidence'),
-              tone: 'quiet',
             },
           ]}
         />

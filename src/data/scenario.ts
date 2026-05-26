@@ -171,13 +171,20 @@ export const overview = {
       'Finance',
       'Market context',
     ],
-    // Hinge into Ask Ariya. The exchange id is wired now so the bridge works
-    // the moment the matching 60-day-checkpoint exchange ships.
+    // Three different ways to dig deeper before committing. The first hinges
+    // into Ask Ariya for the full assembled chain and the 60-day checkpoint
+    // view; the second moves to the Scenario Planner to model alternatives;
+    // the third opens Source Confidence to trace every number back to its
+    // refresh cadence. All sit alongside "Log this decision" in the card's
+    // fused end section.
     digDeeper: {
       eyebrow: 'Dig deeper',
-      copy: 'Before you commit: see the 60-day checkpoint, the success and failure paths, and the next decision waiting at the other end.',
-      ctaLabel: 'Open in Ask Ariya',
-      to: '/ask-ariya?q=italy-60d-checkpoint',
+      copy: 'Before you commit: pressure-test the assumptions in Ask Ariya, model an alternative reallocation in the Scenario Planner, or trace every number back to its source.',
+      ctas: [
+        { label: 'Open in Ask Ariya', to: '/ask-ariya?q=italy-60d-checkpoint' },
+        { label: 'Open Scenario Planner', to: '/scenario-planner' },
+        { label: 'Trace evidence', to: '/source-confidence' },
+      ],
     },
     footerMeta: 'Reversible · revisit at 60 days',
   },

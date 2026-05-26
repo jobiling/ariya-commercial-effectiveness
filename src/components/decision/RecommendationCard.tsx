@@ -78,15 +78,18 @@ export interface RecommendationCardProps {
   sources: readonly string[];
   sourcesLabel?: string;        // default: 'Sources used'
 
-  // --- Dig deeper bridge ---------------------------------------------------
-  // Optional bridge block sitting inside the card between Next actions and
-  // the Conditions+Sources row. Invites the user to pressure-test the
-  // recommendation in Ask Ariya before committing. Hidden when absent.
+  // --- Dig deeper end section ---------------------------------------------
+  // Optional "explore further" block rendered as the LAST section of the
+  // card, fused with the footer's primary action(s). The three (or more)
+  // CTAs are different paths to dig deeper into the recommendation (e.g.
+  // Ask Ariya for the assembled chain, Scenario Planner to model
+  // alternatives, Source Confidence to trace evidence). When `digDeeper`
+  // is present, the legacy footer (actions + footerMeta) merges into this
+  // section and the standalone footer is suppressed.
   digDeeper?: {
     eyebrow: string;       // default "Dig deeper"
     copy: string;
-    ctaLabel: string;      // default "Open in Ask Ariya"
-    to: string;            // route, including any query params
+    ctas: readonly { label: string; to: string }[];
   };
 
   // --- Footer --------------------------------------------------------------
@@ -399,42 +402,23 @@ const priorityPillStyle: CSSProperties = {
   textTransform: 'uppercase',
 };
 
-// --- Dig deeper bridge ----------------------------------------------------
+// --- Dig deeper end section -----------------------------------------------
 //
-// Teal-tinted container sitting inside its own section padding. 60/40 flex
-// inside; wraps to a stack when the section narrows below ~540 px so the
-// CTA never collides with the copy.
+// One unified panel at the very bottom of the card. Top: "Dig deeper" blue
+// eyebrow + a one-line copy. Below: two columns separated by a vertical
+// hairline. Left column = three (or more) outline CTAs (explore paths).
+// Right column = the primary action ("Log this decision") with the footer
+// meta (e.g. "Reversible · revisit at 60 days") underneath. The two columns
+// stack on narrow widths.
 
-const BRIDGE_BG = '#F0FDFA';   // teal-50
-const BRIDGE_BORDER = '#99F6E4'; // teal-200
-
-const bridgeBoxStyle: CSSProperties = {
-  background: BRIDGE_BG,
-  border: `1px solid ${BRIDGE_BORDER}`,
-  borderRadius: 12,
-  padding: '18px 20px',
-  display: 'flex',
-  alignItems: 'center',
-  gap: 24,
-  flexWrap: 'wrap',
-};
-
-const bridgeLeftStyle: CSSProperties = {
-  flex: '1 1 60%',
-  minWidth: 320,
+const endTopStyle: CSSProperties = {
   display: 'flex',
   flexDirection: 'column',
   gap: 6,
+  marginBottom: 16,
 };
 
-const bridgeRightStyle: CSSProperties = {
-  flex: '0 1 40%',
-  minWidth: 180,
-  display: 'flex',
-  justifyContent: 'flex-end',
-};
-
-const bridgeEyebrowRowStyle: CSSProperties = {
+const endEyebrowRowStyle: CSSProperties = {
   display: 'inline-flex',
   alignItems: 'center',
   gap: 6,
@@ -445,7 +429,7 @@ const bridgeEyebrowRowStyle: CSSProperties = {
   color: BLUE,
 };
 
-const bridgeCopyStyle: CSSProperties = {
+const endCopyStyle: CSSProperties = {
   fontSize: 14,
   fontWeight: 500,
   color: NAVY,
@@ -453,12 +437,61 @@ const bridgeCopyStyle: CSSProperties = {
   margin: 0,
 };
 
-const bridgePrimaryBtnStyle: CSSProperties = {
+const endActionsRowStyle: CSSProperties = {
+  display: 'flex',
+  alignItems: 'flex-start',
+  gap: 20,
+  flexWrap: 'wrap',
+};
+
+const endExploreColStyle: CSSProperties = {
+  flex: '1 1 60%',
+  minWidth: 280,
+  display: 'flex',
+  flexDirection: 'column',
+  gap: 8,
+};
+
+const endExploreCtasStyle: CSSProperties = {
+  display: 'flex',
+  flexWrap: 'wrap',
+  gap: 8,
+};
+
+const endCommitColStyle: CSSProperties = {
+  flex: '0 1 auto',
+  minWidth: 180,
+  display: 'flex',
+  flexDirection: 'column',
+  alignItems: 'flex-end',
+  gap: 8,
+  paddingLeft: 20,
+  borderLeft: `1px solid ${NAVY_06}`,
+};
+
+const endExploreOutlineBtnStyle: CSSProperties = {
   display: 'inline-flex',
   alignItems: 'center',
   gap: 6,
-  height: 38,
-  padding: '0 16px',
+  height: 36,
+  padding: '0 14px',
+  borderRadius: 10,
+  background: '#ffffff',
+  border: `1px solid ${NAVY_12}`,
+  color: NAVY,
+  fontSize: 13,
+  fontWeight: 600,
+  cursor: 'pointer',
+  fontFamily: 'inherit',
+  whiteSpace: 'nowrap',
+};
+
+const endCommitPrimaryBtnStyle: CSSProperties = {
+  display: 'inline-flex',
+  alignItems: 'center',
+  gap: 6,
+  height: 40,
+  padding: '0 18px',
   borderRadius: 10,
   background: BLUE,
   border: `1px solid ${BLUE}`,
@@ -468,6 +501,12 @@ const bridgePrimaryBtnStyle: CSSProperties = {
   cursor: 'pointer',
   fontFamily: 'inherit',
   whiteSpace: 'nowrap',
+};
+
+const endMetaStyle: CSSProperties = {
+  fontSize: 12,
+  color: NAVY_55,
+  textAlign: 'right',
 };
 
 // --- Conditions + sources bottom grid -------------------------------------
@@ -808,31 +847,6 @@ export function RecommendationCard({
         </article>
       )}
 
-      {/* ─── Dig deeper bridge ───────────────────────────────────── */}
-      {showBody && digDeeper && (
-        <section style={{ ...cardStyle, ...sectionTopDividerStyle }} aria-label={digDeeper.eyebrow}>
-          <div style={bridgeBoxStyle}>
-            <div style={bridgeLeftStyle}>
-              <span style={bridgeEyebrowRowStyle}>
-                <Sparkles size={14} strokeWidth={2} color={BLUE} aria-hidden />
-                {digDeeper.eyebrow}
-              </span>
-              <p style={bridgeCopyStyle}>{digDeeper.copy}</p>
-            </div>
-            <div style={bridgeRightStyle}>
-              <button
-                type="button"
-                onClick={() => navigate(digDeeper.to)}
-                style={bridgePrimaryBtnStyle}
-              >
-                {digDeeper.ctaLabel}
-                <ArrowRight size={14} strokeWidth={2.5} aria-hidden />
-              </button>
-            </div>
-          </div>
-        </section>
-      )}
-
       {/* ─── Conditions + Sources bottom row ─────────────────────── */}
       {showBody && (hasConditions || hasSources) && (
         <div style={{ ...bottomGridStyle, ...sectionTopDividerStyle }}>
@@ -882,8 +896,57 @@ export function RecommendationCard({
         </div>
       )}
 
-      {/* ─── Footer actions (inside the single card) ─────────────── */}
-      {showBody && hasFooter && (
+      {/* ─── End section ─────────────────────────────────────────── */}
+      {/* When digDeeper is set, the dig-deeper CTAs (explore) and the
+          primary action (commit) live in one fused end section. When it
+          is absent, the legacy footer renders alone for back-compat
+          with consumers that haven't moved to digDeeper. */}
+      {showBody && digDeeper && (
+        <section style={{ ...cardStyle, ...sectionTopDividerStyle }} aria-label={digDeeper.eyebrow}>
+          <div style={endTopStyle}>
+            <span style={endEyebrowRowStyle}>
+              <Sparkles size={14} strokeWidth={2} color={BLUE} aria-hidden />
+              {digDeeper.eyebrow}
+            </span>
+            <p style={endCopyStyle}>{digDeeper.copy}</p>
+          </div>
+          <div style={endActionsRowStyle}>
+            <div style={endExploreColStyle}>
+              <div style={endExploreCtasStyle}>
+                {digDeeper.ctas.map((cta, i) => (
+                  <button
+                    key={i}
+                    type="button"
+                    onClick={() => navigate(cta.to)}
+                    style={endExploreOutlineBtnStyle}
+                  >
+                    {cta.label}
+                    <ArrowRight size={14} strokeWidth={2.5} aria-hidden />
+                  </button>
+                ))}
+              </div>
+            </div>
+            {(actions.length > 0 || footerMeta) && (
+              <div style={endCommitColStyle}>
+                {actions.map((a, i) => (
+                  <button
+                    key={i}
+                    type="button"
+                    onClick={a.onClick}
+                    style={endCommitPrimaryBtnStyle}
+                  >
+                    {a.label}
+                  </button>
+                ))}
+                {footerMeta && <span style={endMetaStyle}>{footerMeta}</span>}
+              </div>
+            )}
+          </div>
+        </section>
+      )}
+
+      {/* ─── Legacy footer (only when no digDeeper) ──────────────── */}
+      {showBody && !digDeeper && hasFooter && (
         <div style={{ ...footerStyle, ...sectionTopDividerStyle }}>
           <div style={footerActionsStyle}>
             {actions.map((a, i) => {
