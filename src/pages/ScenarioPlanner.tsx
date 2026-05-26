@@ -1,5 +1,4 @@
 import { useEffect, useMemo, useRef, useState, type CSSProperties } from 'react';
-import { useNavigate } from 'react-router-dom';
 import {
   Area,
   CartesianGrid,
@@ -20,8 +19,6 @@ import {
   Info,
 } from 'lucide-react';
 import { PageHeader } from '../components/layout/PageHeader';
-import { LogDecisionModal, RecommendationCard, dateFromToday } from '../components/decision';
-import type { LogDecisionDraft } from '../components/decision';
 import { investmentRadar, markets, scenarioPlanner } from '../data/scenario';
 
 // ───────────────────────────────────────────────────────────────────────────
@@ -623,9 +620,7 @@ function Selector({ selectedId, options, buttonMinWidth = 130, ariaLabel }: Sele
 // ───────────────────────────────────────────────────────────────────────────
 
 export default function ScenarioPlanner() {
-  const navigate = useNavigate();
   const [reallocationPct, setReallocationPct] = useState<number>(DEFAULT_REALLOCATION);
-  const [modalOpen, setModalOpen] = useState(false);
   const [condCollapsed, setCondCollapsed] = useState(false);
 
   const bandData = useMemo(
@@ -681,29 +676,6 @@ export default function ScenarioPlanner() {
       selectable: c.id === TO_CATEGORY_ID,
     };
   });
-
-  const draft: LogDecisionDraft = {
-    decision: scenarioPlanner.recommendation.recommendation,
-    owner: 'Europe Leadership',
-    marketAndBrand: 'Italy, Germany · Xeomin',
-    evidenceUsed: [
-      `${reallocationPct}% Germany marketing budget reallocation modelled`,
-      'Italy 41% follow-up vs 65% benchmark',
-      '47 high-potential trained HCPs without 60-day contact',
-    ],
-    assumptions: scenarioPlanner.assumptions.map((a) => a.text),
-    expectedImpact:
-      'Directional commercial recovery within 60 days, measured via CRM follow-up rate and Xeomin Italy run-rate.',
-    followUpDate: dateFromToday(60),
-    triggerForReassessment:
-      'Italy follow-up rate below 55% at 30 days · trained HCP list not confirmed within 5 days',
-    status: 'Active',
-    source: 'Scenario Planner',
-  };
-
-  const openInAskAriya = () => {
-    navigate(`/ask-ariya?question=${encodeURIComponent('If we shift 10% of Germany')}`);
-  };
 
   return (
     <div style={pageStyle}>
@@ -1049,34 +1021,10 @@ export default function ScenarioPlanner() {
         </div>
       </section>
 
-      {/* ─── Ariya recommends ───────────────────────────────────── */}
-      <RecommendationCard
-        eyebrow={scenarioPlanner.recommendation.eyebrow}
-        meta={scenarioPlanner.recommendation.headerMeta}
-        pill={scenarioPlanner.recommendation.pill}
-        recommendation={scenarioPlanner.recommendation.recommendation}
-        whyBullets={scenarioPlanner.recommendation.whyBullets}
-        confidence={scenarioPlanner.recommendation.confidence}
-        confidenceRationale={scenarioPlanner.recommendation.confidenceRationale}
-        conditions={scenarioPlanner.recommendation.conditions}
-        nextActions={scenarioPlanner.recommendation.nextActions}
-        nextActionsMeta={scenarioPlanner.recommendation.nextActionsMeta}
-        sources={scenarioPlanner.recommendation.sources}
-        footerMeta={scenarioPlanner.recommendation.footerMeta}
-        collapsible
-        actions={[
-          { label: 'Log this decision →', onClick: () => setModalOpen(true), primary: true },
-          { label: 'Open in Ask Ariya', onClick: openInAskAriya },
-          { label: 'Trace evidence', onClick: () => navigate('/source-confidence'), tone: 'quiet' },
-        ]}
-      />
-
-      <LogDecisionModal
-        open={modalOpen}
-        onClose={() => setModalOpen(false)}
-        draft={draft}
-        onLogged={() => navigate('/decision-log?from=scenario-planner')}
-      />
+      {/* The Ariya recommends card used to live here. It was removed because
+          the recommendation it carried duplicated the Europe Overview hero —
+          this page now stays focused on modelling the trade-off and lets
+          the strategic call live where it belongs. */}
     </div>
   );
 }
