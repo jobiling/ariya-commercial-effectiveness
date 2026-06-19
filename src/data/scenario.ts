@@ -135,7 +135,7 @@ export const overview = {
     situation:
       'Italy Xeomin share is slipping and the slope is directionally aligned with the post-training follow-up gap. The gap is concentrated in the high-potential dermatologist segment, the cohort that matters most to Xeomin commercial outcomes in Italy.',
     recommendation:
-      'Fix follow-up cadence on the Italy high-potential dermatologist cohort before reducing Germany spend.',
+      'Fix follow-up cadence on the Italy high-potential dermatologist cohort.',
     // Brief intro paragraph rendered right under the recommendation headline
     // (above the Dig deeper panel). The detailed Why bullets render further
     // down in the expanded section.
@@ -687,7 +687,7 @@ export const italyHcpTrainingRecommendation = {
 // the right section without needing to scroll.
 
 export const strategicChainLink = {
-  label: 'Part of: Fix Italy follow-up before reducing Germany spend',
+  label: 'Part of: Fix Italy follow-up cadence',
   to: '/#recommendation-anchor',
 } as const;
 
@@ -1008,7 +1008,7 @@ export const scenarioPlanner = {
     // Headline aligned to the hero recommendation on Europe Overview / Ask
     // Ariya so the whole flow tells one story.
     recommendation:
-      'Fix follow-up cadence on the Italy high-potential dermatologist cohort before reducing Germany spend.',
+      'Fix follow-up cadence on the Italy high-potential dermatologist cohort.',
     reasoning:
       'Italy already has the trained HCPs and the budget. The gap is execution, not investment. Germany reduction is a 60-days-later question, conditional on Italy follow-up improving first.',
     // Why bullets mirror the hero pattern (Italy has the runway / Germany
@@ -1142,7 +1142,7 @@ export const askAriya: AriyaExchange[] = [
     weight: 'full',
     response: {
       recommendedAction:
-        'Fix follow-up cadence on the Italy high-potential dermatologist cohort before reducing Germany spend.',
+        'Fix follow-up cadence on the Italy high-potential dermatologist cohort.',
       reasoning:
         'Italy Xeomin share is slipping and the slope is directionally aligned with the post-training follow-up gap. Selection of trained HCPs in Italy is defensible: 64% of high-potential dermatologists are trained, in line with the European benchmark. The break point is post-training execution. 38% of trained Italian high-potential dermatologists receive a follow-up within 60 days, vs 72% for the equivalent German cohort. The gap is concentrated in the cohort that matters most to Xeomin Italy outcomes.',
       scenarioView:
@@ -1309,7 +1309,7 @@ export const decisionLog: DecisionLogEntry[] = [
     // Aligned to the hero recommendation wording from Europe Overview / Ask
     // Ariya (italy-60d-checkpoint) so the log entry visibly ties back to
     // the recommendation that produced it.
-    decision: 'Fix follow-up cadence on the Italy high-potential dermatologist cohort before reducing Germany spend.',
+    decision: 'Fix follow-up cadence on the Italy high-potential dermatologist cohort.',
     owner: 'Europe Leadership',
     marketAndBrand: 'Italy · Xeomin',
     // Evidence row mirrors the hero's anchor numbers: the 38 vs 72 cohort
