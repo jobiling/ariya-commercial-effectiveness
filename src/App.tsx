@@ -14,6 +14,7 @@ import MarketPerformance from './pages/MarketPerformance';
 import InvestmentRadar from './pages/InvestmentRadar';
 import ExecutionSignals from './pages/ExecutionSignals';
 import CustomerAccountFocus from './pages/CustomerAccountFocus';
+import TrainingToSales from './pages/TrainingToSales';
 import ScenarioPlanner from './pages/ScenarioPlanner';
 import AskAriya from './pages/AskAriya';
 import DecisionLog from './pages/DecisionLog';
@@ -51,6 +52,7 @@ export default function App() {
                 <Route path="/investment-radar" element={<InvestmentRadar />} />
                 <Route path="/execution-signals" element={<ExecutionSignals />} />
                 <Route path="/customer-account-focus" element={<CustomerAccountFocus />} />
+                <Route path="/training-to-sales" element={<TrainingToSales />} />
                 <Route path="/scenario-planner" element={<ScenarioPlanner />} />
                 <Route path="/ask-ariya" element={<AskAriya />} />
                 <Route path="/decision-log" element={<DecisionLog />} />

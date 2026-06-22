@@ -3,6 +3,7 @@ import type { CSSProperties } from 'react';
 import {
   Activity,
   Compass,
+  LineChart,
   Sunrise,
   TrendingUp,
   Target,
@@ -21,6 +22,7 @@ const CE_NAV_ITEMS = [
   { to: '/investment-radar', label: 'Investment Radar', icon: Target },
   { to: '/execution-signals', label: 'Veeva Execution Screening', icon: Activity },
   { to: '/customer-account-focus', label: 'Customer and Account Focus', icon: Users },
+  { to: '/training-to-sales', label: 'Training-to-Sales Signal', icon: LineChart },
   { to: '/scenario-planner', label: 'Scenario Planner', icon: GitBranch },
   { to: '/ask-ariya', label: 'Ask Ariya', icon: Sparkles },
   { to: '/decision-log', label: 'Decision Log', icon: BookOpen },

@@ -1556,6 +1556,54 @@ export const sourceConfidence: DataSource[] = [
 ];
 
 // ---------------------------------------------------------------------------
+// TRAINING-TO-SALES SIGNAL
+// ---------------------------------------------------------------------------
+//
+// Connects trained injector cohorts to later order or sales patterns using
+// territory-catchment allocation. Stated as directional, never exact at the
+// individual-HCP level. Two cohort series indexed to 100 at the training month
+// (month 0), spanning month -3 to +6.
+
+export interface CohortPoint {
+  month: number;   // -3 .. +6
+  trainedAndFollowedUp: number;
+  trainedButUnderFollowed: number;
+}
+
+export const trainingToSales = {
+  market: 'Germany',
+  confidence: 'Medium' as Confidence,
+  methodNote:
+    'Sales or order signals are allocated directionally to trained injector cohorts using territory catchment and available in-market data. This is intended for management insight, not exact individual-HCP attribution.',
+  subtitle: 'Directional. Not exact at individual-HCP level.',
+  trainingMonthLabel: 'Training',
+  series: [
+    { month: -3, trainedAndFollowedUp: 99, trainedButUnderFollowed: 100 },
+    { month: -2, trainedAndFollowedUp: 99, trainedButUnderFollowed: 100 },
+    { month: -1, trainedAndFollowedUp: 100, trainedButUnderFollowed: 100 },
+    { month: 0, trainedAndFollowedUp: 100, trainedButUnderFollowed: 100 },
+    { month: 1, trainedAndFollowedUp: 101, trainedButUnderFollowed: 100 },
+    { month: 2, trainedAndFollowedUp: 103, trainedButUnderFollowed: 100.5 },
+    { month: 3, trainedAndFollowedUp: 105, trainedButUnderFollowed: 100.5 },
+    { month: 4, trainedAndFollowedUp: 106, trainedButUnderFollowed: 101 },
+    { month: 5, trainedAndFollowedUp: 107, trainedButUnderFollowed: 101 },
+    { month: 6, trainedAndFollowedUp: 108, trainedButUnderFollowed: 101 },
+  ] as CohortPoint[],
+  // Readout numbers at month +6.
+  readout: {
+    followedUpIndex: 108,
+    underFollowedIndex: 101,
+    gapPoints: 7,
+  },
+  caveats: [
+    'Cohort allocation uses territory catchment, not individual-HCP linkage.',
+    'Order signals lag training; the window shown is illustrative.',
+    'No claim of causation. The relationship is directional under stated assumptions.',
+  ],
+  sources: ['Training participation', 'Veeva activity', 'Sales or order signals'],
+} as const;
+
+// ---------------------------------------------------------------------------
 // MORNING BRIEFING
 // ---------------------------------------------------------------------------
 //
