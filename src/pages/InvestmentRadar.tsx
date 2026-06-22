@@ -14,7 +14,7 @@ import { PageHeader } from '../components/layout/PageHeader';
 import { AriyaNote, RecommendationCard } from '../components/decision';
 import {
   investmentRadar,
-  italyHcpTrainingRecommendation,
+  germanyHcpTrainingRecommendation,
   proxyFramingNote,
   strategicChainLink,
   markets,
@@ -527,19 +527,19 @@ export default function InvestmentRadar() {
           {isItalyHcp ? (
             <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
               <RecommendationCard
-                eyebrow={italyHcpTrainingRecommendation.eyebrow}
-                meta={italyHcpTrainingRecommendation.headerMeta}
+                eyebrow={germanyHcpTrainingRecommendation.eyebrow}
+                meta={germanyHcpTrainingRecommendation.headerMeta}
                 contextLabel="Selected · Italy · HCP training and education"
                 chainLink={strategicChainLink}
-                recommendation={italyHcpTrainingRecommendation.recommendation}
-                whyBullets={italyHcpTrainingRecommendation.whyBullets}
-                confidence={italyHcpTrainingRecommendation.confidence}
-                confidenceRationale={italyHcpTrainingRecommendation.confidenceRationale}
-                conditions={italyHcpTrainingRecommendation.conditions}
-                nextActions={italyHcpTrainingRecommendation.nextActions}
-                nextActionsMeta={italyHcpTrainingRecommendation.nextActionsMeta}
-                sources={italyHcpTrainingRecommendation.sources}
-                footerMeta={italyHcpTrainingRecommendation.footerMeta}
+                recommendation={germanyHcpTrainingRecommendation.recommendation}
+                whyBullets={germanyHcpTrainingRecommendation.whyBullets}
+                confidence={germanyHcpTrainingRecommendation.confidence}
+                confidenceRationale={germanyHcpTrainingRecommendation.confidenceRationale}
+                conditions={germanyHcpTrainingRecommendation.conditions}
+                nextActions={germanyHcpTrainingRecommendation.nextActions}
+                nextActionsMeta={germanyHcpTrainingRecommendation.nextActionsMeta}
+                sources={germanyHcpTrainingRecommendation.sources}
+                footerMeta={germanyHcpTrainingRecommendation.footerMeta}
                 variant="compact"
                 collapsible
               />

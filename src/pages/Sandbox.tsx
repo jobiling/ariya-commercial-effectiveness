@@ -4,7 +4,7 @@ import {
   ConfidenceBadge,
   WhatThisSuggests,
 } from '../components/decision';
-import { overview, italyHcpTrainingRecommendation } from '../data/scenario';
+import { overview, germanyHcpTrainingRecommendation } from '../data/scenario';
 
 const NAVY = '#050A44';
 const NAVY_55 = 'rgba(5,10,68,0.55)';
@@ -104,14 +104,14 @@ export default function Sandbox() {
       <section style={dividerStyle}>
         <div style={sectionLabelStyle}>RecommendationCard · Full · No accent (default)</div>
         <RecommendationCard
-          situation={italyHcpTrainingRecommendation.situation}
-          recommendation={italyHcpTrainingRecommendation.recommendation}
-          reasoning={italyHcpTrainingRecommendation.reasoning}
-          confidence={italyHcpTrainingRecommendation.confidence}
-          confidenceRationale={italyHcpTrainingRecommendation.confidenceRationale}
-          conditions={italyHcpTrainingRecommendation.conditions}
-          nextActions={italyHcpTrainingRecommendation.nextActions}
-          sources={italyHcpTrainingRecommendation.sources}
+          situation={germanyHcpTrainingRecommendation.situation}
+          recommendation={germanyHcpTrainingRecommendation.recommendation}
+          reasoning={germanyHcpTrainingRecommendation.reasoning}
+          confidence={germanyHcpTrainingRecommendation.confidence}
+          confidenceRationale={germanyHcpTrainingRecommendation.confidenceRationale}
+          conditions={germanyHcpTrainingRecommendation.conditions}
+          nextActions={germanyHcpTrainingRecommendation.nextActions}
+          sources={germanyHcpTrainingRecommendation.sources}
           actions={[
             { label: 'Log this decision →', onClick: () => alert('Would open Log Decision modal'), primary: true },
           ]}
@@ -121,14 +121,14 @@ export default function Sandbox() {
       <section style={dividerStyle}>
         <div style={sectionLabelStyle}>RecommendationCard · Compact (no situation, no reasoning)</div>
         <RecommendationCard
-          situation={italyHcpTrainingRecommendation.situation}
-          recommendation={italyHcpTrainingRecommendation.recommendation}
-          reasoning={italyHcpTrainingRecommendation.reasoning}
-          confidence={italyHcpTrainingRecommendation.confidence}
-          confidenceRationale={italyHcpTrainingRecommendation.confidenceRationale}
-          conditions={italyHcpTrainingRecommendation.conditions}
-          nextActions={italyHcpTrainingRecommendation.nextActions}
-          sources={italyHcpTrainingRecommendation.sources}
+          situation={germanyHcpTrainingRecommendation.situation}
+          recommendation={germanyHcpTrainingRecommendation.recommendation}
+          reasoning={germanyHcpTrainingRecommendation.reasoning}
+          confidence={germanyHcpTrainingRecommendation.confidence}
+          confidenceRationale={germanyHcpTrainingRecommendation.confidenceRationale}
+          conditions={germanyHcpTrainingRecommendation.conditions}
+          nextActions={germanyHcpTrainingRecommendation.nextActions}
+          sources={germanyHcpTrainingRecommendation.sources}
           variant="compact"
         />
       </section>

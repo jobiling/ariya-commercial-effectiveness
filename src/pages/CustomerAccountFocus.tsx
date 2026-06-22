@@ -8,7 +8,7 @@ import { RecommendationCard, WhatThisSuggests } from '../components/decision';
 import {
   executionSignals,
   hcpSegments,
-  italyHighPotentialDermRecommendation,
+  germanyHighPotentialInjectorRecommendation,
   markets,
 } from '../data/scenario';
 import type { HcpSegment } from '../data/scenario';
@@ -720,17 +720,17 @@ export default function CustomerAccountFocus() {
               {isItDermHigh ? (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
                   <RecommendationCard
-                    eyebrow={italyHighPotentialDermRecommendation.eyebrow}
-                    meta={italyHighPotentialDermRecommendation.headerMeta}
-                    pill={italyHighPotentialDermRecommendation.pill}
-                    recommendation={italyHighPotentialDermRecommendation.recommendation}
-                    confidence={italyHighPotentialDermRecommendation.confidence}
-                    confidenceRationale={italyHighPotentialDermRecommendation.confidenceRationale}
-                    conditions={italyHighPotentialDermRecommendation.conditions}
-                    nextActions={italyHighPotentialDermRecommendation.nextActions}
-                    nextActionsMeta={italyHighPotentialDermRecommendation.nextActionsMeta}
-                    sources={italyHighPotentialDermRecommendation.sources}
-                    footerMeta={italyHighPotentialDermRecommendation.footerMeta}
+                    eyebrow={germanyHighPotentialInjectorRecommendation.eyebrow}
+                    meta={germanyHighPotentialInjectorRecommendation.headerMeta}
+                    pill={germanyHighPotentialInjectorRecommendation.pill}
+                    recommendation={germanyHighPotentialInjectorRecommendation.recommendation}
+                    confidence={germanyHighPotentialInjectorRecommendation.confidence}
+                    confidenceRationale={germanyHighPotentialInjectorRecommendation.confidenceRationale}
+                    conditions={germanyHighPotentialInjectorRecommendation.conditions}
+                    nextActions={germanyHighPotentialInjectorRecommendation.nextActions}
+                    nextActionsMeta={germanyHighPotentialInjectorRecommendation.nextActionsMeta}
+                    sources={germanyHighPotentialInjectorRecommendation.sources}
+                    footerMeta={germanyHighPotentialInjectorRecommendation.footerMeta}
                     variant="compact"
                   />
                   <button

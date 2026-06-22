@@ -11,11 +11,10 @@ import {
   BookOpen,
   ShieldCheck,
   RefreshCw,
-  Presentation,
 } from 'lucide-react';
 
 const CE_NAV_ITEMS = [
-  { to: '/', label: 'Europe Overview', icon: Compass },
+  { to: '/', label: 'DACH Overview', icon: Compass },
   { to: '/market-performance', label: 'Market Performance', icon: TrendingUp },
   { to: '/investment-radar', label: 'Investment Radar', icon: Target },
   { to: '/execution-signals', label: 'Execution Signals', icon: Activity },
@@ -100,26 +99,6 @@ const footerStyle: CSSProperties = {
   gap: 4,
 };
 
-const footerLinkBaseStyle: CSSProperties = {
-  display: 'flex',
-  alignItems: 'center',
-  gap: 12,
-  padding: '10px 14px',
-  borderRadius: 10,
-  color: 'rgba(255,255,255,0.78)',
-  textDecoration: 'none',
-  fontSize: 13,
-  fontWeight: 500,
-  transition: 'background 120ms ease, color 120ms ease',
-};
-
-const footerLinkActiveStyle: CSSProperties = {
-  background: '#FFFFFF',
-  color: '#050A44',
-  fontWeight: 600,
-  boxShadow: '0 1px 2px rgba(0,0,0,0.08)',
-};
-
 const resetBtnStyle: CSSProperties = {
   display: 'flex',
   alignItems: 'center',
@@ -183,16 +162,7 @@ export function Sidebar() {
       </nav>
 
       <div style={footerStyle}>
-        <NavLink
-          to="/pilot-proposal"
-          style={({ isActive }) => ({
-            ...footerLinkBaseStyle,
-            ...(isActive ? footerLinkActiveStyle : null),
-          })}
-        >
-          <Presentation size={15} />
-          Pilot proposal
-        </NavLink>
+        {/* Pilot proposal nav item hidden for the DACH re-skin (Stage 1). */}
         <button type="button" onClick={resetDemo} style={resetBtnStyle}>
           <RefreshCw size={15} />
           Reset demo
