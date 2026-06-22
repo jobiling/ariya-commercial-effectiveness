@@ -91,7 +91,7 @@ export const brands: Brand[] = [
 ];
 
 // ---------------------------------------------------------------------------
-// EUROPE OVERVIEW summary
+// GM HOME summary (landing page, route "/")
 // ---------------------------------------------------------------------------
 
 export const overview = {
@@ -719,8 +719,8 @@ export const germanyHcpTrainingRecommendation = {
 //
 // Reusable "Part of: …" link that wires diagnostic-altitude recommendations
 // (Investment Radar, Customer & Account Focus, etc.) back to the strategic
-// recommendation that lives on Europe Overview. The link target is the
-// `recommendation-anchor` element on Europe Overview, so the user lands on
+// recommendation that lives on GM Home. The link target is the
+// `recommendation-anchor` element on GM Home, so the user lands on
 // the right section without needing to scroll.
 
 export const strategicChainLink = {
@@ -1560,8 +1560,8 @@ export const sourceConfidence: DataSource[] = [
 // ---------------------------------------------------------------------------
 
 export const demoSteps = [
-  { route: '/', label: 'DACH Overview',
-    hint: 'Germany is flagged as the priority market. The Recommendation Card is the anchor. The Dig Deeper bridge connects this recommendation to the 60-day checkpoint in Ask Ariya. The Watching Quietly block at the bottom shows a Switzerland pattern the system is monitoring before it becomes a problem.' },
+  { route: '/', label: 'GM Home',
+    hint: 'The customizable GM cockpit. Germany is flagged as the priority market and the Recommendation Card is the anchor. The Dig Deeper bridge connects this recommendation to the 60-day checkpoint in Ask Ariya.' },
   { route: '/market-performance', label: 'Market Performance',
     hint: 'Germany performance is shown alongside investment, field activity, and post-training follow-up.' },
   { route: '/investment-radar', label: 'Investment Radar',
@@ -1577,3 +1577,154 @@ export const demoSteps = [
   { route: '/decision-log', label: 'Decision Log',
     hint: 'The decision logged from Scenario Planner or Ask Ariya appears at the top with owner and follow-up trigger.' },
 ] as const;
+
+// ---------------------------------------------------------------------------
+// GM HOME (customizable cockpit)
+// ---------------------------------------------------------------------------
+//
+// The landing page is a configurable cockpit. `widgets` is the registry of
+// available widget cards; `layouts` holds two named, ordered arrangements that
+// prove the cockpit is configurable. The page renders an ordered list of
+// widget ids and exposes a Customize panel to add, remove, and reorder them.
+
+export type GmWidgetId =
+  | 'heroRecommendation'
+  | 'weekSummaryTiles'
+  | 'topMovements'
+  | 'performanceScatter'
+  | 'alertsTeaser'
+  | 'otxWatchTeaser'
+  | 'trainingToSalesTeaser'
+  | 'briefingDigest';
+
+export interface GmWidget {
+  id: GmWidgetId;
+  title: string;          // shown in the Customize panel and as the widget label
+  description: string;    // one-line, shown in the Customize panel
+  group: 'Decision' | 'Performance' | 'Teaser';
+  // Teaser widgets render a compact card that bridges to another screen.
+  teaser?: {
+    eyebrow: string;
+    headline: string;
+    body: string;
+    cta: string;
+    to: string;
+    accent: 'navy' | 'blue' | 'amber' | 'green';
+  };
+}
+
+export const gmHome = {
+  // Markets, brands, and signals the GM can scope the cockpit to. Shown as
+  // chips in the Customize panel. The defaults match the live DACH demo.
+  scope: {
+    markets: [
+      { id: 'de', label: 'Germany', on: true },
+      { id: 'ch', label: 'Switzerland', on: true },
+      { id: 'at', label: 'Austria', on: true },
+    ],
+    brands: [
+      { id: 'xeomin', label: 'Xeomin', on: true },
+      { id: 'hepa-merz', label: 'Hepa-Merz', on: false },
+      { id: 'antidry', label: 'Antidry', on: false },
+      { id: 'pantogar', label: 'Pantogar', on: false },
+    ],
+    signals: [
+      { id: 'followup', label: '60-day follow-up', on: true },
+      { id: 'coverage', label: 'Priority coverage', on: true },
+      { id: 'otx', label: 'OTx sell-out', on: false },
+    ],
+  },
+  widgets: [
+    {
+      id: 'heroRecommendation', group: 'Decision',
+      title: "This Week's Priority",
+      description: 'Hero recommendation with the six-source assembly strip. The cockpit anchor.',
+    },
+    {
+      id: 'weekSummaryTiles', group: 'Performance',
+      title: 'Week summary',
+      description: 'Composite risk score and four summary tiles.',
+    },
+    {
+      id: 'topMovements', group: 'Performance',
+      title: 'Top movements',
+      description: 'Markets requiring attention and top opportunity areas.',
+    },
+    {
+      id: 'performanceScatter', group: 'Performance',
+      title: 'Performance vs investment',
+      description: 'DACH scatter of growth vs plan against investment intensity.',
+    },
+    {
+      id: 'alertsTeaser', group: 'Teaser',
+      title: 'Alerts and Notifications',
+      description: 'Recent triggered and armed alert rules.',
+      teaser: {
+        eyebrow: 'Alerts and Notifications',
+        headline: '3 rules armed · 1 triggered',
+        body: 'Germany Xeomin 60-day follow-up below 60% triggered an in-system and email alert.',
+        cta: 'Open Alerts',
+        to: '/alerts',
+        accent: 'amber',
+      },
+    },
+    {
+      id: 'otxWatchTeaser', group: 'Teaser',
+      title: 'OTx Watchlist',
+      description: 'Local OTx portfolio watch, no cross-market comparison.',
+      teaser: {
+        eyebrow: 'OTx Watchlist',
+        headline: 'Local portfolio watch',
+        body: 'Antidry Switzerland: high field activity with flat sell-out. Possible resource mismatch.',
+        cta: 'Open OTx Watchlist',
+        to: '/otx-watchlist',
+        accent: 'navy',
+      },
+    },
+    {
+      id: 'trainingToSalesTeaser', group: 'Teaser',
+      title: 'Training-to-Sales Signal',
+      description: 'Directional cohort signal from trained injectors to later orders.',
+      teaser: {
+        eyebrow: 'Training-to-Sales Signal',
+        headline: 'Followed-up cohort is pulling ahead',
+        body: 'Germany trained-and-followed-up injectors index +8 at month 6 vs +1 for the under-followed cohort. Directional.',
+        cta: 'Open Training-to-Sales',
+        to: '/training-to-sales',
+        accent: 'blue',
+      },
+    },
+    {
+      id: 'briefingDigest', group: 'Teaser',
+      title: 'Morning Briefing',
+      description: "Today's prioritized management note.",
+      teaser: {
+        eyebrow: 'Morning Briefing',
+        headline: 'Five things for today',
+        body: 'Germany follow-up slipped to 44%. 52 injectors below cadence. Two owners overdue.',
+        cta: 'Open Morning Briefing',
+        to: '/morning-briefing',
+        accent: 'green',
+      },
+    },
+  ] as GmWidget[],
+  layouts: {
+    default: [
+      'heroRecommendation',
+      'weekSummaryTiles',
+      'topMovements',
+      'performanceScatter',
+      'alertsTeaser',
+      'otxWatchTeaser',
+    ] as GmWidgetId[],
+    // A visibly different arrangement: briefing and training-to-sales pinned
+    // to the top, hero kept, OTx added, performance scatter hidden.
+    customized: [
+      'briefingDigest',
+      'trainingToSalesTeaser',
+      'heroRecommendation',
+      'topMovements',
+      'otxWatchTeaser',
+    ] as GmWidgetId[],
+  },
+} as const;

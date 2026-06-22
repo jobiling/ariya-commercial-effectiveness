@@ -8,7 +8,7 @@ import { TourProvider } from './context/TourContext';
 import { DemoModeProvider } from './context/DemoModeContext';
 import { DecisionLogProvider } from './context/DecisionLogContext';
 import { DemoOverlay } from './components/demo/DemoOverlay';
-import EuropeOverview from './pages/EuropeOverview';
+import GMHome from './pages/GMHome';
 import MarketPerformance from './pages/MarketPerformance';
 import InvestmentRadar from './pages/InvestmentRadar';
 import ExecutionSignals from './pages/ExecutionSignals';
@@ -44,7 +44,7 @@ export default function App() {
           <div style={shellStyle}>
             <main style={mainStyle}>
               <Routes>
-                <Route path="/" element={<EuropeOverview />} />
+                <Route path="/" element={<GMHome />} />
                 <Route path="/market-performance" element={<MarketPerformance />} />
                 <Route path="/investment-radar" element={<InvestmentRadar />} />
                 <Route path="/execution-signals" element={<ExecutionSignals />} />

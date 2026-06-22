@@ -14,7 +14,7 @@ import {
 } from 'lucide-react';
 
 const CE_NAV_ITEMS = [
-  { to: '/', label: 'DACH Overview', icon: Compass },
+  { to: '/', label: 'GM Home', icon: Compass },
   { to: '/market-performance', label: 'Market Performance', icon: TrendingUp },
   { to: '/investment-radar', label: 'Investment Radar', icon: Target },
   { to: '/execution-signals', label: 'Veeva Execution Screening', icon: Activity },
