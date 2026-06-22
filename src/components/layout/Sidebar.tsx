@@ -17,7 +17,7 @@ const CE_NAV_ITEMS = [
   { to: '/', label: 'DACH Overview', icon: Compass },
   { to: '/market-performance', label: 'Market Performance', icon: TrendingUp },
   { to: '/investment-radar', label: 'Investment Radar', icon: Target },
-  { to: '/execution-signals', label: 'Execution Signals', icon: Activity },
+  { to: '/execution-signals', label: 'Veeva Execution Screening', icon: Activity },
   { to: '/customer-account-focus', label: 'Customer and Account Focus', icon: Users },
   { to: '/scenario-planner', label: 'Scenario Planner', icon: GitBranch },
   { to: '/ask-ariya', label: 'Ask Ariya', icon: Sparkles },

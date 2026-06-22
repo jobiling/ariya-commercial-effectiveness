@@ -157,12 +157,12 @@ const linkStyle: CSSProperties = {
   padding: 0,
 };
 
-const FILTER_MARKETS = ['it', 'de', 'es', 'fr', 'pl', 'nl'] as const;
+const FILTER_MARKETS = ['de', 'ch', 'at'] as const;
 const FILTER_TONES: SignalTone[] = ['at-risk', 'watch'];
 
 // The market with the highest count on each signal gets a small visual nudge
-// in its breakdown chip. Keeps the "Italy 47" or "Germany 19" front-of-mind
-// without bathing the whole card in color.
+// in its breakdown chip. Keeps the "Germany 52" front-of-mind without
+// bathing the whole card in color.
 function leadingMarketId(breakdown: { marketId: string; count: number }[]): string | null {
   if (breakdown.length === 0) return null;
   return [...breakdown].sort((a, b) => b.count - a.count)[0].marketId;
@@ -210,7 +210,7 @@ export default function ExecutionSignals() {
   return (
     <div style={pageStyle}>
       <PageHeader
-        title="Execution Signals"
+        title="Veeva Execution Screening"
         subtitle="Are teams doing the follow-through required to make investments work?"
       />
 
@@ -365,7 +365,7 @@ export default function ExecutionSignals() {
       )}
 
       <WhatThisSuggests
-        text="Italy and Germany dominate the at-risk signals. The next page connects these signals to specific HCP segments."
+        text="Germany and Austria dominate the at-risk signals. The next page connects these signals to specific cohorts."
         to="/customer-account-focus"
         linkLabel="Open Customer and Account Focus"
       />

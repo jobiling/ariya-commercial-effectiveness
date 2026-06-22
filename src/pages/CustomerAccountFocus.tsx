@@ -277,14 +277,14 @@ export default function CustomerAccountFocus() {
     return Array.from(ids);
   }, []);
 
-  // Default: Italy selected, High tier selected, training and follow-up unfiltered.
-  const [marketFilter, setMarketFilter] = useState<Set<string>>(new Set(['it']));
+  // Default: Germany selected, High tier selected, training and follow-up unfiltered.
+  const [marketFilter, setMarketFilter] = useState<Set<string>>(new Set(['de']));
   const [tierFilter, setTierFilter] = useState<Set<string>>(new Set(['High']));
   const [trainingFilter, setTrainingFilter] = useState<Set<string>>(new Set());
   const [followupFilter, setFollowupFilter] = useState<Set<string>>(new Set());
-  const [selectedSegmentId, setSelectedSegmentId] = useState<string>('it-derm-high');
+  const [selectedSegmentId, setSelectedSegmentId] = useState<string>('de-derm-high');
 
-  // The "Under-covered high-potential HCPs" banner pulls from the execution signal
+  // The "Under-covered high-potential injectors" banner pulls from the execution signal
   // so it stays consistent with the Execution Signals page rather than duplicating data.
   const undercoveredSignal = useMemo(
     () => executionSignals.find((s) => s.id === 'trained-not-visited'),
@@ -350,13 +350,13 @@ export default function CustomerAccountFocus() {
   const selectedSegment =
     hcpSegments.find((s) => s.id === selectedSegmentId) ?? filteredSegments[0] ?? hcpSegments[0];
 
-  const isItDermHigh = selectedSegment?.id === 'it-derm-high';
+  const isDeDermHigh = selectedSegment?.id === 'de-derm-high';
 
   return (
     <div style={pageStyle}>
       <PageHeader
         title="Customer and Account Focus"
-        subtitle="Did we select the right HCPs, and are we following up?"
+        subtitle="Did we select the right injectors, and are we following up?"
       />
 
       <section style={{ display: 'flex', flexWrap: 'wrap', gap: 10, alignItems: 'center' }}>
@@ -453,11 +453,11 @@ export default function CustomerAccountFocus() {
                 color: '#7F1D1D',
               }}
             >
-              Under-covered high-potential HCPs
+              Under-covered high-potential injectors
             </div>
             <div style={{ fontSize: 14, color: NAVY, marginTop: 3, lineHeight: 1.45 }}>
               <strong style={{ fontWeight: 700 }}>
-                {undercoveredSignal.count} trained HCPs
+                {undercoveredSignal.count} trained injectors
               </strong>{' '}
               have not received a field follow-up within 60 days.{' '}
               {undercoveredSignal.marketBreakdown.map((b, i, arr) => {
@@ -521,7 +521,7 @@ export default function CustomerAccountFocus() {
               color: NAVY_55,
             }}
           >
-            HCP segments
+            Injector segments
           </div>
           <div style={{ fontSize: 12, color: NAVY_55 }}>
             {filteredSegments.length} of {hcpSegments.length} segments shown · click a row to inspect
@@ -532,7 +532,7 @@ export default function CustomerAccountFocus() {
           <span>Segment</span>
           <span>Market</span>
           <span>Potential tier</span>
-          <span style={{ textAlign: 'right' }}>HCPs</span>
+          <span style={{ textAlign: 'right' }}>Injectors</span>
           <span>Trained</span>
           <span>Followed up 60d</span>
           <span>Growth vs LY</span>
@@ -650,7 +650,7 @@ export default function CustomerAccountFocus() {
                   Trained vs followed up
                 </div>
                 <div style={{ fontSize: 13, color: NAVY_70, marginTop: 2 }}>
-                  {selectedSegment.count} HCPs · {selectedSegment.potentialTier} potential
+                  {selectedSegment.count} injectors · {selectedSegment.potentialTier} potential
                 </div>
               </div>
 
@@ -684,7 +684,7 @@ export default function CustomerAccountFocus() {
 
               <div style={countsRowStyle}>
                 <div style={countStatStyle}>
-                  <div style={countStatLabelStyle}>HCPs</div>
+                  <div style={countStatLabelStyle}>Injectors</div>
                   <div style={countStatValueStyle}>{selectedSegment.count}</div>
                   <div style={countStatSubStyle}>In segment</div>
                 </div>
@@ -717,7 +717,7 @@ export default function CustomerAccountFocus() {
             </div>
 
             <div>
-              {isItDermHigh ? (
+              {isDeDermHigh ? (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
                   <RecommendationCard
                     eyebrow={germanyHighPotentialInjectorRecommendation.eyebrow}
@@ -735,7 +735,7 @@ export default function CustomerAccountFocus() {
                   />
                   <button
                     type="button"
-                    onClick={() => navigate('/ask-ariya?q=italy-60d-checkpoint')}
+                    onClick={() => navigate('/ask-ariya?q=germany-60d-checkpoint')}
                     style={{
                       alignSelf: 'flex-start',
                       display: 'inline-flex',
@@ -769,7 +769,7 @@ export default function CustomerAccountFocus() {
                     Recommendation in development
                   </div>
                   <p style={{ margin: 0, color: NAVY_70 }}>
-                    Italian high-potential dermatologists are the active demo cohort. Select that segment in the table to see the full recommendation.
+                    German high-potential Xeomin injectors are the active demo cohort. Select that segment in the table to see the full recommendation.
                   </p>
                 </div>
               )}
@@ -779,7 +779,7 @@ export default function CustomerAccountFocus() {
       )}
 
       <WhatThisSuggests
-        text="Scenario Planner explores what a directional reallocation would look like, anchored on closing this gap."
+        text="Scenario Planner explores what a directional redirect within Germany would look like, anchored on closing this gap."
         to="/scenario-planner"
         linkLabel="Open Scenario Planner"
       />

@@ -24,39 +24,38 @@ const NAVY_06 = 'rgba(5,10,68,0.06)';
 const CANVAS = '#F7F8FC';
 const BLUE = '#0055BB';
 
-const HERO_EXCHANGE_ID = 'italy-60d-checkpoint';
+const HERO_EXCHANGE_ID = 'germany-60d-checkpoint';
 
-// Tier 1, Tier 2, Tier 3 — the empty state layout
+// Tier 1, Tier 2, Tier 3 · the empty state layout
 // ───────────────────────────────────────────────────────────────────────────
-// The previous hero question (italy-60d-checkpoint) now lives in Tier 1 as
-// its first entry, rather than as a standalone above-the-fold card. The
-// "hero" framing only matters when other pages link in (Europe Overview's
-// Dig deeper still routes to /ask-ariya?q=italy-60d-checkpoint, see the
-// useEffect below).
+// The hero question (germany-60d-checkpoint) also lives in Tier 1 as its
+// first entry. The "hero" framing only matters when other pages link in
+// (DACH Overview's Dig deeper routes to /ask-ariya?q=germany-60d-checkpoint,
+// see the useEffect below).
 
 const TIER_1_IDS = [
-  'italy-60d-checkpoint',
-  'italy-downside-60d',
-  'germany-pool-sizing',
-  'italy-selection-alternative',
+  'germany-60d-checkpoint',
+  'germany-downside-60d',
+  'germany-redirect-sizing',
+  'germany-selection-alternative',
 ] as const;
-const TIER_1_LABEL = 'Pressure-test the recommendation: Italy follow-up sprint';
+const TIER_1_LABEL = 'Pressure-test the recommendation: Germany follow-up sprint';
 const TIER_1_SUBTITLE = 'Before you commit, push on the assumptions.';
 
 const TIER_2_IDS = [
-  'spain-incremental',
-  'germany-may14-update',
-  'kol-italy-germany',
+  'switzerland-watch',
+  'austria-cohort-update',
+  'kol-germany-austria',
 ] as const;
 const TIER_2_LABEL = 'Other open decisions';
 const TIER_2_SUBTITLE = 'Three decisions currently live in the Decision Log.';
 
 const TIER_3_IDS = [
   'src-market-slipping',
-  'src-crm-followup',
+  'src-veeva-followup',
   'src-training-misfit',
   'src-segmentation-coverage',
-  'src-finance-misalignment',
+  'src-forecast-misalignment',
   'src-context-signals',
 ] as const;
 const TIER_3_LABEL = 'More questions, by source';
@@ -65,12 +64,12 @@ const TIER_3_SUBTITLE = 'Each of the six sources can be interrogated on its own.
 // Maps boundSource id (matches overview.assemblySources) to the source label
 // rendered on the left side of each Tier 3 row.
 const SOURCE_LABELS: Record<string, string> = {
-  'market-perf': 'Market performance',
-  'crm': 'CRM activity',
-  'training': 'Training participation and spend',
+  'veeva': 'Veeva activity',
+  'training': 'Training participation',
   'segmentation': 'HCP segmentation',
-  'finance': 'Finance',
-  'market-context': 'Market context',
+  'sales': 'Sales or order signals',
+  'forecast': 'Plan or forecast data',
+  'brand-plan': 'Brand-plan context',
 };
 
 // ───────────────────────────────────────────────────────────────────────────
@@ -181,7 +180,7 @@ const followUpCardStyle: CSSProperties = {
 };
 
 // Hero chip used to promote the lead question inside its tier (e.g.
-// italy-60d-checkpoint inside Tier 1). Full-width, blue left stripe that
+// germany-60d-checkpoint inside Tier 1). Full-width, blue left stripe that
 // mirrors the BLUE stripe on the AssemblyAnswer card, slightly bigger
 // type than the standard follow-up chip.
 const heroChipStyle: CSSProperties = {
@@ -264,7 +263,7 @@ const tierSubtitleStyle: CSSProperties = {
   lineHeight: 1.4,
 };
 
-// Tier 3 rows — source label on the left, question on the right
+// Tier 3 rows · source label on the left, question on the right
 const tier3ListStyle: CSSProperties = {
   display: 'flex',
   flexDirection: 'column',
@@ -356,15 +355,15 @@ function matchQuestion(input: string): AriyaExchange | undefined {
   if (!q) return undefined;
   let hit = askAriya.find((a) => a.question.toLowerCase().includes(q));
   if (hit) return hit;
-  // Hero only — broad-match anything that smells like the Italy 60-day
+  // Hero only. Broad-match anything that smells like the Germany 60-day
   // checkpoint question. Tier 1-3 exchanges are placeholders in v1; we
   // don't bother free-text matching them.
   const keyPhrases: { id: string; phrases: string[] }[] = [
     {
-      id: 'italy-60d-checkpoint',
+      id: 'germany-60d-checkpoint',
       phrases: [
         '60-day', '60 day', 'sixty day', 'checkpoint',
-        'italy sprint', 'follow-up sprint', 'follow up sprint',
+        'germany sprint', 'follow-up sprint', 'follow up sprint',
         'black box', 'training black box',
       ],
     },
@@ -425,7 +424,7 @@ export default function AskAriya() {
   const [modalOpen, setModalOpen] = useState(false);
   const [logDraft, setLogDraft] = useState<LogDecisionDraft | null>(null);
   // Surfaced when the user arrives via ?q={id} but the id has no matching
-  // exchange yet — typically because the matching exchange is scheduled to
+  // exchange yet, typically because the matching exchange is scheduled to
   // land in a later stage. We clear the URL param and leave the empty state
   // visible with a small note above the suggestions.
   const [interimNote, setInterimNote] = useState(false);
@@ -486,7 +485,7 @@ export default function AskAriya() {
     if (messages.length > 0) return;
     const qId = searchParams.get('q');
     const qText = searchParams.get('question');
-    // ?q={id} — we used to auto-send the matching exchange and skip the
+    // ?q={id}. We used to auto-send the matching exchange and skip the
     // empty state. That hijacked the page and put the user at the bottom
     // of a long answer they hadn't asked to see yet. Now we just clear the
     // URL param, leave the empty state visible, and let the user choose
@@ -501,7 +500,7 @@ export default function AskAriya() {
       if (!ex) setInterimNote(true);
       return;
     }
-    // ?question={text} — legacy free-text entry point still auto-sends.
+    // ?question={text}. Legacy free-text entry point still auto-sends.
     if (qText) {
       send(decodeURIComponent(qText));
       const next = new URLSearchParams(searchParams);
@@ -514,14 +513,14 @@ export default function AskAriya() {
   const openLogModal = (exchange: AriyaExchange) => {
     const d: LogDecisionDraft = {
       decision: exchange.response.recommendedAction,
-      owner: 'Europe Leadership',
-      marketAndBrand: 'Italy, Germany · Xeomin',
+      owner: 'DACH Leadership',
+      marketAndBrand: 'Germany · Xeomin',
       evidenceUsed: exchange.response.sources,
       assumptions: exchange.response.requiredConditions,
       expectedImpact:
-        'Directional commercial recovery within 60 days, measured via CRM follow-up rate and Xeomin run-rate.',
+        'Directional commercial recovery within 60 days, measured via Veeva follow-up rate and Xeomin run-rate.',
       followUpDate: dateFromToday(60),
-      triggerForReassessment: 'Italy follow-up rate below 55% at 30 days',
+      triggerForReassessment: 'Germany follow-up rate below 55% at 30 days',
       status: 'Active',
       source: 'Ask Ariya',
     };
@@ -548,7 +547,7 @@ export default function AskAriya() {
     <div style={pageStyle}>
       <PageHeader
         title="Ask Ariya"
-        subtitle="Ariya assembles performance, CRM, training, segmentation, finance, and market context into one decision. Ask what's inside the black box."
+        subtitle="Ariya assembles Veeva activity, training, segmentation, sales signals, plan data, and brand-plan context into one decision. Ask what's inside the black box."
       />
 
       {/* Top input card */}
@@ -577,7 +576,7 @@ export default function AskAriya() {
       </div>
 
       {/* Empty state: three labelled tiers. The previous standalone hero
-          card is gone — italy-60d-checkpoint is now the first entry in
+          card is gone. germany-60d-checkpoint is now the first entry in
           Tier 1. */}
       {showEmptyState && (
         <>
@@ -596,7 +595,7 @@ export default function AskAriya() {
           )}
 
           {/* Tier 1 · Pressure-test
-              First entry (italy-60d-checkpoint) renders as a full-width
+              First entry (germany-60d-checkpoint) renders as a full-width
               hero chip with a blue stripe. The remaining three follow in
               the standard 2-col chip grid. */}
           <section style={tierSectionStyle}>
