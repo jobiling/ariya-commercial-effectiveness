@@ -9,6 +9,7 @@ import { DemoModeProvider } from './context/DemoModeContext';
 import { DecisionLogProvider } from './context/DecisionLogContext';
 import { DemoOverlay } from './components/demo/DemoOverlay';
 import GMHome from './pages/GMHome';
+import MorningBriefing from './pages/MorningBriefing';
 import MarketPerformance from './pages/MarketPerformance';
 import InvestmentRadar from './pages/InvestmentRadar';
 import ExecutionSignals from './pages/ExecutionSignals';
@@ -45,6 +46,7 @@ export default function App() {
             <main style={mainStyle}>
               <Routes>
                 <Route path="/" element={<GMHome />} />
+                <Route path="/morning-briefing" element={<MorningBriefing />} />
                 <Route path="/market-performance" element={<MarketPerformance />} />
                 <Route path="/investment-radar" element={<InvestmentRadar />} />
                 <Route path="/execution-signals" element={<ExecutionSignals />} />

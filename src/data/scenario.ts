@@ -1556,6 +1556,92 @@ export const sourceConfidence: DataSource[] = [
 ];
 
 // ---------------------------------------------------------------------------
+// MORNING BRIEFING
+// ---------------------------------------------------------------------------
+//
+// A management note, not a dashboard. Five short sections, each a prioritized
+// list of one-line items with an optional owner chip and an optional "Open"
+// link to the relevant screen.
+
+export interface BriefingItem {
+  text: string;
+  owner?: string;       // owner chip, where relevant
+  to?: string;          // optional quiet "Open" link to a relevant page
+  confidence?: Confidence;  // shown on low-confidence watch items
+}
+
+export interface BriefingSection {
+  id: string;
+  title: string;
+  blurb: string;        // one-line section framing
+  items: BriefingItem[];
+}
+
+export const morningBriefing = {
+  dateLabel: 'May 19, 2026',
+  standfirst:
+    'Five things worth your attention before the day starts. Prioritized, with owners and the next move.',
+  sections: [
+    {
+      id: 'top-changes',
+      title: 'Top changes since yesterday',
+      blurb: 'What moved, in plain terms.',
+      items: [
+        { text: 'Germany Xeomin 60-day follow-up slipped to 44%, three points below last month.', to: '/market-performance?market=de' },
+        { text: 'Austria training participation rose, follow-up steady at 62%.', to: '/customer-account-focus' },
+        { text: 'Switzerland Antidry sell-out flat despite high field activity.', to: '/otx-watchlist' },
+      ],
+    },
+    {
+      id: 'signals-attention',
+      title: 'Signals requiring attention',
+      blurb: 'Proxy signals that crossed a threshold.',
+      items: [
+        { text: '52 high-potential German injectors sit below the 60-day cadence.', to: '/execution-signals' },
+        { text: 'Germany marketing-campaign target overlap at 49%.', to: '/investment-radar' },
+      ],
+    },
+    {
+      id: 'questions-to-ask',
+      title: 'Questions to ask',
+      blurb: 'The questions a sharp analyst would raise.',
+      items: [
+        { text: 'Which first-line managers own the 52 German injectors below cadence?', to: '/customer-account-focus' },
+        { text: 'Is the Germany trained-injector denominator double-counting any cohort?', to: '/source-confidence' },
+      ],
+    },
+    {
+      id: 'assigned-overdue',
+      title: 'Assigned and overdue',
+      blurb: 'Commitments with a clock on them.',
+      items: [
+        { text: 'Confirm the 52-injector list.', owner: 'Germany NSM', to: '/decision-log' },
+        { text: 'Log post-training activity for recent trainees.', owner: 'Austria first-line managers', to: '/execution-signals' },
+      ],
+    },
+    {
+      id: 'watch-low-confidence',
+      title: 'Watch items, low confidence',
+      blurb: 'Early patterns. No action yet.',
+      items: [
+        {
+          text: 'Switzerland may be showing the early shape of Germany’s follow-up pattern. No action yet, reassess at the 60-day checkpoint.',
+          confidence: 'Low' as Confidence,
+          to: '/market-performance?market=ch',
+        },
+      ],
+    },
+  ] as BriefingSection[],
+  // Extra metadata for the assigned/overdue chips, kept separate so the item
+  // text stays clean. Indexed by item text prefix is brittle, so we carry the
+  // due labels inline here for the two assigned items.
+  dueLabels: {
+    'Confirm the 52-injector list.': 'Overdue 2 days',
+    'Log post-training activity for recent trainees.': 'Due this week',
+  } as Record<string, string>,
+} as const;
+
+// ---------------------------------------------------------------------------
 // DEMO MODE steps
 // ---------------------------------------------------------------------------
 

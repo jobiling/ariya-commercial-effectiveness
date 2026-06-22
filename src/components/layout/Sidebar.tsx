@@ -3,6 +3,7 @@ import type { CSSProperties } from 'react';
 import {
   Activity,
   Compass,
+  Sunrise,
   TrendingUp,
   Target,
   Users,
@@ -15,6 +16,7 @@ import {
 
 const CE_NAV_ITEMS = [
   { to: '/', label: 'GM Home', icon: Compass },
+  { to: '/morning-briefing', label: 'Morning Briefing', icon: Sunrise },
   { to: '/market-performance', label: 'Market Performance', icon: TrendingUp },
   { to: '/investment-radar', label: 'Investment Radar', icon: Target },
   { to: '/execution-signals', label: 'Veeva Execution Screening', icon: Activity },
