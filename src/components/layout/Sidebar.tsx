@@ -2,6 +2,7 @@ import { NavLink } from 'react-router-dom';
 import type { CSSProperties } from 'react';
 import {
   Activity,
+  Bell,
   Compass,
   LineChart,
   Sunrise,
@@ -25,6 +26,7 @@ const CE_NAV_ITEMS = [
   { to: '/training-to-sales', label: 'Training-to-Sales Signal', icon: LineChart },
   { to: '/scenario-planner', label: 'Scenario Planner', icon: GitBranch },
   { to: '/ask-ariya', label: 'Ask Ariya', icon: Sparkles },
+  { to: '/alerts', label: 'Alerts and Notifications', icon: Bell },
   { to: '/decision-log', label: 'Decision Log', icon: BookOpen },
   { to: '/source-confidence', label: 'Source Confidence', icon: ShieldCheck },
 ] as const;

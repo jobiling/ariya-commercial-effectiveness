@@ -1556,6 +1556,100 @@ export const sourceConfidence: DataSource[] = [
 ];
 
 // ---------------------------------------------------------------------------
+// ALERTS AND NOTIFICATIONS
+// ---------------------------------------------------------------------------
+//
+// The "works while you sleep" capability. Configurable in-system, email, and
+// Teams alerts, plus one low-confidence early-pattern watch item in the feed.
+
+export type AlertChannelId = 'in-system' | 'email' | 'teams';
+export type AlertStatus = 'Triggered' | 'Armed' | 'Snoozed';
+
+export interface AlertChannel {
+  id: AlertChannelId;
+  label: string;
+  description: string;
+  on: boolean;
+}
+
+export interface AlertRule {
+  id: string;
+  condition: string;
+  channels: AlertChannelId[];
+  status: AlertStatus;
+}
+
+export interface AlertFeedItem {
+  id: string;
+  timestamp: string;       // human label
+  marketId: string;        // de | ch | at
+  title: string;
+  body: string;
+  channels: AlertChannelId[];
+  tone: SignalTone;
+  confidence?: Confidence; // present on the low-confidence watch item
+}
+
+export const alerts = {
+  channels: [
+    { id: 'in-system', label: 'In-system', description: 'Cockpit bell and the GM Home feed.', on: true },
+    { id: 'email', label: 'Email', description: 'Daily digest plus immediate triggers to the owner.', on: true },
+    { id: 'teams', label: 'Teams', description: 'Posts to the DACH commercial channel.', on: true },
+  ] as AlertChannel[],
+  rules: [
+    {
+      id: 'de-followup-below-60',
+      condition: 'Germany Xeomin 60-day follow-up below 60%',
+      channels: ['in-system', 'email'],
+      status: 'Triggered' as AlertStatus,
+    },
+    {
+      id: 'dach-followup-drop-5pts',
+      condition: 'Any DACH market follow-up drops more than 5 points week over week',
+      channels: ['teams'],
+      status: 'Armed' as AlertStatus,
+    },
+    {
+      id: 'otx-sellout-threshold',
+      condition: 'OTx local sell-out share drops below market threshold',
+      channels: ['in-system'],
+      status: 'Armed' as AlertStatus,
+    },
+  ] as AlertRule[],
+  // Newest first.
+  feed: [
+    {
+      id: 'f-1',
+      timestamp: 'May 19, 2026 · 06:40',
+      marketId: 'de',
+      title: 'Germany Xeomin 60-day follow-up fell to 44%',
+      body: 'Below the 60% rule threshold and the agreed 65% cadence. 52 high-potential injectors sit below cadence. Routed to the Germany NSM.',
+      channels: ['in-system', 'email'],
+      tone: 'at-risk' as SignalTone,
+    },
+    {
+      id: 'f-2',
+      timestamp: 'May 18, 2026 · 17:10',
+      marketId: 'at',
+      title: 'Austria follow-up holding at 62%',
+      body: 'Just below the 65% cadence, steady week over week. No rule triggered. Informational.',
+      channels: ['in-system'],
+      tone: 'watch' as SignalTone,
+    },
+    {
+      id: 'f-3',
+      timestamp: 'May 17, 2026 · 09:05',
+      marketId: 'ch',
+      title: 'Switzerland may be showing the early shape of Germany’s follow-up pattern',
+      body: 'Follow-up healthy at 73% today, but training is scaling fastest in DACH. No action yet, reassess at the 60-day checkpoint.',
+      channels: ['in-system'],
+      tone: 'watch' as SignalTone,
+      confidence: 'Low' as Confidence,
+    },
+  ] as AlertFeedItem[],
+} as const;
+
+// ---------------------------------------------------------------------------
 // TRAINING-TO-SALES SIGNAL
 // ---------------------------------------------------------------------------
 //

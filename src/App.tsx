@@ -17,6 +17,7 @@ import CustomerAccountFocus from './pages/CustomerAccountFocus';
 import TrainingToSales from './pages/TrainingToSales';
 import ScenarioPlanner from './pages/ScenarioPlanner';
 import AskAriya from './pages/AskAriya';
+import Alerts from './pages/Alerts';
 import DecisionLog from './pages/DecisionLog';
 import SourceConfidence from './pages/SourceConfidence';
 import PilotProposal from './pages/PilotProposal';
@@ -55,6 +56,7 @@ export default function App() {
                 <Route path="/training-to-sales" element={<TrainingToSales />} />
                 <Route path="/scenario-planner" element={<ScenarioPlanner />} />
                 <Route path="/ask-ariya" element={<AskAriya />} />
+                <Route path="/alerts" element={<Alerts />} />
                 <Route path="/decision-log" element={<DecisionLog />} />
                 <Route path="/source-confidence" element={<SourceConfidence />} />
                 <Route path="/pilot-proposal" element={<PilotProposal />} />
