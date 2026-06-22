@@ -42,8 +42,7 @@ const TONE_KPI_TEXT = {
   urgent: '#7F1D1D',
 } as const;
 
-const PRIMARY_MARKETS = ['it', 'de', 'es', 'fr'] as const;
-const SECONDARY_MARKETS = ['uk', 'ch', 'nl', 'pl'] as const;
+const DACH_MARKETS = ['de', 'ch', 'at'] as const;
 
 const pageStyle: CSSProperties = {
   display: 'flex',
@@ -66,23 +65,6 @@ const matrixHeaderRowStyle: CSSProperties = {
   alignItems: 'flex-start',
   gap: 12,
   marginBottom: 14,
-};
-
-const moreToggleStyle: CSSProperties = {
-  display: 'inline-flex',
-  alignItems: 'center',
-  gap: 4,
-  height: 28,
-  padding: '0 12px',
-  borderRadius: 999,
-  background: NAVY_06,
-  border: 'none',
-  color: NAVY_70,
-  fontSize: 11,
-  fontWeight: 700,
-  cursor: 'pointer',
-  fontFamily: 'inherit',
-  letterSpacing: '0.02em',
 };
 
 const tableWrapStyle: CSSProperties = {
@@ -152,22 +134,6 @@ const cellKpiStyle = (tone: keyof typeof TONE_KPI_TEXT): CSSProperties => ({
   color: TONE_KPI_TEXT[tone],
   fontVariantNumeric: 'tabular-nums',
 });
-
-const emptyCellStyle: CSSProperties = {
-  background: NAVY_06,
-  border: `1px dashed ${NAVY_12}`,
-  borderRadius: 10,
-  padding: '10px',
-  minHeight: 56,
-  display: 'flex',
-  alignItems: 'center',
-  justifyContent: 'center',
-  fontSize: 11,
-  fontStyle: 'italic',
-  color: NAVY_55,
-  textAlign: 'center',
-  lineHeight: 1.35,
-};
 
 // Top-level grid: matrix on the left, sticky detail aside on the right.
 const radarGridStyle: CSSProperties = {
@@ -259,16 +225,12 @@ interface Selection {
 
 export default function InvestmentRadar() {
   const navigate = useNavigate();
-  const [showAllMarkets, setShowAllMarkets] = useState(false);
   const [selection, setSelection] = useState<Selection>({
     categoryId: 'hcp-training',
-    marketId: 'it',
+    marketId: 'de',
   });
 
-  const visibleMarketIds = showAllMarkets
-    ? [...PRIMARY_MARKETS, ...SECONDARY_MARKETS]
-    : [...PRIMARY_MARKETS];
-  const visibleMarkets = visibleMarketIds
+  const visibleMarkets = DACH_MARKETS
     .map((id) => markets.find((m) => m.id === id))
     .filter((m): m is (typeof markets)[number] => Boolean(m));
 
@@ -293,7 +255,7 @@ export default function InvestmentRadar() {
     };
   });
 
-  const isItalyHcp = selection.categoryId === 'hcp-training' && selection.marketId === 'it';
+  const isGermanyHcp = selection.categoryId === 'hcp-training' && selection.marketId === 'de';
 
   const selectedMarket = markets.find((m) => m.id === selection.marketId);
 
@@ -325,13 +287,6 @@ export default function InvestmentRadar() {
                 Click a cell to inspect. Detail updates on the right.
               </div>
             </div>
-            <button
-              type="button"
-              onClick={() => setShowAllMarkets((v) => !v)}
-              style={moreToggleStyle}
-            >
-              {showAllMarkets ? '← 4 markets' : '+ 4 more markets'}
-            </button>
           </div>
 
           <div style={tableWrapStyle}>
@@ -357,11 +312,7 @@ export default function InvestmentRadar() {
                       const selected =
                         selection.categoryId === cat.id && selection.marketId === m.id;
                       if (!cell) {
-                        return (
-                          <td key={m.id} style={cellBaseStyle}>
-                            <div style={emptyCellStyle}>Not in pilot scope</div>
-                          </td>
-                        );
+                        return <td key={m.id} style={cellBaseStyle} />;
                       }
                       return (
                         <td key={m.id} style={cellBaseStyle}>
@@ -524,12 +475,12 @@ export default function InvestmentRadar() {
             </div>
           </div>
 
-          {isItalyHcp ? (
+          {isGermanyHcp ? (
             <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
               <RecommendationCard
                 eyebrow={germanyHcpTrainingRecommendation.eyebrow}
                 meta={germanyHcpTrainingRecommendation.headerMeta}
-                contextLabel="Selected · Italy · HCP training and education"
+                contextLabel="Selected · Germany · HCP training and follow-up"
                 chainLink={strategicChainLink}
                 recommendation={germanyHcpTrainingRecommendation.recommendation}
                 whyBullets={germanyHcpTrainingRecommendation.whyBullets}
@@ -549,7 +500,7 @@ export default function InvestmentRadar() {
                   own challenge-question route. */}
               <button
                 type="button"
-                onClick={() => navigate('/ask-ariya?q=italy-selection-alternative')}
+                onClick={() => navigate('/ask-ariya?q=germany-selection-alternative')}
                 style={{
                   alignSelf: 'flex-start',
                   display: 'inline-flex',
@@ -583,7 +534,7 @@ export default function InvestmentRadar() {
                 Recommendation in development
               </div>
               <p style={{ margin: 0, color: NAVY_70 }}>
-                Italy HCP training is the active demo scenario. Select that cell to see the full recommendation.
+                Germany HCP training and follow-up is the active demo scenario. Select that cell to see the full recommendation.
               </p>
             </div>
           )}

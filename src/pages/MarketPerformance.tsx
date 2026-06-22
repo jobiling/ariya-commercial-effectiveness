@@ -1,11 +1,6 @@
 import { useEffect, useMemo, useState, type CSSProperties, type ReactNode } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import {
-  ArrowRight,
-  Minus,
-  TrendingDown,
-  TrendingUp,
-} from 'lucide-react';
+import { ArrowRight } from 'lucide-react';
 import {
   Bar,
   BarChart,
@@ -56,7 +51,7 @@ const TONE_BG: Record<StatTone, string> = {
   watch: AMBER_BG,
   'at-risk': RED_BG,
 };
-// Filled bar color for the benchmark bar — same scale as the text tone but
+// Filled bar color for the benchmark bar. Same scale as the text tone but
 // slightly muted for the long bar.
 const TONE_BAR: Record<StatTone, string> = {
   'on-track': '#22C55E',
@@ -177,190 +172,6 @@ const tooltipBoxStyle: CSSProperties = {
   lineHeight: 1.4,
   boxShadow: '0 8px 24px rgba(5,10,68,0.18)',
 };
-
-// ───────────────────────────────────────────────────────────────────────────
-// Brand selector card
-// ───────────────────────────────────────────────────────────────────────────
-
-interface BrandCardProps {
-  name: string;
-  primary?: boolean;
-  selected: boolean;
-  onSelect: () => void;
-  salesQtdEur: number | null;
-  growthVsPlanPct: number | null;
-  trend?: 'up' | 'down' | 'flat';
-}
-
-const brandCardStyle = (selected: boolean): CSSProperties => ({
-  ...cardBase,
-  borderColor: selected ? NAVY : NAVY_12,
-  borderWidth: selected ? 2 : 1,
-  padding: 16,
-  display: 'flex',
-  flexDirection: 'column',
-  gap: 8,
-  cursor: 'pointer',
-  transition: 'border-color 120ms ease, box-shadow 120ms ease',
-});
-
-const radioOuterStyle = (selected: boolean): CSSProperties => ({
-  width: 16,
-  height: 16,
-  borderRadius: 999,
-  border: `1.5px solid ${selected ? NAVY : NAVY_25}`,
-  display: 'inline-flex',
-  alignItems: 'center',
-  justifyContent: 'center',
-  flexShrink: 0,
-});
-
-const radioInnerStyle: CSSProperties = {
-  width: 8,
-  height: 8,
-  borderRadius: 999,
-  background: NAVY,
-};
-
-function BrandCard({
-  name,
-  primary,
-  selected,
-  onSelect,
-  salesQtdEur,
-  growthVsPlanPct,
-  trend = 'flat',
-}: BrandCardProps) {
-  const noData = salesQtdEur == null || growthVsPlanPct == null;
-
-  const tone: StatTone =
-    growthVsPlanPct == null
-      ? 'watch'
-      : growthVsPlanPct < -2
-      ? 'at-risk'
-      : growthVsPlanPct < 0
-      ? 'watch'
-      : 'on-track';
-
-  const TrendIcon = trend === 'up' ? TrendingUp : trend === 'down' ? TrendingDown : Minus;
-  const trendColor = trend === 'up' ? GREEN : trend === 'down' ? RED : NAVY_55;
-  const trendLabel =
-    trend === 'up' ? 'Trending up' : trend === 'down' ? 'Trending down' : 'Stable';
-
-  return (
-    <div
-      role="radio"
-      aria-checked={selected}
-      tabIndex={0}
-      onClick={onSelect}
-      onKeyDown={(e) => {
-        if (e.key === ' ' || e.key === 'Enter') {
-          e.preventDefault();
-          onSelect();
-        }
-      }}
-      style={brandCardStyle(selected)}
-    >
-      <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-        <span style={radioOuterStyle(selected)} aria-hidden>
-          {selected && <span style={radioInnerStyle} />}
-        </span>
-        <span style={{ fontSize: 15, fontWeight: 700, color: NAVY }}>{name}</span>
-        {primary && (
-          <span
-            style={{
-              fontSize: 9,
-              fontWeight: 800,
-              letterSpacing: '0.08em',
-              textTransform: 'uppercase',
-              color: NAVY_55,
-            }}
-          >
-            Primary
-          </span>
-        )}
-        {selected && (
-          <span
-            style={{
-              marginLeft: 'auto',
-              fontSize: 9,
-              fontWeight: 800,
-              letterSpacing: '0.08em',
-              textTransform: 'uppercase',
-              color: NAVY_55,
-            }}
-          >
-            Viewing
-          </span>
-        )}
-      </div>
-
-      <div style={innerSubLabelStyle}>QTD sales</div>
-
-      {noData ? (
-        <div style={{ fontSize: 12, color: NAVY_55, fontStyle: 'italic' }}>
-          Not in pilot scope for this market.
-        </div>
-      ) : (
-        <>
-          <div
-            style={{
-              fontSize: 28,
-              fontWeight: 800,
-              color: NAVY,
-              lineHeight: 1.1,
-              fontVariantNumeric: 'tabular-nums',
-            }}
-          >
-            €{salesQtdEur!.toFixed(1)}M
-          </div>
-          <div
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: 10,
-              flexWrap: 'wrap',
-              marginTop: 2,
-            }}
-          >
-            <span
-              style={{
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: 6,
-                padding: '3px 9px',
-                borderRadius: 999,
-                background: TONE_BG[tone],
-                color: TONE_TEXT[tone],
-                fontSize: 11,
-                fontWeight: 700,
-                fontVariantNumeric: 'tabular-nums',
-              }}
-            >
-              <span style={{ width: 6, height: 6, borderRadius: 999, background: TONE_TEXT[tone] }} />
-              {growthVsPlanPct! > 0 ? '+' : ''}
-              {growthVsPlanPct!.toFixed(1)}% vs plan
-            </span>
-            <span
-              style={{
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: 4,
-                fontSize: 11,
-                fontWeight: 600,
-                color: trendColor,
-              }}
-            >
-              <TrendIcon size={12} strokeWidth={2.5} />
-              {trendLabel}
-              <span style={{ color: NAVY_55, fontWeight: 500 }}>· 6q</span>
-            </span>
-          </div>
-        </>
-      )}
-    </div>
-  );
-}
 
 // ───────────────────────────────────────────────────────────────────────────
 // Stat card (Performance in context)
@@ -649,7 +460,7 @@ function InvestmentMix({ mix }: { mix: { label: string; value: number; color: st
 }
 
 // Per-bar tone-coloured vertical chart. Each bar is coloured by its own
-// `tone` so on-track months render green and at-risk months render red — the
+// `tone` so on-track months render green and at-risk months render red. The
 // editorial story of the chart is visible at a glance.
 //
 // Layout note: the container has explicit top padding so the tallest bars
@@ -830,9 +641,10 @@ export default function MarketPerformance() {
   const [searchParams, setSearchParams] = useSearchParams();
 
   const fromUrl = searchParams.get('market');
-  const initialMarket = fromUrl && markets.some((m) => m.id === fromUrl) ? fromUrl : 'it';
+  const initialMarket = fromUrl && markets.some((m) => m.id === fromUrl) ? fromUrl : 'de';
   const [selectedMarketId, setSelectedMarketId] = useState<string>(initialMarket);
-  const [selectedBrandId, setSelectedBrandId] = useState<string>('xeomin');
+  // Xeomin only on this page. OTx brands live on the OTx Watchlist.
+  const selectedBrandId = 'xeomin';
 
   useEffect(() => {
     if (fromUrl && markets.some((m) => m.id === fromUrl) && fromUrl !== selectedMarketId) {
@@ -881,19 +693,16 @@ export default function MarketPerformance() {
     [contextEntry],
   );
 
-  // Brand row for the brand selector
-  const brandRow = brands.map((b) => {
-    const perf = b.performance.find((p) => p.marketId === selectedMarketId);
-    return { id: b.id, name: b.name, primary: b.primary, perf };
-  });
-
-  function trendDirection(perf: typeof brandPerf): 'up' | 'down' | 'flat' {
-    if (!perf) return 'flat';
-    const first = perf.trendIndexed[0];
-    const last = perf.trendIndexed[perf.trendIndexed.length - 1];
-    const d = last - first;
-    return d > 0.5 ? 'up' : d < -0.5 ? 'down' : 'flat';
-  }
+  // Xeomin performance in the selected market, for the page header pill.
+  const xeominPerf = brandPerf;
+  const xeominTone: StatTone =
+    !xeominPerf
+      ? 'watch'
+      : xeominPerf.growthVsPlanPct < -2
+      ? 'at-risk'
+      : xeominPerf.growthVsPlanPct < 0
+      ? 'watch'
+      : 'on-track';
 
   const ctxBrandLabel = `${selectedBrand.name} · ${selectedMarket.name}`;
 
@@ -905,9 +714,9 @@ export default function MarketPerformance() {
       />
 
       {/* Ariya note · page-level editorial framing. Sits above the market
-          selector so it stays visible across every market view — it does
-          not change when the user switches between Italy, Germany, Spain,
-          etc. */}
+          selector so it stays visible across every market view. It does
+          not change when the user switches between Germany, Switzerland,
+          and Austria. */}
       <AriyaNote
         eyebrow={marketPerformanceAriyaNote.eyebrow}
         body={marketPerformanceAriyaNote.body}
@@ -933,31 +742,40 @@ export default function MarketPerformance() {
         })}
       </div>
 
-      {/* ── Brand · {Country} ──────────────────────────────────────── */}
+      {/* ── Xeomin · {Country} header ──────────────────────────────── */}
       <section>
         <div style={sectionHeaderRowStyle}>
           <div>
-            <h2 style={sectionHeaderTitleStyle}>Brand · {selectedMarket.name}</h2>
-            <p style={sectionHeaderSubtitleStyle}>Pick a brand. Everything below reflects this selection.</p>
+            <h2 style={sectionHeaderTitleStyle}>Xeomin · {selectedMarket.name}</h2>
+            <p style={sectionHeaderSubtitleStyle}>
+              Xeomin is the primary brand on this page. OTx brands live on the OTx Watchlist.
+            </p>
           </div>
-        </div>
-        <div
-          role="radiogroup"
-          aria-label="Select brand"
-          style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 16 }}
-        >
-          {brandRow.map((b) => (
-            <BrandCard
-              key={b.id}
-              name={b.name}
-              primary={b.primary}
-              selected={selectedBrandId === b.id}
-              onSelect={() => setSelectedBrandId(b.id)}
-              salesQtdEur={b.perf?.salesQtdEur ?? null}
-              growthVsPlanPct={b.perf?.growthVsPlanPct ?? null}
-              trend={b.perf ? trendDirection(b.perf) : 'flat'}
-            />
-          ))}
+          {xeominPerf && (
+            <div style={{ display: 'flex', alignItems: 'baseline', gap: 12 }}>
+              <span style={{ fontSize: 28, fontWeight: 800, color: NAVY, fontVariantNumeric: 'tabular-nums', lineHeight: 1 }}>
+                €{xeominPerf.salesQtdEur.toFixed(1)}M
+              </span>
+              <span
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: 6,
+                  padding: '3px 9px',
+                  borderRadius: 999,
+                  background: TONE_BG[xeominTone],
+                  color: TONE_TEXT[xeominTone],
+                  fontSize: 11,
+                  fontWeight: 700,
+                  fontVariantNumeric: 'tabular-nums',
+                }}
+              >
+                <span style={{ width: 6, height: 6, borderRadius: 999, background: TONE_TEXT[xeominTone] }} />
+                {xeominPerf.growthVsPlanPct > 0 ? '+' : ''}
+                {xeominPerf.growthVsPlanPct.toFixed(1)}% vs plan
+              </span>
+            </div>
+          )}
         </div>
       </section>
 
@@ -1039,7 +857,7 @@ export default function MarketPerformance() {
           <div>
             <h2 style={sectionHeaderTitleStyle}>Performance in context</h2>
             <p style={sectionHeaderSubtitleStyle}>
-              Five indicators that frame the gap. Bars compare {selectedMarket.name} to the European benchmark.
+              Five indicators that frame the gap. Bars compare {selectedMarket.name} to the DACH benchmark.
             </p>
           </div>
           <span style={sectionHeaderRightStyle}>{ctxBrandLabel}</span>
@@ -1061,7 +879,7 @@ export default function MarketPerformance() {
               barMin={8}
               barMax={18}
               barValue={ctx.investmentIntensityPct}
-              benchmark={11.9}
+              benchmark={12.8}
               innerLabel={`What the budget goes into · ${selectedMarket.name} YTD`}
               innerContent={
                 ctx.investmentMix ? <InvestmentMix mix={ctx.investmentMix} /> : <FallbackInner />
@@ -1076,7 +894,7 @@ export default function MarketPerformance() {
             {/* Field activity index */}
             <StatCard
               title="Field activity index"
-              subtitle="Visits to high-potential HCPs · base 100"
+              subtitle="Visits to high-potential injectors · base 100"
               value={<span style={statValueStyle}>{ctx.fieldActivityIndex}</span>}
               barTone={ctx.callouts?.fieldActivity?.tone ?? 'watch'}
               barMin={80}
@@ -1101,7 +919,7 @@ export default function MarketPerformance() {
             {/* Post-training 60-day follow-up */}
             <StatCard
               title="Post-training 60-day follow-up"
-              subtitle="Share of trained HCPs re-engaged ≤ 60 days"
+              subtitle="Share of trained injectors re-engaged ≤ 60 days"
               value={
                 <span style={statValueStyle}>
                   {ctx.postTrainingFollowUpRatePct}
@@ -1113,7 +931,7 @@ export default function MarketPerformance() {
               barMax={100}
               barValue={ctx.postTrainingFollowUpRatePct}
               benchmark={65}
-              innerLabel={`${selectedMarket.name} vs European peers`}
+              innerLabel={`${selectedMarket.name} vs DACH peers`}
               innerContent={
                 ctx.followupPeers ? <PeerBars peers={ctx.followupPeers} /> : <FallbackInner />
               }
@@ -1202,13 +1020,13 @@ export default function MarketPerformance() {
               lineHeight: 1.55,
             }}
           >
-            Context view not in pilot scope for this market. Italy and Germany are the active demo markets.
+            Context view not in pilot scope for this market. Germany, Switzerland, and Austria are the active DACH markets.
           </div>
         )}
       </section>
 
       <WhatThisSuggests
-        text="For Italy, the break point is post-training execution. For Germany, it sits inside the marketing-campaigns category. Investment Radar isolates which categories carry which."
+        text="The Germany break point is post-training execution. Investment Radar isolates which categories carry it."
         to="/investment-radar"
         linkLabel="Open Investment Radar"
       />

@@ -45,12 +45,12 @@ const AMBER_TEXT = '#92400E';
 // ───────────────────────────────────────────────────────────────────────────
 
 const FROM_COUNTRY_ID = 'de';
-const FROM_CATEGORY_ID = 'marketing-campaigns';
-const TO_COUNTRY_ID = 'it';
+const FROM_CATEGORY_ID = 'marketing';
+const TO_COUNTRY_ID = 'de';
 const TO_CATEGORY_ID = 'hcp-training';
 
 const FROM_COUNTRY_LABEL = 'Germany';
-const TO_COUNTRY_LABEL = 'Italy';
+const TO_COUNTRY_LABEL = 'Germany';
 
 // Lookup helper: find the spend (in € thousands) for a (categoryId, marketId)
 // pair from the InvestmentRadar dataset.

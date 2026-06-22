@@ -605,16 +605,12 @@ export const marketPerformanceContext: MarketContext[] = [
 // INVESTMENT RADAR
 // ---------------------------------------------------------------------------
 
+// DACH re-skin: four broad categories. Fewer, broader categories shown well.
 export type InvestmentCategoryId =
   | 'hcp-training'
-  | 'marketing-campaigns'
-  | 'congress-events'
-  | 'kol-engagement'
-  | 'field-force'
-  | 'medical-education'
-  | 'digital-engagement'
-  | 'local-initiatives'
-  | 'account-development';
+  | 'field-activity'
+  | 'marketing'
+  | 'events-kol';
 
 export interface InvestmentCell {
   marketId: string;
@@ -631,82 +627,44 @@ export interface InvestmentCategory {
   cells: InvestmentCell[];
 }
 
+// Four broad categories, three DACH market columns. Spend figures roll up the
+// finer-grained activities into each broad category. Default selected cell:
+// HCP training and follow-up × Germany.
 export const investmentRadar: InvestmentCategory[] = [
   {
-    id: 'hcp-training', name: 'HCP training and education',
-    proxyKpiDefinition: 'Post-training call frequency within 60 days, weighted by HCP potential tier.',
+    id: 'hcp-training', name: 'HCP training and follow-up',
+    proxyKpiDefinition: 'Post-training call frequency within 60 days, weighted by injector potential tier. Includes medical education follow-through.',
     cells: [
-      { marketId: 'de', spendEur: 1860, proxyKpi: '60-day follow-up', proxyKpiValue: '44%', tone: 'at-risk' },
+      { marketId: 'de', spendEur: 2380, proxyKpi: '60-day follow-up', proxyKpiValue: '44%', tone: 'at-risk' },
       { marketId: 'ch', spendEur: 320, proxyKpi: '60-day follow-up', proxyKpiValue: '73%', tone: 'on-track' },
-      { marketId: 'at', spendEur: 480, proxyKpi: '60-day follow-up', proxyKpiValue: '62%', tone: 'watch' },
+      { marketId: 'at', spendEur: 660, proxyKpi: '60-day follow-up', proxyKpiValue: '62%', tone: 'watch' },
     ],
   },
   {
-    id: 'marketing-campaigns', name: 'Marketing campaigns',
-    proxyKpiDefinition: 'Spend vs growth trend alignment, campaign follow-through in Veeva, target overlap.',
+    id: 'field-activity', name: 'Field activity',
+    proxyKpiDefinition: 'Reach, frequency, priority target coverage, and account plan progression on priority accounts.',
     cells: [
-      { marketId: 'de', spendEur: 2840, proxyKpi: 'Target overlap', proxyKpiValue: '49%', tone: 'at-risk' },
-      { marketId: 'ch', spendEur: 220, proxyKpi: 'Target overlap', proxyKpiValue: '74%', tone: 'on-track' },
-      { marketId: 'at', spendEur: 410, proxyKpi: 'Target overlap', proxyKpiValue: '64%', tone: 'watch' },
-    ],
-  },
-  {
-    id: 'congress-events', name: 'Congress and events',
-    proxyKpiDefinition: 'Post-event follow-up activity with attendees, account plan updates.',
-    cells: [
-      { marketId: 'de', spendEur: 720, proxyKpi: 'Attendee follow-up', proxyKpiValue: '64%', tone: 'on-track' },
-      { marketId: 'ch', spendEur: 180, proxyKpi: 'Attendee follow-up', proxyKpiValue: '69%', tone: 'on-track' },
-      { marketId: 'at', spendEur: 240, proxyKpi: 'Attendee follow-up', proxyKpiValue: '61%', tone: 'on-track' },
-    ],
-  },
-  {
-    id: 'kol-engagement', name: 'KOL engagement',
-    proxyKpiDefinition: 'Engagement frequency, planned activity completion, evidence generation where available.',
-    cells: [
-      { marketId: 'de', spendEur: 580, proxyKpi: 'Planned activity completion', proxyKpiValue: '69%', tone: 'on-track' },
-      { marketId: 'ch', spendEur: 160, proxyKpi: 'Planned activity completion', proxyKpiValue: '78%', tone: 'on-track' },
-      { marketId: 'at', spendEur: 220, proxyKpi: 'Planned activity completion', proxyKpiValue: '71%', tone: 'on-track' },
-    ],
-  },
-  {
-    id: 'field-force', name: 'Field force deployment',
-    proxyKpiDefinition: 'Reach, frequency, target coverage, visit discipline on priority accounts.',
-    cells: [
-      { marketId: 'de', spendEur: 3260, proxyKpi: 'Priority target coverage', proxyKpiValue: '78%', tone: 'on-track' },
-      { marketId: 'ch', spendEur: 640, proxyKpi: 'Priority target coverage', proxyKpiValue: '81%', tone: 'on-track' },
+      { marketId: 'de', spendEur: 3670, proxyKpi: 'Priority target coverage', proxyKpiValue: '78%', tone: 'on-track' },
+      { marketId: 'ch', spendEur: 760, proxyKpi: 'Priority target coverage', proxyKpiValue: '81%', tone: 'on-track' },
       { marketId: 'at', spendEur: 880, proxyKpi: 'Priority target coverage', proxyKpiValue: '74%', tone: 'on-track' },
     ],
   },
   {
-    id: 'medical-education', name: 'Medical education programs',
-    proxyKpiDefinition: 'Completion, audience match to priority HCP segments, post-program activity.',
+    id: 'marketing', name: 'Marketing',
+    proxyKpiDefinition: 'Spend vs growth trend alignment, campaign follow-through in Veeva, target overlap. Includes digital and local initiatives.',
     cells: [
-      { marketId: 'de', spendEur: 520, proxyKpi: 'Priority audience match', proxyKpiValue: '67%', tone: 'on-track' },
-      { marketId: 'at', spendEur: 180, proxyKpi: 'Priority audience match', proxyKpiValue: '63%', tone: 'watch' },
+      { marketId: 'de', spendEur: 3380, proxyKpi: 'Target overlap', proxyKpiValue: '49%', tone: 'at-risk' },
+      { marketId: 'ch', spendEur: 360, proxyKpi: 'Target overlap', proxyKpiValue: '74%', tone: 'on-track' },
+      { marketId: 'at', spendEur: 570, proxyKpi: 'Target overlap', proxyKpiValue: '64%', tone: 'watch' },
     ],
   },
   {
-    id: 'digital-engagement', name: 'Digital engagement',
-    proxyKpiDefinition: 'Audience match, engagement depth, conversion to field follow-up.',
+    id: 'events-kol', name: 'Events and KOL',
+    proxyKpiDefinition: 'Post-event follow-up activity with attendees, planned KOL activity completion, account plan updates.',
     cells: [
-      { marketId: 'de', spendEur: 540, proxyKpi: 'Conversion to field follow-up', proxyKpiValue: '52%', tone: 'watch' },
-      { marketId: 'ch', spendEur: 140, proxyKpi: 'Conversion to field follow-up', proxyKpiValue: '58%', tone: 'watch' },
-    ],
-  },
-  {
-    id: 'local-initiatives', name: 'Local brand initiatives',
-    proxyKpiDefinition: 'Market execution coverage, alignment to brand priorities.',
-    cells: [
-      { marketId: 'de', spendEur: 340, proxyKpi: 'Brand alignment', proxyKpiValue: '68%', tone: 'on-track' },
-      { marketId: 'at', spendEur: 160, proxyKpi: 'Brand alignment', proxyKpiValue: '70%', tone: 'on-track' },
-    ],
-  },
-  {
-    id: 'account-development', name: 'Account development investments',
-    proxyKpiDefinition: 'Account plan progression, priority account coverage, growth among invested accounts.',
-    cells: [
-      { marketId: 'de', spendEur: 410, proxyKpi: 'Account plan progression', proxyKpiValue: '61%', tone: 'on-track' },
-      { marketId: 'ch', spendEur: 120, proxyKpi: 'Account plan progression', proxyKpiValue: '66%', tone: 'on-track' },
+      { marketId: 'de', spendEur: 1300, proxyKpi: 'Attendee follow-up', proxyKpiValue: '66%', tone: 'on-track' },
+      { marketId: 'ch', spendEur: 340, proxyKpi: 'Attendee follow-up', proxyKpiValue: '73%', tone: 'on-track' },
+      { marketId: 'at', spendEur: 460, proxyKpi: 'Attendee follow-up', proxyKpiValue: '66%', tone: 'on-track' },
     ],
   },
 ];
