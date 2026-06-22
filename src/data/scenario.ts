@@ -1556,6 +1556,91 @@ export const sourceConfidence: DataSource[] = [
 ];
 
 // ---------------------------------------------------------------------------
+// OTX WATCHLIST
+// ---------------------------------------------------------------------------
+//
+// Secondary oversight layer. Local sell-out, share, distribution or coverage,
+// and activity level for Hepa-Merz, Antidry, Pantogar. Each entry is stamped
+// to its single local market. NO cross-market comparison anywhere: each card
+// stands alone against its own local context.
+
+export interface OtxMetric {
+  label: string;
+  value: string;
+  tone: SignalTone;
+}
+
+export interface OtxWatchEntry {
+  id: string;
+  brand: string;          // exact spelling
+  marketId: string;       // de | ch | at
+  localContext: string;   // local context line, no benchmark vs other markets
+  metrics: OtxMetric[];
+  resourceWatch: string;  // "resource watch" line
+  resourceMismatch: boolean; // flags the Watch pill
+}
+
+export const otxWatchlist = {
+  note: 'Local portfolio watch. No cross-market comparison.',
+  entries: [
+    {
+      id: 'hepa-merz-de',
+      brand: 'Hepa-Merz',
+      marketId: 'de',
+      localContext: 'Germany local watch. Call activity steady, recommendation follow-up in line with the local plan.',
+      metrics: [
+        { label: 'Local call activity', value: 'Steady', tone: 'on-track' as SignalTone },
+        { label: 'Recommendation follow-up', value: 'In line', tone: 'on-track' as SignalTone },
+        { label: 'Coverage discipline', value: 'Holding', tone: 'on-track' as SignalTone },
+      ],
+      resourceWatch: 'Resource use matches local activity. No mismatch flagged.',
+      resourceMismatch: false,
+    },
+    {
+      id: 'hepa-merz-at',
+      brand: 'Hepa-Merz',
+      marketId: 'at',
+      localContext: 'Austria local watch. Sell-out steady against the local plan, coverage discipline intact.',
+      metrics: [
+        { label: 'Local call activity', value: 'Steady', tone: 'on-track' as SignalTone },
+        { label: 'Recommendation follow-up', value: 'In line', tone: 'on-track' as SignalTone },
+        { label: 'Coverage discipline', value: 'Holding', tone: 'on-track' as SignalTone },
+      ],
+      resourceWatch: 'Resource use matches local activity. No mismatch flagged.',
+      resourceMismatch: false,
+    },
+    {
+      id: 'antidry-ch',
+      brand: 'Antidry',
+      marketId: 'ch',
+      localContext: 'Switzerland local watch. High field activity but local sell-out is flat against the category trend.',
+      metrics: [
+        { label: 'Sell-out trend', value: 'Flat', tone: 'watch' as SignalTone },
+        { label: 'Category share', value: 'Steady', tone: 'on-track' as SignalTone },
+        { label: 'Distribution or coverage', value: 'Broad', tone: 'on-track' as SignalTone },
+        { label: 'Activity level', value: 'High', tone: 'watch' as SignalTone },
+      ],
+      resourceWatch: 'High field activity with flat sell-out. Possible resource mismatch worth a local review.',
+      resourceMismatch: true,
+    },
+    {
+      id: 'pantogar-de',
+      brand: 'Pantogar',
+      marketId: 'de',
+      localContext: 'Germany local watch, single-market by design. Sell-out and share steady against the local plan.',
+      metrics: [
+        { label: 'Sell-out', value: 'Steady', tone: 'on-track' as SignalTone },
+        { label: 'Share', value: 'Steady', tone: 'on-track' as SignalTone },
+        { label: 'Distribution or coverage', value: 'Broad', tone: 'on-track' as SignalTone },
+        { label: 'Activity level', value: 'Moderate', tone: 'on-track' as SignalTone },
+      ],
+      resourceWatch: 'Resource use matches local activity. No mismatch flagged.',
+      resourceMismatch: false,
+    },
+  ] as OtxWatchEntry[],
+} as const;
+
+// ---------------------------------------------------------------------------
 // ALERTS AND NOTIFICATIONS
 // ---------------------------------------------------------------------------
 //

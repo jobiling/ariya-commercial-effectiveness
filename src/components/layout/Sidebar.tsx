@@ -4,6 +4,7 @@ import {
   Activity,
   Bell,
   Compass,
+  Eye,
   LineChart,
   Sunrise,
   TrendingUp,
@@ -27,6 +28,7 @@ const CE_NAV_ITEMS = [
   { to: '/scenario-planner', label: 'Scenario Planner', icon: GitBranch },
   { to: '/ask-ariya', label: 'Ask Ariya', icon: Sparkles },
   { to: '/alerts', label: 'Alerts and Notifications', icon: Bell },
+  { to: '/otx-watchlist', label: 'OTx Watchlist', icon: Eye },
   { to: '/decision-log', label: 'Decision Log', icon: BookOpen },
   { to: '/source-confidence', label: 'Source Confidence', icon: ShieldCheck },
 ] as const;
