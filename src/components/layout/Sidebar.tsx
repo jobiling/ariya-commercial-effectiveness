@@ -85,8 +85,8 @@ const brandWrapStyle: CSSProperties = {
   display: 'flex',
   flexDirection: 'column',
   alignItems: 'flex-start',
-  gap: 8,
-  marginBottom: 20,
+  gap: 6,
+  marginBottom: 12,
 };
 
 const brandImgStyle: CSSProperties = {
@@ -121,8 +121,8 @@ const groupHeaderStyle: CSSProperties = {
   letterSpacing: '0.06em',
   color: 'rgba(255,255,255,0.45)',
   padding: '0 14px',
-  marginTop: 18,
-  marginBottom: 6,
+  marginTop: 10,
+  marginBottom: 2,
 };
 
 const groupHeaderFirstStyle: CSSProperties = {
@@ -134,7 +134,7 @@ const linkBaseStyle: CSSProperties = {
   display: 'flex',
   alignItems: 'center',
   gap: 12,
-  padding: '11px 14px',
+  padding: '7px 14px',
   borderRadius: 10,
   color: 'rgba(255,255,255,0.82)',
   textDecoration: 'none',
