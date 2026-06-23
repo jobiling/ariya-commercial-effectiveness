@@ -175,12 +175,6 @@ const resetBtnStyle: CSSProperties = {
   fontFamily: 'inherit',
 };
 
-const versionLineStyle: CSSProperties = {
-  fontSize: 11,
-  color: 'rgba(255,255,255,0.4)',
-  padding: '6px 14px 0',
-};
-
 const AUTH_KEYS_TO_PRESERVE: readonly string[] = ['ariya.auth.session'];
 
 function resetDemo() {
@@ -234,7 +228,6 @@ export function Sidebar() {
           <RefreshCw size={15} />
           Reset demo
         </button>
-        <div style={versionLineStyle}>Illustrative data · v0.1</div>
       </div>
     </aside>
   );

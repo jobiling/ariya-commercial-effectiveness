@@ -27,13 +27,33 @@ import Sandbox from './pages/Sandbox';
 const shellStyle: CSSProperties = {
   minHeight: '100vh',
   paddingLeft: 240,
-  paddingTop: 64,
+  paddingTop: 90, // 64px header + 26px illustrative-data banner
   background: 'var(--color-ariya-bg)',
 };
 
 const mainStyle: CSSProperties = {
   padding: 24,
   maxWidth: 1280,
+};
+
+// Slim banner pinned directly under the header. Keeps "Illustrative data · v0.1"
+// visible on every screen, independent of sidebar scroll.
+const illustrativeBannerStyle: CSSProperties = {
+  position: 'fixed',
+  top: 64,
+  left: 240,
+  right: 0,
+  height: 26,
+  display: 'flex',
+  alignItems: 'center',
+  padding: '0 24px',
+  background: 'var(--color-ariya-surface)',
+  borderBottom: '1px solid var(--color-ariya-line)',
+  color: 'var(--color-ariya-muted)',
+  fontSize: 11,
+  fontWeight: 600,
+  letterSpacing: '0.02em',
+  zIndex: 19,
 };
 
 export default function App() {
@@ -45,6 +65,7 @@ export default function App() {
           <ScrollToTop />
           <Sidebar />
           <Header />
+          <div style={illustrativeBannerStyle}>Illustrative data · v0.1</div>
           <div style={shellStyle}>
             <main style={mainStyle}>
               <Routes>
