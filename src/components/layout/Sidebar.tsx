@@ -77,7 +77,7 @@ const sidebarStyle: CSSProperties = {
   display: 'flex',
   flexDirection: 'column',
   zIndex: 30,
-  overflowY: 'auto',
+  overflow: 'hidden',
 };
 
 const brandWrapStyle: CSSProperties = {
@@ -108,6 +108,8 @@ const navStyle: CSSProperties = {
   flexDirection: 'column',
   gap: 2,
   flex: 1,
+  minHeight: 0,
+  overflowY: 'auto',
 };
 
 // Section header · reuses the sidebar eyebrow treatment. Labels only, not
