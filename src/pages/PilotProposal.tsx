@@ -224,12 +224,12 @@ interface FrameworkElement {
 const FRAMEWORK_ELEMENTS: FrameworkElement[] = [
   {
     eyebrow: 'Scope',
-    title: 'Two markets, one priority brand',
+    title: 'Three markets, one priority brand',
     body: (
       <>
-        Italy and Germany on Xeomin. We start with a question your leadership team is already
-        looking at — the post-training reallocation between the two markets — so the pilot earns
-        its keep against a live decision, not a synthetic one.
+        Germany, Switzerland, and Austria on Xeomin. We start with a question your leadership team
+        is already looking at, the Germany post-training follow-up sprint, so the pilot earns its
+        keep against a live decision, not a synthetic one.
       </>
     ),
     icon: <Target size={20} strokeWidth={2.2} />,
@@ -275,7 +275,7 @@ const FRAMEWORK_ELEMENTS: FrameworkElement[] = [
 const OUTPUTS = [
   'A working Ariya instance, tuned to your data',
   'Proxy KPIs validated for your markets',
-  'Decision briefs on the Italy / Germany reallocation',
+  'Decision briefs on the Germany follow-up sprint',
   'A scenario planner tuned to your assumptions',
   'A feedback summary from your team',
   'A recommendation, owned by you, on what to do next',
@@ -288,7 +288,7 @@ const TRUST_POINTS = [
   },
   {
     label: 'Proxy KPIs, with caveats surfaced',
-    body: 'We do not claim promotional responsiveness. The diagnostic load is carried by proxy KPIs (call frequency, follow-up timing, target coverage). Every recommendation states its confidence and its assumptions.',
+    body: 'We make no causal promotional claims. The diagnostic load is carried by proxy KPIs (call frequency, follow-up timing, target coverage). Every recommendation states its confidence and its assumptions.',
   },
   {
     label: 'Scenarios are directional, not forecasts',

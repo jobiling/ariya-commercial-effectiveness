@@ -36,7 +36,7 @@ export interface NextAction {
 }
 
 export interface WhyBullet {
-  // Bold lead-in (e.g. "Italy upside is conditional.")
+  // Bold lead-in (e.g. "Germany upside is conditional.")
   lead: string;
   // The body that follows the lead-in on the same paragraph.
   body: string;
@@ -48,7 +48,7 @@ export interface RecommendationCardProps {
   meta?: string;                // optional right-side text in the eyebrow row
   pill?: string;                // optional navy badge under the eyebrow
   // Optional alternative to `pill`. Renders a quiet 11px/800 uppercase
-  // NAVY_55 context label in the same slot (e.g. "Selected · Italy · HCP
+  // NAVY_55 context label in the same slot (e.g. "Selected · Germany · HCP
   // training and education"). Names what is selected, not what to do.
   // Use this on diagnostic surfaces where a verdict-style pill would
   // pre-empt a debate the page deliberately keeps open.
@@ -251,7 +251,7 @@ const chainLinkRowStyle: CSSProperties = {
 // --- Headline & divider ----------------------------------------------------
 
 const headlineStyle: CSSProperties = {
-  // Sized to match the priority headline ("Italy Xeomin share is slipping…")
+  // Sized to match the priority headline ("Germany Xeomin share is slipping…")
   // that sits in the same hero block. The recommendation is no louder than
   // the issue it answers.
   fontSize: 17,

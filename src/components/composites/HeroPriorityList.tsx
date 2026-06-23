@@ -256,7 +256,7 @@ export interface HeroPriorityListProps {
   secondaryCtaLabel?: string;
   onPrimary?: (item: HeroPriorityItem) => void;
   onSecondary?: (item: HeroPriorityItem) => void;
-  // Customise the primary CTA label per item so item 01 can say "Open Italy detail"
+  // Customise the primary CTA label per item so item 01 can say "Open Germany detail"
   // while item 02 says "Open Germany detail", etc.
   primaryLabelFor?: (item: HeroPriorityItem) => string;
 }

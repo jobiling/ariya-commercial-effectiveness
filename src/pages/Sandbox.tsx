@@ -76,7 +76,7 @@ export default function Sandbox() {
       <section style={dividerStyle}>
         <div style={sectionLabelStyle}>WhatThisSuggests</div>
         <WhatThisSuggests
-          text="Italy and Germany show different break points. Investment Radar isolates which categories carry which problem."
+          text="Germany and Austria show different break points. Investment Radar isolates which categories carry which problem."
           to="/investment-radar"
           linkLabel="Open Investment Radar"
         />
