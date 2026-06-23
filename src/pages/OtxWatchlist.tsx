@@ -1,4 +1,4 @@
-import type { CSSProperties } from 'react';
+import { useState, type CSSProperties } from 'react';
 import { Eye, TriangleAlert } from 'lucide-react';
 import { PageHeader } from '../components/layout/PageHeader';
 import { markets, otxWatchlist } from '../data/scenario';
@@ -9,8 +9,12 @@ const NAVY_55 = 'rgba(5,10,68,0.55)';
 const NAVY_70 = 'rgba(5,10,68,0.70)';
 const NAVY_12 = 'rgba(5,10,68,0.12)';
 const NAVY_06 = 'rgba(5,10,68,0.06)';
+const LAVENDER = '#E8EAF6';
 const AMBER = '#F59E0B';
 const AMBER_BG = '#FFFBEB';
+
+// OTx markets in display order. Germany is the default view.
+const OTX_MARKETS = ['de', 'ch', 'at'] as const;
 
 const TONE_TEXT: Record<SignalTone, string> = {
   'on-track': '#16A34A',
@@ -43,6 +47,36 @@ const noteStyle: CSSProperties = {
   color: NAVY_70,
   fontSize: 12,
   fontWeight: 700,
+};
+
+// Country selector · reuses the Market Performance market-selector pattern.
+// Selected pill uses the LAVENDER active treatment, others NAVY_06.
+const pillRowStyle: CSSProperties = {
+  display: 'flex',
+  flexWrap: 'wrap',
+  gap: 8,
+};
+
+const countryPillBase: CSSProperties = {
+  display: 'inline-flex',
+  alignItems: 'center',
+  gap: 8,
+  padding: '8px 14px',
+  borderRadius: 999,
+  background: NAVY_06,
+  border: `1px solid ${NAVY_12}`,
+  color: NAVY_70,
+  fontSize: 13,
+  fontWeight: 600,
+  cursor: 'pointer',
+  fontFamily: 'inherit',
+  transition: 'background 120ms ease, color 120ms ease, border-color 120ms ease',
+};
+
+const countryPillActive: CSSProperties = {
+  background: LAVENDER,
+  border: `1px solid ${LAVENDER}`,
+  color: NAVY,
 };
 
 const gridStyle: CSSProperties = {
@@ -198,12 +232,42 @@ function OtxCard({ entry }: { entry: OtxWatchEntry }) {
 }
 
 export default function OtxWatchlist() {
+  const [selectedMarketId, setSelectedMarketId] = useState<string>('de');
+
+  // Countries that actually have OTx entries, in display order.
+  const countryPills = OTX_MARKETS
+    .map((id) => markets.find((m) => m.id === id))
+    .filter((m): m is (typeof markets)[number] => Boolean(m));
+
+  const selectedMarket = markets.find((m) => m.id === selectedMarketId);
+  // Drive the visible cards off each brand entry's marketId.
+  const visibleEntries = otxWatchlist.entries.filter((e) => e.marketId === selectedMarketId);
+
   return (
     <div style={pageStyle}>
       <PageHeader
         title="OTx Watchlist"
-        subtitle="Local oversight for the OTx portfolio, alongside the Xeomin execution model."
+        subtitle={`Local oversight for the OTx portfolio in ${selectedMarket?.name ?? ''}, alongside the Xeomin execution model.`}
       />
+
+      <div style={pillRowStyle} role="tablist" aria-label="Select country">
+        {countryPills.map((m) => {
+          const active = m.id === selectedMarketId;
+          return (
+            <button
+              key={m.id}
+              type="button"
+              onClick={() => setSelectedMarketId(m.id)}
+              style={{ ...countryPillBase, ...(active ? countryPillActive : null) }}
+              role="tab"
+              aria-selected={active}
+            >
+              <span aria-hidden style={{ fontSize: 15, lineHeight: 1 }}>{m.flag}</span>
+              {m.name}
+            </button>
+          );
+        })}
+      </div>
 
       <div style={noteStyle}>
         <Eye size={13} strokeWidth={2.25} />
@@ -211,7 +275,7 @@ export default function OtxWatchlist() {
       </div>
 
       <div style={gridStyle}>
-        {otxWatchlist.entries.map((e) => (
+        {visibleEntries.map((e) => (
           <OtxCard key={e.id} entry={e} />
         ))}
       </div>
