@@ -17,20 +17,52 @@ import {
   RefreshCw,
 } from 'lucide-react';
 
-const CE_NAV_ITEMS = [
-  { to: '/', label: 'GM Home', icon: Compass },
-  { to: '/morning-briefing', label: 'Morning Briefing', icon: Sunrise },
-  { to: '/market-performance', label: 'Market Performance', icon: TrendingUp },
-  { to: '/investment-radar', label: 'Investment Radar', icon: Target },
-  { to: '/execution-signals', label: 'Veeva Execution Screening', icon: Activity },
-  { to: '/customer-account-focus', label: 'Customer and Account Focus', icon: Users },
-  { to: '/training-to-sales', label: 'Training-to-Sales Signal', icon: LineChart },
-  { to: '/scenario-planner', label: 'Scenario Planner', icon: GitBranch },
-  { to: '/ask-ariya', label: 'Ask Ariya', icon: Sparkles },
-  { to: '/alerts', label: 'Alerts and Notifications', icon: Bell },
-  { to: '/otx-watchlist', label: 'OTx Watchlist', icon: Eye },
-  { to: '/decision-log', label: 'Decision Log', icon: BookOpen },
-  { to: '/source-confidence', label: 'Source Confidence', icon: ShieldCheck },
+// Presentation grouping only. Routes, icons, labels, and item order are
+// unchanged. Headers are labels, not links.
+const CE_NAV_GROUPS = [
+  {
+    header: 'Cockpit',
+    items: [
+      { to: '/', label: 'GM Home', icon: Compass },
+      { to: '/morning-briefing', label: 'Morning Briefing', icon: Sunrise },
+    ],
+  },
+  {
+    header: 'Performance',
+    items: [
+      { to: '/market-performance', label: 'Market Performance', icon: TrendingUp },
+      { to: '/investment-radar', label: 'Investment Radar', icon: Target },
+    ],
+  },
+  {
+    header: 'Execution',
+    items: [
+      { to: '/execution-signals', label: 'Veeva Execution Screening', icon: Activity },
+      { to: '/customer-account-focus', label: 'Customer and Account Focus', icon: Users },
+      { to: '/training-to-sales', label: 'Training-to-Sales Signal', icon: LineChart },
+    ],
+  },
+  {
+    header: 'Decision support',
+    items: [
+      { to: '/scenario-planner', label: 'Scenario Planner', icon: GitBranch },
+      { to: '/ask-ariya', label: 'Ask Ariya', icon: Sparkles },
+    ],
+  },
+  {
+    header: 'Monitoring',
+    items: [
+      { to: '/alerts', label: 'Alerts and Notifications', icon: Bell },
+      { to: '/otx-watchlist', label: 'OTx Watchlist', icon: Eye },
+    ],
+  },
+  {
+    header: 'Governance',
+    items: [
+      { to: '/decision-log', label: 'Decision Log', icon: BookOpen },
+      { to: '/source-confidence', label: 'Source Confidence', icon: ShieldCheck },
+    ],
+  },
 ] as const;
 
 const sidebarStyle: CSSProperties = {
@@ -76,6 +108,24 @@ const navStyle: CSSProperties = {
   flexDirection: 'column',
   gap: 2,
   flex: 1,
+};
+
+// Section header · reuses the sidebar eyebrow treatment. Labels only, not
+// clickable. 18px of space above each header except the first.
+const groupHeaderStyle: CSSProperties = {
+  fontSize: 11,
+  fontWeight: 800,
+  textTransform: 'uppercase',
+  letterSpacing: '0.06em',
+  color: 'rgba(255,255,255,0.45)',
+  padding: '0 14px',
+  marginTop: 18,
+  marginBottom: 6,
+};
+
+const groupHeaderFirstStyle: CSSProperties = {
+  ...groupHeaderStyle,
+  marginTop: 0,
 };
 
 const linkBaseStyle: CSSProperties = {
@@ -153,19 +203,26 @@ export function Sidebar() {
       </div>
 
       <nav style={navStyle}>
-        {CE_NAV_ITEMS.map(({ to, label, icon: Icon }) => (
-          <NavLink
-            key={to}
-            to={to}
-            end={to === '/'}
-            style={({ isActive }) => ({
-              ...linkBaseStyle,
-              ...(isActive ? linkActiveStyle : null),
-            })}
-          >
-            <Icon size={17} />
-            {label}
-          </NavLink>
+        {CE_NAV_GROUPS.map((group, groupIdx) => (
+          <div key={group.header}>
+            <div style={groupIdx === 0 ? groupHeaderFirstStyle : groupHeaderStyle} aria-hidden>
+              {group.header}
+            </div>
+            {group.items.map(({ to, label, icon: Icon }) => (
+              <NavLink
+                key={to}
+                to={to}
+                end={to === '/'}
+                style={({ isActive }) => ({
+                  ...linkBaseStyle,
+                  ...(isActive ? linkActiveStyle : null),
+                })}
+              >
+                <Icon size={17} />
+                {label}
+              </NavLink>
+            ))}
+          </div>
         ))}
       </nav>
 
