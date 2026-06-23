@@ -164,7 +164,7 @@ const cardStyle: CSSProperties = {
   boxShadow: `0 1px 2px ${NAVY_04}`,
 };
 
-// Header hierarchy — matches Market Performance's outer-section pattern.
+// Header hierarchy. Matches Market Performance's outer-section pattern.
 // Each Scenario Planner block (Scenario, Chart, Conditions & assumptions,
 // Dependency) renders its title OUTSIDE the card body:
 //
@@ -176,9 +176,9 @@ const cardStyle: CSSProperties = {
 //   │  ... section content only ...                                     │
 //   └────────────────────────────────────────────────────────────────────┘
 //
-// Same look-and-feel as MP section headers ("Brand · Italy",
+// Same look-and-feel as MP section headers ("Xeomin · Germany",
 // "Performance in context"). The 14 / 600 inside-card title pattern is
-// gone — sections of this page are page-level, not card-internal.
+// gone. Sections of this page are page-level, not card-internal.
 const sectionHeaderRowStyle: CSSProperties = {
   display: 'flex',
   alignItems: 'baseline',
@@ -331,6 +331,15 @@ const summaryGridStyle: CSSProperties = {
   gridTemplateColumns: '1fr 1fr 1fr',
   gap: 12,
   marginTop: 4,
+};
+
+const spendUnchangedNoteStyle: CSSProperties = {
+  margin: '12px 0 0',
+  fontSize: 12,
+  fontWeight: 600,
+  color: NAVY_55,
+  fontStyle: 'italic',
+  lineHeight: 1.5,
 };
 
 const summaryTileBase: CSSProperties = {
@@ -663,7 +672,7 @@ export default function ScenarioPlanner() {
     return {
       id: c.id,
       label: c.name,
-      value: k != null ? fmtEur(k) : '—',
+      value: k != null ? fmtEur(k) : 'n/a',
       selectable: c.id === FROM_CATEGORY_ID,
     };
   });
@@ -672,7 +681,7 @@ export default function ScenarioPlanner() {
     return {
       id: c.id,
       label: c.name,
-      value: k != null ? fmtEur(k) : '—',
+      value: k != null ? fmtEur(k) : 'n/a',
       selectable: c.id === TO_CATEGORY_ID,
     };
   });
@@ -730,7 +739,7 @@ export default function ScenarioPlanner() {
         <div style={{ marginTop: 20 }}>
           <div style={sliderRowStyle}>
             <label htmlFor="realloc-slider" style={sliderLabelStyle}>
-              Share to be reallocated
+              Share of Germany marketing budget redirected to follow-up activation
             </label>
             <span style={sliderValueStyle}>{reallocationPct}%</span>
           </div>
@@ -774,9 +783,9 @@ export default function ScenarioPlanner() {
             </div>
           </div>
 
-          {/* REALLOCATING */}
+          {/* REDIRECTING (within Germany) */}
           <div style={summaryTileBase}>
-            <span style={summaryEyebrowStyle}>Reallocating</span>
+            <span style={summaryEyebrowStyle}>Redirecting</span>
             <div style={summaryAmountRowStyle}>
               <ArrowRight size={14} color={BLUE} strokeWidth={2.5} />
               <span style={{ color: BLUE }}>{fmtEur(reallocAmountK)}</span>
@@ -805,6 +814,9 @@ export default function ScenarioPlanner() {
             </div>
           </div>
         </div>
+        <p style={spendUnchangedNoteStyle}>
+          Total Germany commercial spend unchanged. Redirected within Germany toward follow-up activation.
+        </p>
         </div>
       </section>
 
@@ -862,7 +874,7 @@ export default function ScenarioPlanner() {
                 axisLine={{ stroke: NAVY_12 }}
                 width={64}
                 label={{
-                  value: 'Italy Xeomin run-rate · 100 = today',
+                  value: 'Germany Xeomin run-rate · 100 = today',
                   angle: -90,
                   position: 'insideLeft',
                   offset: 4,
@@ -921,7 +933,7 @@ export default function ScenarioPlanner() {
             fontStyle: 'italic',
           }}
         >
-          How to read the Y-axis: values are indexed to today&rsquo;s Italy Xeomin run-rate.
+          How to read the Y-axis: values are indexed to today&rsquo;s Germany Xeomin run-rate.
           100 = no change. 103 = a 3% lift versus today. 99 = a 1% decline. The shaded band is
           the directional best–conservative range under the modelled inputs.
         </p>
@@ -1022,9 +1034,9 @@ export default function ScenarioPlanner() {
       </section>
 
       {/* The Ariya recommends card used to live here. It was removed because
-          the recommendation it carried duplicated the Europe Overview hero —
-          this page now stays focused on modelling the trade-off and lets
-          the strategic call live where it belongs. */}
+          the recommendation it carried duplicated the GM Home hero. This page
+          now stays focused on modelling the trade-off and lets the strategic
+          call live where it belongs. */}
     </div>
   );
 }
