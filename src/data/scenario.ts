@@ -1204,10 +1204,11 @@ export const askAriya: AriyaExchange[] = [
       confidence: 'Medium',
       confidenceRationale:
         'Segment-level proxy KPIs are reliable. Account-level linkage between follow-up and revenue is directional, not causal.',
+      // "Log this decision" is rendered as the primary blue button in the
+      // footer action row, so it is intentionally not duplicated here.
       linksTo: [
         { label: 'Open in Scenario Planner', route: '/scenario-planner' },
         { label: 'Open Source Confidence', route: '/source-confidence' },
-        { label: 'Log this decision', route: '/decision-log?from=ask-ariya' },
       ],
     },
   },
