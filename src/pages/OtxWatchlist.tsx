@@ -49,6 +49,49 @@ const noteStyle: CSSProperties = {
   fontWeight: 700,
 };
 
+// Lead "Active OTx signal" callout. Surfaces the one entry with a resource
+// mismatch at the top of every view, so the default page leads with the live
+// signal instead of an all-steady country tab.
+const leadCardStyle: CSSProperties = {
+  display: 'flex',
+  alignItems: 'center',
+  gap: 16,
+  padding: '16px 18px',
+  borderRadius: 14,
+  background: AMBER_BG,
+  border: '1px solid rgba(245,158,11,0.45)',
+  borderLeft: `4px solid ${AMBER}`,
+};
+
+const leadEyebrowStyle: CSSProperties = {
+  display: 'inline-flex',
+  alignItems: 'center',
+  gap: 6,
+  fontSize: 10,
+  fontWeight: 800,
+  letterSpacing: '0.07em',
+  textTransform: 'uppercase',
+  color: '#92400E',
+};
+
+const leadBtnStyle: CSSProperties = {
+  display: 'inline-flex',
+  alignItems: 'center',
+  gap: 6,
+  height: 36,
+  padding: '0 16px',
+  borderRadius: 999,
+  background: NAVY,
+  border: 'none',
+  color: '#ffffff',
+  fontSize: 12,
+  fontWeight: 700,
+  cursor: 'pointer',
+  fontFamily: 'inherit',
+  whiteSpace: 'nowrap',
+  flexShrink: 0,
+};
+
 // Country selector · reuses the Market Performance market-selector pattern.
 // Selected pill uses the LAVENDER active treatment, others NAVY_06.
 const pillRowStyle: CSSProperties = {
@@ -243,12 +286,45 @@ export default function OtxWatchlist() {
   // Drive the visible cards off each brand entry's marketId.
   const visibleEntries = otxWatchlist.entries.filter((e) => e.marketId === selectedMarketId);
 
+  // The one live OTx signal across the portfolio: the entry flagged with a
+  // resource mismatch. Leads the page so the default view earns its weight.
+  const activeSignal = otxWatchlist.entries.find((e) => e.resourceMismatch);
+  const activeSignalMarket = activeSignal && markets.find((m) => m.id === activeSignal.marketId);
+
   return (
     <div style={pageStyle}>
       <PageHeader
         title="OTx Watchlist"
         subtitle={`Local oversight for the OTx portfolio in ${selectedMarket?.name ?? ''}, alongside the Xeomin execution model.`}
       />
+
+      {activeSignal && activeSignalMarket && (
+        <div style={leadCardStyle}>
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <div style={leadEyebrowStyle}>
+              <TriangleAlert size={12} strokeWidth={2.5} />
+              Active OTx signal · {activeSignalMarket.flag} {activeSignalMarket.name}
+            </div>
+            <div style={{ fontSize: 15, fontWeight: 700, color: NAVY, margin: '3px 0 2px' }}>
+              {activeSignal.brand}: possible resource mismatch
+            </div>
+            <p style={{ margin: 0, fontSize: 13, color: NAVY_70, lineHeight: 1.5 }}>
+              {activeSignal.resourceWatch}
+            </p>
+          </div>
+          {selectedMarketId === activeSignal.marketId ? (
+            <span style={{ ...leadEyebrowStyle, color: '#92400E', flexShrink: 0 }}>Shown below</span>
+          ) : (
+            <button
+              type="button"
+              style={leadBtnStyle}
+              onClick={() => setSelectedMarketId(activeSignal.marketId)}
+            >
+              Review in {activeSignalMarket.name}
+            </button>
+          )}
+        </div>
+      )}
 
       <div style={pillRowStyle} role="tablist" aria-label="Select country">
         {countryPills.map((m) => {

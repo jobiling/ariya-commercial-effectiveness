@@ -1,6 +1,6 @@
 import { useMemo, useState, type CSSProperties } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowRight } from 'lucide-react';
+import { ArrowRight, TriangleAlert } from 'lucide-react';
 import {
   Bar,
   BarChart,
@@ -65,6 +65,43 @@ const matrixHeaderRowStyle: CSSProperties = {
   alignItems: 'flex-start',
   gap: 12,
   marginBottom: 14,
+};
+
+// Spend-granularity toggle (graceful degradation for coarse client ledgers).
+const granToggleWrapStyle: CSSProperties = {
+  display: 'inline-flex',
+  background: NAVY_06,
+  borderRadius: 999,
+  padding: 3,
+  gap: 2,
+  flexShrink: 0,
+};
+
+const granBtnStyle = (active: boolean): CSSProperties => ({
+  border: 'none',
+  borderRadius: 999,
+  padding: '5px 11px',
+  fontSize: 11,
+  fontWeight: 700,
+  fontFamily: 'inherit',
+  cursor: 'pointer',
+  background: active ? '#ffffff' : 'transparent',
+  color: active ? NAVY : NAVY_55,
+  boxShadow: active ? '0 1px 2px rgba(5,10,68,0.10)' : 'none',
+});
+
+const incompleteBannerStyle: CSSProperties = {
+  display: 'flex',
+  alignItems: 'flex-start',
+  gap: 10,
+  padding: '12px 14px',
+  marginBottom: 14,
+  borderRadius: 10,
+  background: '#FFFBEB',
+  border: '1px solid rgba(245,158,11,0.4)',
+  color: '#92400E',
+  fontSize: 12.5,
+  lineHeight: 1.5,
 };
 
 const tableWrapStyle: CSSProperties = {
@@ -223,10 +260,28 @@ interface Selection {
   marketId: string;
 }
 
+// Graceful degradation: when a client ledger does not ventilate spend cleanly
+// across the four categories, the matrix rolls them up to two broad buckets the
+// data can support. Spend sums; the proxy KPI is suppressed (it needs
+// category-level spend), and a "categorisation incomplete" banner is shown.
+const ROLLUP_BUCKETS = [
+  { id: 'execution', name: 'HCP and field execution', from: ['hcp-training', 'field-activity'] },
+  { id: 'demand', name: 'Demand generation', from: ['marketing', 'events-kol'] },
+] as const;
+
+const TONE_RANK: Record<string, number> = { 'on-track': 0, watch: 1, 'at-risk': 2, urgent: 3 };
+
 export default function InvestmentRadar() {
   const navigate = useNavigate();
   const [selection, setSelection] = useState<Selection>({
     categoryId: 'hcp-training',
+    marketId: 'de',
+  });
+  // 'full' = clean ledger (4 categories). 'coarse' = ledger does not separate
+  // categories cleanly, so roll up to 2 buckets.
+  const [granularity, setGranularity] = useState<'full' | 'coarse'>('full');
+  const [rolledSel, setRolledSel] = useState<{ bucketId: string; marketId: string }>({
+    bucketId: 'execution',
     marketId: 'de',
   });
 
@@ -259,6 +314,31 @@ export default function InvestmentRadar() {
 
   const selectedMarket = markets.find((m) => m.id === selection.marketId);
 
+  // Rolled-up buckets for the coarse-ledger mode. Spend sums across the
+  // underlying categories; tone carries the worst underlying signal so an
+  // at-risk category still surfaces even when categorisation is incomplete.
+  const rolledRows = ROLLUP_BUCKETS.map((b) => ({
+    id: b.id,
+    name: b.name,
+    sourceNames: b.from
+      .map((catId) => investmentRadar.find((c) => c.id === catId)?.name)
+      .filter(Boolean) as string[],
+    cells: visibleMarkets.map((m) => {
+      const underlying = b.from
+        .map((catId) => cellLookup.get(`${catId}|${m.id}`))
+        .filter((c): c is InvestmentCell => Boolean(c));
+      const spendEur = underlying.reduce((s, c) => s + c.spendEur, 0);
+      const tone = underlying.reduce<InvestmentCell['tone']>(
+        (worst, c) => (TONE_RANK[c.tone] > TONE_RANK[worst] ? c.tone : worst),
+        'on-track',
+      );
+      return { marketId: m.id, spendEur, tone, count: underlying.length };
+    }),
+  }));
+  const selectedBucket = rolledRows.find((b) => b.id === rolledSel.bucketId) ?? rolledRows[0];
+  const selectedBucketCell = selectedBucket.cells.find((c) => c.marketId === rolledSel.marketId);
+  const rolledMarket = markets.find((m) => m.id === rolledSel.marketId);
+
   return (
     <div style={pageStyle}>
       <div>
@@ -287,7 +367,38 @@ export default function InvestmentRadar() {
                 Click a cell to inspect. Detail updates on the right.
               </div>
             </div>
+            <div role="tablist" aria-label="Spend categorisation granularity" style={granToggleWrapStyle}>
+              <button
+                type="button"
+                role="tab"
+                aria-selected={granularity === 'full'}
+                onClick={() => setGranularity('full')}
+                style={granBtnStyle(granularity === 'full')}
+              >
+                Full categories
+              </button>
+              <button
+                type="button"
+                role="tab"
+                aria-selected={granularity === 'coarse'}
+                onClick={() => setGranularity('coarse')}
+                style={granBtnStyle(granularity === 'coarse')}
+              >
+                Coarse ledger
+              </button>
+            </div>
           </div>
+
+          {granularity === 'coarse' && (
+            <div style={incompleteBannerStyle}>
+              <TriangleAlert size={14} strokeWidth={2.25} style={{ flexShrink: 0, marginTop: 1 }} />
+              <div>
+                <strong style={{ fontWeight: 800 }}>Spend categorisation incomplete.</strong>{' '}
+                This ledger does not separate the four categories cleanly, so spend is rolled up to two
+                broad buckets it can support. Spend totals hold; category-level proxy KPIs need finer data.
+              </div>
+            </div>
+          )}
 
           <div style={tableWrapStyle}>
             <table style={{ width: '100%', borderCollapse: 'separate', borderSpacing: 0 }}>
@@ -304,39 +415,71 @@ export default function InvestmentRadar() {
                 </tr>
               </thead>
               <tbody>
-                {investmentRadar.map((cat) => (
-                  <tr key={cat.id}>
-                    <th style={rowHeaderStyle}>{cat.name}</th>
-                    {visibleMarkets.map((m) => {
-                      const cell = cellLookup.get(`${cat.id}|${m.id}`);
-                      const selected =
-                        selection.categoryId === cat.id && selection.marketId === m.id;
-                      if (!cell) {
-                        return <td key={m.id} style={cellBaseStyle} />;
-                      }
-                      return (
-                        <td key={m.id} style={cellBaseStyle}>
-                          <button
-                            type="button"
-                            onClick={() => setSelection({ categoryId: cat.id, marketId: m.id })}
-                            style={{
-                              ...cellInnerStyle(cell.tone, selected, true),
-                              width: '100%',
-                              font: 'inherit',
-                              textAlign: 'center',
-                            }}
-                            aria-pressed={selected}
-                          >
-                            <div style={cellSpendStyle}>
-                              €{(cell.spendEur / 1000).toFixed(2)}M
-                            </div>
-                            <div style={cellKpiStyle(cell.tone)}>{cell.proxyKpiValue}</div>
-                          </button>
-                        </td>
-                      );
-                    })}
-                  </tr>
-                ))}
+                {granularity === 'full'
+                  ? investmentRadar.map((cat) => (
+                      <tr key={cat.id}>
+                        <th style={rowHeaderStyle}>{cat.name}</th>
+                        {visibleMarkets.map((m) => {
+                          const cell = cellLookup.get(`${cat.id}|${m.id}`);
+                          const selected =
+                            selection.categoryId === cat.id && selection.marketId === m.id;
+                          if (!cell) {
+                            return <td key={m.id} style={cellBaseStyle} />;
+                          }
+                          return (
+                            <td key={m.id} style={cellBaseStyle}>
+                              <button
+                                type="button"
+                                onClick={() => setSelection({ categoryId: cat.id, marketId: m.id })}
+                                style={{
+                                  ...cellInnerStyle(cell.tone, selected, true),
+                                  width: '100%',
+                                  font: 'inherit',
+                                  textAlign: 'center',
+                                }}
+                                aria-pressed={selected}
+                              >
+                                <div style={cellSpendStyle}>
+                                  €{(cell.spendEur / 1000).toFixed(2)}M
+                                </div>
+                                <div style={cellKpiStyle(cell.tone)}>{cell.proxyKpiValue}</div>
+                              </button>
+                            </td>
+                          );
+                        })}
+                      </tr>
+                    ))
+                  : rolledRows.map((b) => (
+                      <tr key={b.id}>
+                        <th style={rowHeaderStyle}>{b.name}</th>
+                        {b.cells.map((cell) => {
+                          const selected =
+                            rolledSel.bucketId === b.id && rolledSel.marketId === cell.marketId;
+                          return (
+                            <td key={cell.marketId} style={cellBaseStyle}>
+                              <button
+                                type="button"
+                                onClick={() => setRolledSel({ bucketId: b.id, marketId: cell.marketId })}
+                                style={{
+                                  ...cellInnerStyle(cell.tone, selected, true),
+                                  width: '100%',
+                                  font: 'inherit',
+                                  textAlign: 'center',
+                                }}
+                                aria-pressed={selected}
+                              >
+                                <div style={cellSpendStyle}>
+                                  €{(cell.spendEur / 1000).toFixed(2)}M
+                                </div>
+                                <div style={{ fontSize: 10, fontStyle: 'italic', color: NAVY_55 }}>
+                                  rolled up
+                                </div>
+                              </button>
+                            </td>
+                          );
+                        })}
+                      </tr>
+                    ))}
               </tbody>
             </table>
           </div>
@@ -344,6 +487,33 @@ export default function InvestmentRadar() {
 
         {/* RIGHT: sticky detail aside */}
         <aside style={stickyAsideStyle}>
+          {granularity === 'coarse' ? (
+            <div style={detailLeftCardStyle}>
+              <span style={selectionBadgeStyle}>Reduced granularity · {selectedBucket.name}</span>
+              <h3 style={{ ...detailTitleStyle, margin: 0 }}>
+                {rolledMarket?.flag} {rolledMarket?.name}
+              </h3>
+              <div style={{ padding: '10px 12px', background: NAVY_06, borderRadius: 8 }}>
+                <div style={{ fontSize: 10, fontWeight: 800, color: NAVY_55, letterSpacing: '0.06em', textTransform: 'uppercase' }}>
+                  Rolled-up spend
+                </div>
+                <div style={{ fontSize: 18, fontWeight: 700, color: NAVY, fontVariantNumeric: 'tabular-nums', marginTop: 2 }}>
+                  €{((selectedBucketCell?.spendEur ?? 0) / 1000).toFixed(2)}M
+                </div>
+              </div>
+              <div>
+                <div style={{ fontSize: 10, fontWeight: 800, color: NAVY_55, letterSpacing: '0.06em', textTransform: 'uppercase', marginBottom: 4 }}>
+                  Rolls up
+                </div>
+                <p style={proxyDefStyle}>{selectedBucket.sourceNames.join(' + ')}.</p>
+              </div>
+              <p style={{ ...proxyDefStyle, fontStyle: 'italic' }}>
+                Proxy KPIs and the category-level recommendation need spend separated by category.
+                Switch to Full categories where the ledger supports it.
+              </p>
+            </div>
+          ) : (
+          <>
           <div style={detailLeftCardStyle}>
             <span style={selectionBadgeStyle}>
               Selected · {selectedCategory.name}
@@ -537,6 +707,8 @@ export default function InvestmentRadar() {
                 Germany HCP training and follow-up is the active demo scenario. Select that cell to see the full recommendation.
               </p>
             </div>
+          )}
+          </>
           )}
         </aside>
       </div>
