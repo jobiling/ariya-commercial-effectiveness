@@ -120,7 +120,7 @@ export const overview = {
   // participation, HCP segmentation, Sales or order signals, Plan or forecast
   // data, Brand-plan context.
   assemblySources: [
-    { id: 'veeva', label: 'Veeva activity', icon: 'Activity', meta: '71 high-potential injectors below cadence · 52 in Germany' },
+    { id: 'veeva', label: 'Veeva activity', icon: 'Activity', meta: '71 below cadence across DACH · DE 52 / AT 14 / CH 5' },
     { id: 'training', label: 'Training participation', icon: 'GraduationCap', meta: 'Xeomin injector training · DACH' },
     { id: 'segmentation', label: 'HCP segmentation', icon: 'Users', meta: 'High-potential injectors · DE, CH, AT' },
     { id: 'sales', label: 'Sales or order signals', icon: 'TrendingUp', meta: 'Xeomin DACH · 6 quarters' },
@@ -150,7 +150,7 @@ export const overview = {
       },
       {
         lead: 'The cohort is specific and bounded.',
-        body: '52 high-potential German injectors sit below the 60-day cadence, out of 71 across DACH. This is an operationally bounded list that NSM and first-line managers can own directly, with weekly tracking.',
+        body: '52 high-potential German injectors sit below the 60-day cadence, out of 71 across DACH (Germany 52, Austria 14, Switzerland 5). This is an operationally bounded list that NSM and first-line managers can own directly, with weekly tracking.',
       },
       {
         lead: 'Funded within the existing budget.',
@@ -205,7 +205,7 @@ export const overview = {
   // dominant slot. Switzerland sits in overview.blindSpot below.
   marketsRequiringAttention: [
     { marketId: 'de', headline: 'Germany follow-up gap is the largest single concentration of at-risk Xeomin injectors in DACH.',
-      evidence: '52 high-potential trained injectors in Germany below the 60-day cadence (out of 71 across DACH).', cta: 'Open Germany detail →',
+      evidence: '52 high-potential trained injectors in Germany below the 60-day cadence (out of 71 across DACH: Germany 52, Austria 14, Switzerland 5).', cta: 'Open Germany detail →',
       coveredAbove: { text: 'Germany follow-up gap · covered in the priority above.' } },
     { marketId: 'at', headline: 'Austria follow-up is steady but carries the second-largest below-cadence cohort.',
       evidence: '14 high-potential trained injectors in Austria below the 60-day cadence. Follow-up rate 62%, just below the 65% benchmark.', cta: 'Open Austria detail →' },
@@ -749,7 +749,7 @@ export const executionSignals: ExecutionSignal[] = [
     id: 'trained-not-visited',
     title: 'High-potential trained injectors not visited within 60 days',
     description:
-      'Injectors who completed Xeomin injection training but did not receive a field follow-up within the 60-day window. 71 across DACH; 52 sit in Germany, the largest single concentration.',
+      'Injectors who completed Xeomin injection training but did not receive a field follow-up within the 60-day window. 71 across DACH (Germany 52, Austria 14, Switzerland 5); Germany is the largest single concentration.',
     count: 71,
     unit: 'injectors',
     marketBreakdown: [
@@ -863,7 +863,7 @@ export interface HcpSegment {
 export const hcpSegments: HcpSegment[] = [
   { id: 'de-derm-high', marketId: 'de', name: 'Xeomin injectors, high potential', potentialTier: 'High',
     count: 188, trainedPct: 70, followedUpWithin60dPct: 44, growthVsLyPct: -2.8,
-    suggestedAction: 'Germany follow-up sprint, priority cohort. 52 high-potential injectors below the 60-day cadence.' },
+    suggestedAction: 'Germany follow-up sprint, priority cohort. 49 high-potential dermatology injectors below the 60-day cadence in this segment.' },
   { id: 'de-derm-med', marketId: 'de', name: 'Xeomin injectors, medium potential', potentialTier: 'Medium',
     count: 264, trainedPct: 52, followedUpWithin60dPct: 51, growthVsLyPct: -1.2,
     suggestedAction: 'Selective post-training follow-up among recent trainees.' },
@@ -894,7 +894,7 @@ export const germanyHighPotentialInjectorRecommendation = {
   pill: 'Priority cohort identified',
   headerMeta: 'Germany · High-potential Xeomin injectors · 21 May',
   situation:
-    'German high-potential Xeomin injectors are well-trained (70%) but post-training 60-day follow-up sits at 44%, below the agreed 65% cadence. 52 high-potential injectors sit below the cadence, the single cohort most consistent with the Germany commercial gap.',
+    'German high-potential Xeomin injectors are well-trained (70%) but post-training 60-day follow-up sits at 44%, below the agreed 65% cadence. 49 high-potential dermatology injectors sit below the cadence in this segment, the cohort most consistent with the Germany commercial gap.',
   recommendation:
     'Make German high-potential Xeomin injectors the priority cohort for the 60-day follow-up sprint. Define field cadence and first-line manager check-ins.',
   reasoning:
@@ -906,7 +906,7 @@ export const germanyHighPotentialInjectorRecommendation = {
     },
     {
       lead: 'Follow-up is the break point.',
-      body: 'Post-training 60-day follow-up sits at 44%, vs 73% in Switzerland and 62% in Austria. 52 high-potential injectors sit below the cadence, the cohort most consistent with the Germany commercial gap.',
+      body: 'Post-training 60-day follow-up sits at 44%, vs 73% in Switzerland and 62% in Austria. 49 high-potential dermatology injectors sit below the cadence in this segment, the cohort most consistent with the Germany commercial gap.',
     },
     {
       lead: 'Highest leverage within the existing budget.',
@@ -1197,7 +1197,7 @@ export const askAriya: AriyaExchange[] = [
         { source: 'Sales or order signals', text: 'Germany Xeomin share is slipping into Q2, while Switzerland and Austria hold.' },
         { source: 'Training participation', text: 'Germany high-potential injectors are trained at 70%, in line with the healthy DACH benchmark.' },
         { source: 'Veeva activity', text: 'Germany 60-day post-training follow-up sits at 44% in the high-potential injector segment, vs 73% in Switzerland and 62% in Austria.' },
-        { source: 'HCP segmentation', text: 'German high-potential injectors are the largest single below-cadence cohort, 52 of 71 across DACH.' },
+        { source: 'HCP segmentation', text: 'German high-potential injectors are the largest single below-cadence cohort: Germany 52 of 71 across DACH (Austria 14, Switzerland 5).' },
         { source: 'Plan or forecast data', text: 'Germany investment intensity is 17.2%, the highest in DACH. The Germany gap is execution, not spend.' },
         { source: 'Brand-plan context', text: 'No competitive event or supply disruption explains the Germany slope over the window.' },
       ],
@@ -1342,7 +1342,7 @@ export const decisionLog: DecisionLogEntry[] = [
     // and the Germany-specific 52-of-71 cohort.
     evidenceUsed: [
       'Germany 44% follow-up vs the agreed 65% cadence (73% Switzerland, 62% Austria)',
-      '52 high-potential trained injectors in Germany without 60-day contact (out of 71 across DACH)',
+      '52 high-potential trained injectors in Germany without 60-day contact (out of 71 across DACH: Germany 52, Austria 14, Switzerland 5)',
       'Germany Xeomin injection training already invested',
       'Six sources synthesised: Veeva activity, Training participation, HCP segmentation, Sales or order signals, Plan or forecast data, Brand-plan context',
     ],
@@ -2013,12 +2013,15 @@ export const gmHome = {
       title: 'Morning Briefing',
       description: "Today's prioritized management note.",
       teaser: {
+        // GM Home renders this card with two labelled tiers and sources the
+        // Germany numbers from shared values (see GMHome renderTeaser). This
+        // body is a non-numeric fallback only. Amber accent = At Risk (overdue).
         eyebrow: 'Morning Briefing',
         headline: 'Five things for today',
-        body: 'Germany follow-up slipped to 44%. 52 injectors below cadence. Two owners overdue.',
+        body: "Today's signals and assigned tasks for the Germany follow-up sprint.",
         cta: 'Open Morning Briefing',
         to: '/morning-briefing',
-        accent: 'green',
+        accent: 'amber',
       },
     },
   ] as GmWidget[],

@@ -34,7 +34,7 @@ import {
 import { Donut, HeroPriorityList, SourceTag } from '../components/composites';
 import type { HeroPriorityItem } from '../components/composites';
 import { RecommendationCard } from '../components/decision';
-import { gmHome, markets, overview } from '../data/scenario';
+import { executionSignals, gmHome, marketPerformanceContext, markets, overview } from '../data/scenario';
 import type { GmWidget, GmWidgetId } from '../data/scenario';
 import { usePersistedState } from '../context/usePersistedState';
 
@@ -805,6 +805,10 @@ export default function GMHome() {
     if (!w.teaser) return null;
     const accent = TEASER_ACCENT[w.teaser.accent] ?? NAVY;
     const Icon = TEASER_ICON[w.id];
+    // The briefing card has an overdue task, so it reads as At Risk: amber
+    // stripe/icon, but the link uses the standard blue link colour.
+    const isBriefing = w.id === 'briefingDigest';
+    const linkColor = isBriefing ? BLUE : accent;
     return (
       <button
         type="button"
@@ -847,13 +851,49 @@ export default function GMHome() {
           <div style={{ fontSize: 15, fontWeight: 700, color: NAVY, margin: '2px 0 3px', lineHeight: 1.3 }}>
             {w.teaser.headline}
           </div>
-          <p style={{ margin: 0, fontSize: 13, color: NAVY_70, lineHeight: 1.5 }}>{w.teaser.body}</p>
+          {isBriefing ? briefingTiers() : (
+            <p style={{ margin: 0, fontSize: 13, color: NAVY_70, lineHeight: 1.5 }}>{w.teaser.body}</p>
+          )}
         </div>
-        <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4, color: accent, fontSize: 13, fontWeight: 700, flexShrink: 0 }}>
+        <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4, color: linkColor, fontSize: 13, fontWeight: 700, flexShrink: 0 }}>
           {w.teaser.cta}
           <ArrowRight size={14} strokeWidth={2.5} />
         </span>
       </button>
+    );
+  }
+
+  // Two labelled tiers for the Morning Briefing card. Both Germany numbers are
+  // sourced from the shared cohort values, not typed into this component:
+  //   followup rate  → marketPerformanceContext['de'].postTrainingFollowUpRatePct
+  //   below-cadence  → executionSignals['trained-not-visited'] DE breakdown
+  function briefingTiers(): ReactNode {
+    const germanyFollowupPct =
+      marketPerformanceContext.find((c) => c.marketId === 'de')?.performanceInContext
+        .postTrainingFollowUpRatePct;
+    const germanyBelowCadence = executionSignals
+      .find((s) => s.id === 'trained-not-visited')
+      ?.marketBreakdown.find((b) => b.marketId === 'de')?.count;
+    const tierLabel: CSSProperties = {
+      fontSize: 10,
+      fontWeight: 800,
+      letterSpacing: '0.07em',
+      textTransform: 'uppercase',
+      color: NAVY_55,
+      margin: '6px 0 2px',
+    };
+    const tierBody: CSSProperties = { margin: 0, fontSize: 13, color: NAVY_70, lineHeight: 1.5 };
+    return (
+      <div>
+        <div style={tierLabel}>Signals</div>
+        <p style={tierBody}>
+          Germany follow-up slipped to {germanyFollowupPct}%. {germanyBelowCadence} injectors below cadence in Germany.
+        </p>
+        <div style={tierLabel}>Assigned tasks</div>
+        <p style={tierBody}>
+          Injector follow-up list overdue 2 days. Austria post-training log due this week.
+        </p>
+      </div>
     );
   }
 

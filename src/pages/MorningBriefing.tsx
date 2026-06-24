@@ -273,7 +273,7 @@ export default function MorningBriefing() {
     marketAndBrand: 'Germany · Xeomin',
     evidenceUsed: [
       'Germany 60-day follow-up 44% vs the agreed 65% cadence',
-      '52 high-potential injectors below cadence (of 71 across DACH)',
+      '52 high-potential injectors below cadence in Germany (of 71 across DACH: Germany 52, Austria 14, Switzerland 5)',
     ],
     assumptions: [
       'High-potential trained injector list confirmed by Germany commercial operations',
