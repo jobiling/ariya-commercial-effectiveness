@@ -195,10 +195,7 @@ export function Sidebar() {
     <aside style={sidebarStyle}>
       <div style={brandWrapStyle}>
         <img src="/ariya-logo.png" alt="Ariya by phamax" style={brandImgStyle} />
-        <div style={brandSubtitleStyle}>
-          <span style={{ color: '#fff', fontWeight: 700 }}>Compass</span>
-          <span style={{ opacity: 0.6 }}> · Commercial Effectiveness</span>
-        </div>
+        <div style={brandSubtitleStyle}>Commercial Effectiveness</div>
       </div>
 
       <nav style={navStyle}>
