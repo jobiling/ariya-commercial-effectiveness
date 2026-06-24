@@ -140,13 +140,13 @@ export default function TrainingToSales() {
   return (
     <div style={pageStyle}>
       <PageHeader
-        title="Training-to-Sales Signal"
+        title="Training Activation Signal"
         subtitle="Do trained injector cohorts show a different later order pattern, directionally?"
       />
 
       <AriyaNote
         eyebrow="How to read this page"
-        body="This is a training-to-sales signal, allocated to cohorts by territory catchment. It is directional management insight, not individual-HCP attribution and not a causal claim."
+        body="This is a training activation signal, allocated to cohorts by territory catchment. It is directional management insight, not individual-HCP attribution and not a causal claim."
       />
 
       <section style={cardStyle}>

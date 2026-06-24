@@ -39,7 +39,7 @@ const CE_NAV_GROUPS = [
     items: [
       { to: '/execution-signals', label: 'Veeva Execution Screening', icon: Activity },
       { to: '/customer-account-focus', label: 'Customer and Account Focus', icon: Users },
-      { to: '/training-to-sales', label: 'Training-to-Sales Signal', icon: LineChart },
+      { to: '/training-to-sales', label: 'Training Activation Signal', icon: LineChart },
     ],
   },
   {
@@ -195,7 +195,10 @@ export function Sidebar() {
     <aside style={sidebarStyle}>
       <div style={brandWrapStyle}>
         <img src="/ariya-logo.png" alt="Ariya by phamax" style={brandImgStyle} />
-        <div style={brandSubtitleStyle}>Commercial Effectiveness</div>
+        <div style={brandSubtitleStyle}>
+          <span style={{ color: '#fff', fontWeight: 700 }}>Compass</span>
+          <span style={{ opacity: 0.6 }}> · Commercial Effectiveness</span>
+        </div>
       </div>
 
       <nav style={navStyle}>

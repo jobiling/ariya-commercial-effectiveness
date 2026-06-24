@@ -1997,13 +1997,13 @@ export const gmHome = {
     },
     {
       id: 'trainingToSalesTeaser', group: 'Teaser',
-      title: 'Training-to-Sales Signal',
-      description: 'Directional cohort signal from trained injectors to later orders.',
+      title: 'Training Activation Signal',
+      description: 'Directional cohort signal from trained injectors to later activation.',
       teaser: {
-        eyebrow: 'Training-to-Sales Signal',
+        eyebrow: 'Training Activation Signal',
         headline: 'Followed-up cohort is pulling ahead',
         body: 'Germany trained-and-followed-up injectors index +8 at month 6 vs +1 for the under-followed cohort. Directional.',
-        cta: 'Open Training-to-Sales',
+        cta: 'Open Training Activation',
         to: '/training-to-sales',
         accent: 'blue',
       },

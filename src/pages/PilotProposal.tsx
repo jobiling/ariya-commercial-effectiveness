@@ -284,7 +284,7 @@ const OUTPUTS = [
 const TRUST_POINTS = [
   {
     label: 'We work with extracts, not full integration',
-    body: 'Selected data extracts mean you can start now rather than wait on a complete CRM and finance integration. The pilot proves the model on what is already accessible.',
+    body: 'Selected data extracts mean you can start now rather than wait on a complete CRM and finance integration. The pilot demonstrates the model on what is already accessible.',
   },
   {
     label: 'Proxy KPIs, with caveats surfaced',

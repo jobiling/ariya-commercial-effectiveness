@@ -364,7 +364,7 @@ function matchQuestion(input: string): AriyaExchange | undefined {
       phrases: [
         '60-day', '60 day', 'sixty day', 'checkpoint',
         'germany sprint', 'follow-up sprint', 'follow up sprint',
-        'black box', 'training black box',
+        'how was this assembled', 'trace the inputs',
       ],
     },
   ];
@@ -547,7 +547,7 @@ export default function AskAriya() {
     <div style={pageStyle}>
       <PageHeader
         title="Ask Ariya"
-        subtitle="Ariya assembles Veeva activity, training, segmentation, sales signals, plan data, and brand-plan context into one decision. Ask what's inside the black box."
+        subtitle="Ariya assembles Veeva activity, training, segmentation, sales signals, plan data, and brand-plan context into a recommendation you own. Ask how any recommendation was assembled, and trace every input."
       />
 
       {/* Top input card */}
