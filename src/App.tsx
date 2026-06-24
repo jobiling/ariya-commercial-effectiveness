@@ -1,5 +1,6 @@
-import type { CSSProperties } from 'react';
+import { useState, type CSSProperties } from 'react';
 import { Route, Routes } from 'react-router-dom';
+import { PasswordGate, isAuthed } from './components/auth/PasswordGate';
 import { Header } from './components/layout/Header';
 import { ScrollToTop } from './components/layout/ScrollToTop';
 import { Sidebar } from './components/layout/Sidebar';
@@ -57,6 +58,12 @@ const illustrativeBannerStyle: CSSProperties = {
 };
 
 export default function App() {
+  const [unlocked, setUnlocked] = useState(isAuthed);
+
+  if (!unlocked) {
+    return <PasswordGate onUnlock={() => setUnlocked(true)} />;
+  }
+
   return (
     <DemoModeProvider>
       <DecisionLogProvider>
