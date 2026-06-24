@@ -875,10 +875,10 @@ export const hcpSegments: HcpSegment[] = [
     suggestedAction: 'Deprioritise for now. Revisit selection criteria.' },
 
   { id: 'ch-derm-high', marketId: 'ch', name: 'Xeomin injectors, high potential', potentialTier: 'High',
-    count: 84, trainedPct: 67, followedUpWithin60dPct: 73, growthVsLyPct: 4.6,
+    count: 84, trainedPct: 67, followedUpWithin60dPct: 66, growthVsLyPct: 4.6,
     suggestedAction: 'Sustain momentum, monitor as training scales.' },
   { id: 'ch-plastic-high', marketId: 'ch', name: 'Plastic surgery injectors, high potential', potentialTier: 'High',
-    count: 48, trainedPct: 62, followedUpWithin60dPct: 71, growthVsLyPct: 3.1,
+    count: 48, trainedPct: 62, followedUpWithin60dPct: 60, growthVsLyPct: 3.1,
     suggestedAction: 'Maintain current cadence.' },
 
   { id: 'at-derm-high', marketId: 'at', name: 'Xeomin injectors, high potential', potentialTier: 'High',
